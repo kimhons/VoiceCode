@@ -1,0 +1,207 @@
+{
+  "name": "voicecode-vscode",
+  "displayName": "VoiceCode - Voice Coding Assistant",
+  "description": "Voice-controlled coding assistant with natural language commands, code generation, and voice dictation for VS Code",
+  "version": "1.0.0",
+  "publisher": "voicecode",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "voice",
+    "dictation",
+    "coding",
+    "ai",
+    "speech-to-text",
+    "voice commands",
+    "accessibility"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "icon": "media/icon.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "voicecode.startDictation",
+        "title": "VoiceCode: Start Voice Dictation",
+        "icon": "$(unmute)"
+      },
+      {
+        "command": "voicecode.stopDictation",
+        "title": "VoiceCode: Stop Voice Dictation",
+        "icon": "$(mute)"
+      },
+      {
+        "command": "voicecode.toggleDictation",
+        "title": "VoiceCode: Toggle Voice Dictation",
+        "icon": "$(mic)"
+      },
+      {
+        "command": "voicecode.executeVoiceCommand",
+        "title": "VoiceCode: Execute Voice Command"
+      },
+      {
+        "command": "voicecode.openSettings",
+        "title": "VoiceCode: Open Settings"
+      },
+      {
+        "command": "voicecode.showStatus",
+        "title": "VoiceCode: Show Status"
+      },
+      {
+        "command": "voicecode.generateCode",
+        "title": "VoiceCode: Generate Code from Voice"
+      },
+      {
+        "command": "voicecode.explainCode",
+        "title": "VoiceCode: Explain Selected Code"
+      },
+      {
+        "command": "voicecode.refactorCode",
+        "title": "VoiceCode: Refactor Selected Code"
+      },
+      {
+        "command": "voicecode.addToCustomDictionary",
+        "title": "VoiceCode: Add Word to Custom Dictionary"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "voicecode.toggleDictation",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "voicecode.executeVoiceCommand",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "voicecode.explainCode",
+          "group": "voicecode@1",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "voicecode.refactorCode",
+          "group": "voicecode@2",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "voicecode.addToCustomDictionary",
+          "group": "voicecode@3",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "VoiceCode",
+      "properties": {
+        "voicecode.apiEndpoint": {
+          "type": "string",
+          "default": "http://localhost:3847",
+          "description": "VoiceCode desktop app API endpoint"
+        },
+        "voicecode.language": {
+          "type": "string",
+          "default": "en-US",
+          "description": "Speech recognition language"
+        },
+        "voicecode.autoStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically start dictation when VS Code opens"
+        },
+        "voicecode.streamingMode": {
+          "type": "string",
+          "default": "hybrid",
+          "enum": ["instant", "enhanced", "hybrid"],
+          "description": "Streaming mode: instant (450ms), enhanced (850ms), or hybrid"
+        },
+        "voicecode.codeVocabulary": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable code-optimized vocabulary"
+        },
+        "voicecode.naturalLanguageCommands": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable natural language editing commands"
+        },
+        "voicecode.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show VoiceCode status in status bar"
+        },
+        "voicecode.insertionDelay": {
+          "type": "number",
+          "default": 100,
+          "description": "Delay in ms before inserting transcribed text"
+        },
+        "voicecode.punctuationMode": {
+          "type": "string",
+          "default": "smart",
+          "enum": ["none", "basic", "smart"],
+          "description": "Punctuation insertion mode"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "voicecode-sidebar",
+          "title": "VoiceCode",
+          "icon": "media/microphone.svg"
+        }
+      ]
+    },
+    "views": {
+      "voicecode-sidebar": [
+        {
+          "id": "voicecode.status",
+          "name": "Status"
+        },
+        {
+          "id": "voicecode.history",
+          "name": "Dictation History"
+        },
+        {
+          "id": "voicecode.commands",
+          "name": "Voice Commands"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.55.0",
+    "typescript": "^5.3.2",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  }
+}

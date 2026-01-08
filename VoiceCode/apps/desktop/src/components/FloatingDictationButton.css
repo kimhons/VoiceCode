@@ -1,0 +1,312 @@
+/* Floating Dictation Button Styles */
+
+.floating-dictation-button {
+  position: fixed;
+  z-index: 9999;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0078D4 0%, #005A9E 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.floating-dictation-button:hover {
+  background: linear-gradient(135deg, #005A9E 0%, #004578 100%);
+  box-shadow: 0 6px 16px rgba(0, 120, 212, 0.5);
+  transform: scale(1.05);
+}
+
+.floating-dictation-button:active {
+  transform: scale(0.95);
+}
+
+.floating-dictation-button.dragging {
+  cursor: grabbing !important;
+  opacity: 0.8;
+  box-shadow: 0 8px 20px rgba(0, 120, 212, 0.6);
+}
+
+/* Recording state */
+.floating-dictation-button.recording {
+  background: linear-gradient(135deg, #D83B01 0%, #A52A00 100%);
+  box-shadow: 0 4px 12px rgba(216, 59, 1, 0.4);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.floating-dictation-button.recording:hover {
+  background: linear-gradient(135deg, #A52A00 0%, #7A1F00 100%);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(216, 59, 1, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(216, 59, 1, 0.7);
+  }
+}
+
+/* Pulse ring animation */
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #D83B01;
+  animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Microphone icon */
+.mic-icon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Recording timer */
+.recording-timer {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Keyboard hint */
+.keyboard-hint {
+  position: fixed;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+.floating-dictation-button:hover + .keyboard-hint {
+  opacity: 1;
+}
+
+/* Voice command menu */
+.voice-command-menu {
+  position: fixed;
+  z-index: 10000;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  min-width: 180px;
+  animation: menu-slide-up 0.2s ease-out;
+}
+
+@keyframes menu-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-header {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 4px;
+}
+
+.menu-item {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.menu-item:hover {
+  background: #f5f5f5;
+}
+
+.menu-item:active {
+  background: #e0e0e0;
+}
+
+.menu-item.close {
+  color: #D83B01;
+  font-weight: 600;
+  margin-top: 4px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Size variants */
+.floating-dictation-button.size-small {
+  width: 40px;
+  height: 40px;
+}
+
+.floating-dictation-button.size-medium {
+  width: 48px;
+  height: 48px;
+}
+
+.floating-dictation-button.size-large {
+  width: 56px;
+  height: 56px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .floating-dictation-button {
+    border: 3px solid white;
+  }
+  
+  .floating-dictation-button.recording {
+    border: 3px solid #FFD700;
+  }
+  
+  .voice-command-menu {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .floating-dictation-button,
+  .pulse-ring,
+  .recording-timer,
+  .keyboard-hint,
+  .voice-command-menu {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .floating-dictation-button:hover {
+    transform: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.floating-dictation-button:focus {
+  outline: 3px solid #0078D4;
+  outline-offset: 2px;
+}
+
+.floating-dictation-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Error state */
+.floating-dictation-button.error {
+  background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+  border-color: #FFD700;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Paused state */
+.floating-dictation-button.paused {
+  background: linear-gradient(135deg, #95A5A6 0%, #7F8C8D 100%);
+  opacity: 0.7;
+}
+
+.floating-dictation-button.paused::after {
+  content: 'Paused';
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Tooltip on hover */
+.floating-dictation-button::before {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.floating-dictation-button:hover::before {
+  opacity: 1;
+}
+

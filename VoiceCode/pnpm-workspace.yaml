@@ -1,0 +1,10 @@
+packages:
+  # Applications
+  - 'apps/*'
+  
+  # Services (Node.js only)
+  - 'services/voice-engine'
+  
+  # Shared packages
+  - 'packages/*'
+

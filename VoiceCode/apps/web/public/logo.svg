@@ -1,0 +1,36 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="#667eea"/>
+  
+  <!-- Microphone Icon -->
+  <g transform="translate(156, 120)">
+    <!-- Microphone Body -->
+    <rect x="75" y="40" width="50" height="100" rx="25" fill="white"/>
+    
+    <!-- Microphone Stand -->
+    <path d="M 100 140 L 100 180 M 70 180 L 130 180" stroke="white" stroke-width="8" stroke-linecap="round"/>
+    
+    <!-- Sound Waves (Left) -->
+    <path d="M 40 80 Q 30 100 40 120" stroke="white" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M 20 70 Q 5 100 20 130" stroke="white" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+    
+    <!-- Sound Waves (Right) -->
+    <path d="M 160 80 Q 170 100 160 120" stroke="white" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M 180 70 Q 195 100 180 130" stroke="white" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+  </g>
+  
+  <!-- Code Brackets -->
+  <g transform="translate(0, 280)">
+    <!-- Left Bracket -->
+    <path d="M 140 0 L 120 0 L 120 60 L 140 60" stroke="white" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.9"/>
+    
+    <!-- Right Bracket -->
+    <path d="M 372 0 L 392 0 L 392 60 L 372 60" stroke="white" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.9"/>
+    
+    <!-- Code Dots -->
+    <circle cx="200" cy="30" r="6" fill="white" opacity="0.9"/>
+    <circle cx="256" cy="30" r="6" fill="white" opacity="0.9"/>
+    <circle cx="312" cy="30" r="6" fill="white" opacity="0.9"/>
+  </g>
+</svg>
+

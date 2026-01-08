@@ -1,0 +1,29 @@
+{
+  "name": "voicecode-demo-project",
+  "version": "1.0.0",
+  "description": "Demo project for VoiceCode extension screenshots",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "voicecode",
+    "demo",
+    "typescript",
+    "react"
+  ],
+  "author": "VoiceCode Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0"
+  },
+  "dependencies": {
+    "react": "^18.0.0"
+  }
+}
+

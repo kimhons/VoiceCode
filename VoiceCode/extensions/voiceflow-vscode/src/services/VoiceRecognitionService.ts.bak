@@ -1,0 +1,105 @@
+/**
+ * Voice Recognition Service
+ * Handles voice input and converts it to text using Whisper.js or Web Speech API
+ */
+
+import * as vscode from 'vscode';
+import { EventEmitter } from 'eventemitter3';
+import type { WhisperModelManager } from './WhisperModelManager';
+
+export interface TranscriptionResult {
+  text: string;
+  confidence: number;
+  duration: number;
+  language?: string;
+}
+
+export interface VoiceRecognitionOptions {
+  language?: string;
+  continuous?: boolean;
+  interimResults?: boolean;
+  maxAlternatives?: number;
+}
+
+export class VoiceRecognitionService extends EventEmitter {
+  private isListening = false;
+  private whisperManager?: WhisperModelManager;
+  private config: vscode.WorkspaceConfiguration;
+
+  constructor() {
+    super();
+    this.config = vscode.workspace.getConfiguration('voiceflow');
+  }
+
+  /**
+   * Start listening for voice input
+   */
+  async startListening(options?: VoiceRecognitionOptions): Promise<void> {
+    if (this.isListening) {
+      console.warn('[VoiceRecognition] Already listening');
+      return;
+    }
+
+    this.isListening = true;
+    this.emit('listening-started');
+
+    console.log('[VoiceRecognition] Started listening');
+  }
+
+  /**
+   * Stop listening
+   */
+  async stopListening(): Promise<void> {
+    if (!this.isListening) {
+      return;
+    }
+
+    this.isListening = false;
+    this.emit('listening-stopped');
+
+    console.log('[VoiceRecognition] Stopped listening');
+  }
+
+  /**
+   * Toggle listening state
+   */
+  async toggleListening(): Promise<void> {
+    if (this.isListening) {
+      await this.stopListening();
+    } else {
+      await this.startListening();
+    }
+  }
+
+  /**
+   * Get current listening state
+   */
+  getIsListening(): boolean {
+    return this.isListening;
+  }
+
+  /**
+   * Transcribe audio buffer
+   */
+  async transcribe(audioBuffer: Float32Array): Promise<TranscriptionResult> {
+    const start = Date.now();
+
+    // Stub implementation - would integrate with WhisperModelManager
+    const text = 'Sample transcription';
+
+    return {
+      text,
+      confidence: 0.95,
+      duration: Date.now() - start,
+      language: this.config.get<string>('language', 'en-US'),
+    };
+  }
+
+  /**
+   * Dispose of resources
+   */
+  dispose(): void {
+    this.stopListening();
+    this.removeAllListeners();
+  }
+}
