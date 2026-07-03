@@ -310,7 +310,10 @@ export function ExportOptionsScreen({ route, navigation }: Props) {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      testID="export-options-screen"
+    >
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Header with Actions */}
         <View style={styles.header}>
@@ -331,10 +334,18 @@ export function ExportOptionsScreen({ route, navigation }: Props) {
             </Text>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity onPress={handleShowHistory} style={styles.headerButton}>
+            <TouchableOpacity
+              onPress={handleShowHistory}
+              style={styles.headerButton}
+              testID="export-history-button"
+            >
               <Ionicons name="time-outline" size={24} color={theme.colors.primary} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleShowAnalytics} style={styles.headerButton}>
+            <TouchableOpacity
+              onPress={handleShowAnalytics}
+              style={styles.headerButton}
+              testID="export-analytics-button"
+            >
               <Ionicons name="stats-chart-outline" size={24} color={theme.colors.primary} />
             </TouchableOpacity>
           </View>
@@ -374,6 +385,7 @@ export function ExportOptionsScreen({ route, navigation }: Props) {
         <View style={styles.quickActions}>
           <TouchableOpacity
             style={[styles.quickActionButton, { backgroundColor: theme.colors.surface }]}
+            testID="batch-export-button"
             onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               navigation.navigate('BatchExport');
@@ -386,6 +398,7 @@ export function ExportOptionsScreen({ route, navigation }: Props) {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.quickActionButton, { backgroundColor: theme.colors.surface }]}
+            testID="custom-template-button"
             onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               navigation.navigate('TemplateSelection', {

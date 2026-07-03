@@ -241,7 +241,7 @@ const RecordingScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View testID="recording-screen" style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
@@ -269,12 +269,12 @@ const RecordingScreen: React.FC = () => {
             },
           ]}
         >
-          <Text style={[styles.durationText, { color: theme.colors.primary }]}>
+          <Text testID="recording-timer" style={[styles.durationText, { color: theme.colors.primary }]}>
             {recordingStatus !== RecordingStatus.IDLE ? formatDuration(duration) : 'Ready'}
           </Text>
 
           {/* Real-time Audio Waveform */}
-          <View style={styles.waveformVisualization}>
+          <View testID="audio-waveform" style={styles.waveformVisualization}>
             <AudioWaveform
               audioLevel={audioLevel}
               isActive={recordingStatus === RecordingStatus.RECORDING}
@@ -291,6 +291,7 @@ const RecordingScreen: React.FC = () => {
         <View style={styles.controlsRow}>
           {recordingStatus !== RecordingStatus.IDLE && (
             <TouchableOpacity
+              testID="pause-button"
               style={[
                 styles.secondaryButton,
                 {
@@ -315,6 +316,7 @@ const RecordingScreen: React.FC = () => {
           {/* Main Record/Stop Button */}
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <TouchableOpacity
+              testID="record-button"
               style={[
                 styles.recordButton,
                 {

@@ -1,9 +1,17 @@
 // VoiceCode Mobile - Onboarding Screen
 
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, ViewToken } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  ViewToken,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RootStackParamList } from '../../navigation/types';
@@ -11,6 +19,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { Text, Button } from '../../components/common';
 
 type OnboardingNavigationProp = StackNavigationProp<RootStackParamList, 'Onboarding'>;
+
+// React Navigation passes `navigation` as a prop to screens registered via
+// `component={...}`. The prop is preferred; the hook is a fallback for standalone use.
+type OnboardingScreenProps = Partial<StackScreenProps<RootStackParamList, 'Onboarding'>>;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -54,9 +66,12 @@ const slides: OnboardingSlide[] = [
   },
 ];
 
-export const OnboardingScreen: React.FC = () => {
+export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
+  navigation: navigationProp,
+}) => {
   const { theme } = useTheme();
-  const navigation = useNavigation<OnboardingNavigationProp>();
+  const hookNavigation = useNavigation<OnboardingNavigationProp>();
+  const navigation = navigationProp ?? hookNavigation;
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -72,14 +87,29 @@ export const OnboardingScreen: React.FC = () => {
 
   const handleNext = () => {
     if (currentIndex < slides.length - 1) {
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
       flatListRef.current?.scrollToIndex({
-        index: currentIndex + 1,
+        index: nextIndex,
         animated: true,
       });
     } else {
       handleGetStarted();
     }
   };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+    if (index !== currentIndex && index >= 0 && index < slides.length) {
+      setCurrentIndex(index);
+    }
+  };
+
+  const getItemLayout = (_data: ArrayLike<OnboardingSlide> | null | undefined, index: number) => ({
+    length: SCREEN_WIDTH,
+    offset: SCREEN_WIDTH * index,
+    index,
+  });
 
   const handleSkip = () => {
     handleGetStarted();
@@ -90,10 +120,10 @@ export const OnboardingScreen: React.FC = () => {
     navigation.navigate('Permissions');
   };
 
-  const renderSlide = ({ item }: { item: OnboardingSlide }) => (
+  const renderSlide = ({ item, index }: { item: OnboardingSlide; index: number }) => (
     <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
       <View style={styles.content}>
-        <View style={styles.iconContainer}>
+        <View style={styles.iconContainer} testID={`slide-${index + 1}-image`}>
           <LinearGradient
             colors={item.gradientColors}
             start={{ x: 0, y: 0 }}
@@ -123,6 +153,8 @@ export const OnboardingScreen: React.FC = () => {
       {slides.map((_, index) => (
         <View
           key={index}
+          testID={`pagination-dot-${index}`}
+          accessibilityState={{ selected: index === currentIndex }}
           style={[
             styles.dot,
             {
@@ -140,6 +172,7 @@ export const OnboardingScreen: React.FC = () => {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <FlatList
+        testID="onboarding-slider"
         ref={flatListRef}
         data={slides}
         renderItem={renderSlide}
@@ -149,6 +182,9 @@ export const OnboardingScreen: React.FC = () => {
         showsHorizontalScrollIndicator={false}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        getItemLayout={getItemLayout}
         bounces={false}
       />
 
@@ -156,7 +192,13 @@ export const OnboardingScreen: React.FC = () => {
 
       <View style={styles.footer}>
         {!isLastSlide && (
-          <Button variant="ghost" onPress={handleSkip} style={styles.skipButton}>
+          <Button
+            variant="ghost"
+            onPress={handleSkip}
+            style={styles.skipButton}
+            testID="skip-button"
+            accessibilityLabel="Skip onboarding"
+          >
             Skip
           </Button>
         )}
@@ -166,6 +208,8 @@ export const OnboardingScreen: React.FC = () => {
           onPress={handleNext}
           fullWidth={isLastSlide}
           style={styles.nextButton}
+          testID={isLastSlide ? 'get-started-button' : 'next-button'}
+          accessibilityLabel={isLastSlide ? 'Get started' : 'Next slide'}
         >
           {isLastSlide ? 'Get Started' : 'Next'}
         </Button>

@@ -2,19 +2,20 @@
 
 import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { fireEvent, waitFor } from '@testing-library/react-native';
-import { renderWithProviders } from '../setup/testUtils';
+import { fireEvent } from '@testing-library/react-native';
+import { renderWithProviders, createMockNavigation } from '../setup/testUtils';
+import { BatchExportScreen } from '../../screens/export/BatchExportScreen';
+
+type ScreenProps = React.ComponentProps<typeof BatchExportScreen>;
+
+const navigation = createMockNavigation() as unknown as ScreenProps['navigation'];
+const route = {
+  key: 'BatchExport',
+  name: 'BatchExport',
+  params: { transcriptIds: ['1', '2', '3'] },
+} as unknown as ScreenProps['route'];
 
 describe('BatchExportScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  };
-
-  const mockRoute = {
-    params: { transcriptIds: ['1', '2', '3'] },
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -22,7 +23,7 @@ describe('BatchExportScreen', () => {
   describe('Rendering', () => {
     it('should render batch export screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       expect(getByTestId('batch-export-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('BatchExportScreen', () => {
 
     it('should display selected count', () => {
       const { getByText } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       expect(getByText(/3 transcripts/i)).toBeTruthy();
@@ -40,7 +41,7 @@ describe('BatchExportScreen', () => {
   describe('Format Selection', () => {
     it('should select export format', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       fireEvent.press(getByTestId('format-pdf'));
@@ -48,7 +49,7 @@ describe('BatchExportScreen', () => {
 
     it('should select combined or individual', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       fireEvent.press(getByTestId('individual-files'));
@@ -58,7 +59,7 @@ describe('BatchExportScreen', () => {
   describe('Export Progress', () => {
     it('should show progress during export', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       fireEvent.press(getByTestId('start-export'));
@@ -69,7 +70,7 @@ describe('BatchExportScreen', () => {
 
     it('should show completion message', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       fireEvent.press(getByTestId('start-export'));
@@ -82,7 +83,7 @@ describe('BatchExportScreen', () => {
   describe('Cancel', () => {
     it('should cancel export', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       fireEvent.press(getByTestId('start-export'));
@@ -93,7 +94,7 @@ describe('BatchExportScreen', () => {
   describe('Download', () => {
     it('should download exported zip', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockBatchExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <BatchExportScreen navigation={navigation} route={route} />
       );
 
       fireEvent.press(getByTestId('download-button'));
@@ -103,8 +104,3 @@ describe('BatchExportScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockBatchExportScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

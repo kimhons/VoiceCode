@@ -2,11 +2,18 @@
 
 import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
-import { supabase } from '../../services/supabaseService';
+import ForgotPasswordScreen from '../../screens/auth/ForgotPasswordScreen';
 
-jest.mock('../../services/supabaseService');
+const mockResetPassword = jest.fn();
+
+// The screen resolves resetPassword via useAuth(); mock the context it actually
+// consumes (AuthProvider stays a passthrough so renderWithProviders still works).
+jest.mock('../../contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuth: () => ({ resetPassword: mockResetPassword }),
+}));
 
 describe('ForgotPasswordScreen', () => {
   const mockNavigation = {
@@ -21,7 +28,7 @@ describe('ForgotPasswordScreen', () => {
   describe('Rendering', () => {
     it('should render forgot password screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('forgot-password-screen')).toBeTruthy();
@@ -29,7 +36,7 @@ describe('ForgotPasswordScreen', () => {
 
     it('should display email input', () => {
       const { getByTestId } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('email-input')).toBeTruthy();
@@ -37,7 +44,7 @@ describe('ForgotPasswordScreen', () => {
 
     it('should display reset button', () => {
       const { getByTestId } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('reset-button')).toBeTruthy();
@@ -47,7 +54,7 @@ describe('ForgotPasswordScreen', () => {
   describe('Validation', () => {
     it('should validate empty email', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('reset-button'));
@@ -58,7 +65,7 @@ describe('ForgotPasswordScreen', () => {
 
     it('should validate email format', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('email-input'), 'invalid-email');
@@ -71,12 +78,10 @@ describe('ForgotPasswordScreen', () => {
 
   describe('Reset Flow', () => {
     it('should send reset email successfully', async () => {
-      (supabase.auth.resetPasswordForEmail as jest.Mock).mockResolvedValue({
-        error: null,
-      });
+      mockResetPassword.mockResolvedValue(undefined);
 
       const { getByTestId, findByText } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('email-input'), 'test@example.com');
@@ -87,12 +92,10 @@ describe('ForgotPasswordScreen', () => {
     });
 
     it('should handle unknown email', async () => {
-      (supabase.auth.resetPasswordForEmail as jest.Mock).mockResolvedValue({
-        error: { message: 'User not found' },
-      });
+      mockResetPassword.mockRejectedValue(new Error('User not found'));
 
       const { getByTestId, findByText } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('email-input'), 'unknown@example.com');
@@ -106,7 +109,7 @@ describe('ForgotPasswordScreen', () => {
   describe('Navigation', () => {
     it('should navigate back to login', () => {
       const { getByText } = renderWithProviders(
-        <MockForgotPasswordScreen navigation={mockNavigation as any} />
+        <ForgotPasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/back to login/i));
@@ -115,8 +118,3 @@ describe('ForgotPasswordScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockForgotPasswordScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

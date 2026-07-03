@@ -4,66 +4,52 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import KeyboardShortcutsScreen from '../../screens/accessibility/KeyboardShortcutsScreen';
 
 describe('KeyboardShortcutsScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('Rendering', () => {
     it('should render keyboard shortcuts screen', () => {
-      const { getByTestId } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId } = renderWithProviders(<KeyboardShortcutsScreen />);
 
       expect(getByTestId('keyboard-shortcuts-screen')).toBeTruthy();
     });
 
     it('should display shortcuts list', () => {
-      const { getByTestId } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId } = renderWithProviders(<KeyboardShortcutsScreen />);
 
       expect(getByTestId('shortcuts-list')).toBeTruthy();
     });
   });
 
   describe('Shortcut Categories', () => {
+    // Each category label renders in both the filter chip row and as a section
+    // heading, so assert on all matches rather than a single one.
     it('should display playback shortcuts', () => {
-      const { getByText } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getAllByText } = renderWithProviders(<KeyboardShortcutsScreen />);
 
-      expect(getByText(/playback/i)).toBeTruthy();
+      expect(getAllByText(/playback/i).length).toBeGreaterThan(0);
     });
 
     it('should display editing shortcuts', () => {
-      const { getByText } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getAllByText } = renderWithProviders(<KeyboardShortcutsScreen />);
 
-      expect(getByText(/editing/i)).toBeTruthy();
+      expect(getAllByText(/editing/i).length).toBeGreaterThan(0);
     });
 
     it('should display navigation shortcuts', () => {
-      const { getByText } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getAllByText } = renderWithProviders(<KeyboardShortcutsScreen />);
 
-      expect(getByText(/navigation/i)).toBeTruthy();
+      expect(getAllByText(/navigation/i).length).toBeGreaterThan(0);
     });
   });
 
   describe('Customize Shortcut', () => {
     it('should open customize modal', async () => {
-      const { getByTestId, findByTestId } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId, findByTestId } = renderWithProviders(<KeyboardShortcutsScreen />);
 
       fireEvent.press(getByTestId('shortcut-1'));
 
@@ -72,9 +58,7 @@ describe('KeyboardShortcutsScreen', () => {
     });
 
     it('should save custom shortcut', async () => {
-      const { getByTestId, findByText } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId, findByText } = renderWithProviders(<KeyboardShortcutsScreen />);
 
       fireEvent.press(getByTestId('shortcut-1'));
       fireEvent.press(getByTestId('save-shortcut'));
@@ -86,9 +70,7 @@ describe('KeyboardShortcutsScreen', () => {
 
   describe('Reset', () => {
     it('should reset to defaults', async () => {
-      const { getByTestId, findByText } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId, findByText } = renderWithProviders(<KeyboardShortcutsScreen />);
 
       fireEvent.press(getByTestId('reset-shortcuts'));
 
@@ -99,9 +81,7 @@ describe('KeyboardShortcutsScreen', () => {
 
   describe('Search', () => {
     it('should search shortcuts', async () => {
-      const { getByTestId, findByTestId } = renderWithProviders(
-        <MockKeyboardShortcutsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId, findByTestId } = renderWithProviders(<KeyboardShortcutsScreen />);
 
       fireEvent.changeText(getByTestId('search-input'), 'play');
 
@@ -110,8 +90,3 @@ describe('KeyboardShortcutsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockKeyboardShortcutsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

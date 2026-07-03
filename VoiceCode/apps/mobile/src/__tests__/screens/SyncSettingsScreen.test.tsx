@@ -2,32 +2,24 @@
 
 import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import { SyncSettingsScreen } from '../../screens/settings/SyncSettingsScreen';
 
 describe('SyncSettingsScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('Rendering', () => {
     it('should render sync settings', () => {
-      const { getByTestId } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId } = renderWithProviders(<SyncSettingsScreen />);
 
       expect(getByTestId('sync-settings-screen')).toBeTruthy();
     });
 
     it('should display sync status', () => {
-      const { getByTestId } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId } = renderWithProviders(<SyncSettingsScreen />);
 
       expect(getByTestId('sync-status')).toBeTruthy();
     });
@@ -35,9 +27,7 @@ describe('SyncSettingsScreen', () => {
 
   describe('Auto Sync', () => {
     it('should toggle auto sync', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId } = renderWithProviders(<SyncSettingsScreen />);
 
       fireEvent(getByTestId('auto-sync-toggle'), 'valueChange', true);
     });
@@ -45,9 +35,7 @@ describe('SyncSettingsScreen', () => {
 
   describe('WiFi Only', () => {
     it('should toggle WiFi only sync', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId } = renderWithProviders(<SyncSettingsScreen />);
 
       fireEvent(getByTestId('wifi-only-toggle'), 'valueChange', true);
     });
@@ -55,9 +43,7 @@ describe('SyncSettingsScreen', () => {
 
   describe('Manual Sync', () => {
     it('should trigger manual sync', async () => {
-      const { getByTestId, findByText } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId, findByText } = renderWithProviders(<SyncSettingsScreen />);
 
       fireEvent.press(getByTestId('sync-now-button'));
 
@@ -68,9 +54,7 @@ describe('SyncSettingsScreen', () => {
 
   describe('Last Sync', () => {
     it('should display last sync time', () => {
-      const { getByText } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByText } = renderWithProviders(<SyncSettingsScreen />);
 
       expect(getByText(/last synced/i)).toBeTruthy();
     });
@@ -78,9 +62,7 @@ describe('SyncSettingsScreen', () => {
 
   describe('Pending Changes', () => {
     it('should display pending changes count', () => {
-      const { getByTestId } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId } = renderWithProviders(<SyncSettingsScreen />);
 
       expect(getByTestId('pending-changes')).toBeTruthy();
     });
@@ -88,9 +70,7 @@ describe('SyncSettingsScreen', () => {
 
   describe('Conflict Resolution', () => {
     it('should set conflict resolution strategy', async () => {
-      const { getByTestId, getByText } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByTestId, getByText } = renderWithProviders(<SyncSettingsScreen />);
 
       fireEvent.press(getByTestId('conflict-strategy-selector'));
       fireEvent.press(getByText(/keep local/i));
@@ -99,16 +79,9 @@ describe('SyncSettingsScreen', () => {
 
   describe('Data Usage', () => {
     it('should display data usage', () => {
-      const { getByText } = renderWithProviders(
-        <MockSyncSettingsScreen navigation={mockNavigation as any} />
-      );
+      const { getByText } = renderWithProviders(<SyncSettingsScreen />);
 
       expect(getByText(/data used/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockSyncSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

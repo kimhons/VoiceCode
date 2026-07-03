@@ -78,6 +78,7 @@ interface MetricCard {
   change: number;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
+  testID: string;
 }
 
 // =====================================================
@@ -390,6 +391,7 @@ export default function AnalyticsScreen() {
         change: calculateChange(dashboardMetrics.thisWeek.transcripts, dashboardMetrics.total.transcripts / 52),
         icon: 'mic',
         color: '#667eea',
+        testID: 'total-transcripts',
       },
       {
         label: 'Recording Time',
@@ -397,6 +399,7 @@ export default function AnalyticsScreen() {
         change: calculateChange(dashboardMetrics.thisWeek.minutes, dashboardMetrics.total.minutes / 52),
         icon: 'time',
         color: '#10b981',
+        testID: 'total-minutes',
       },
       {
         label: 'Exports',
@@ -404,6 +407,7 @@ export default function AnalyticsScreen() {
         change: 12.5,
         icon: 'download',
         color: '#f59e0b',
+        testID: 'total-exports',
       },
       {
         label: 'Accuracy',
@@ -411,6 +415,7 @@ export default function AnalyticsScreen() {
         change: 2.3,
         icon: 'checkmark-circle',
         color: '#8b5cf6',
+        testID: 'average-confidence',
       },
     ];
   };
@@ -579,7 +584,7 @@ export default function AnalyticsScreen() {
   const screenWidth = Dimensions.get('window').width;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View testID="analytics-screen" style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -597,6 +602,7 @@ export default function AnalyticsScreen() {
             Analytics
           </Text>
           <TouchableOpacity
+            testID="export-report"
             style={[styles.exportButton, elevation.sm]}
             onPress={handleShowExport}
             activeOpacity={0.7}
@@ -637,6 +643,7 @@ export default function AnalyticsScreen() {
           {metricCards.map((card, index) => (
             <View
               key={index}
+              testID={card.testID}
               style={[
                 styles.metricCard,
                 { backgroundColor: theme.colors.surface },
@@ -667,7 +674,7 @@ export default function AnalyticsScreen() {
         </View>
 
         {/* Usage Trend Chart */}
-        <View style={[styles.chartContainer, { backgroundColor: theme.colors.surface }, elevation.sm]}>
+        <View testID="usage-chart" style={[styles.chartContainer, { backgroundColor: theme.colors.surface }, elevation.sm]}>
           <View style={styles.chartHeader}>
             <Text style={[styles.chartTitle, { color: theme.colors.textPrimary }]}>
               Usage Trend
@@ -755,7 +762,7 @@ export default function AnalyticsScreen() {
         </View>
 
         {/* Activity Breakdown Pie Chart */}
-        <View style={[styles.chartContainer, { backgroundColor: theme.colors.surface }, elevation.sm]}>
+        <View testID="category-chart" style={[styles.chartContainer, { backgroundColor: theme.colors.surface }, elevation.sm]}>
           <View style={styles.chartHeader}>
             <Text style={[styles.chartTitle, { color: theme.colors.textPrimary }]}>
               Activity Breakdown

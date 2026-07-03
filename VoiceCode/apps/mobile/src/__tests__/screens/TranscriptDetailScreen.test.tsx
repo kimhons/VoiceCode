@@ -1,12 +1,31 @@
 // VoiceCode Mobile - Transcript Detail Screen Tests
+//
+// These tests target the REAL shipping TranscriptDetailScreen — an Otter.ai-style
+// word-level transcript editor with speaker diarization, in-place editing (undo/redo),
+// search, audio playback, and copy/share/delete actions. The original test file in
+// this location asserted a different, never-shipped product (a Supabase-backed detail
+// screen with AI summary/key-point/action-item tabs, favorites, export, and a tags
+// modal). Those features are genuinely absent from the shipping screen, so the suite
+// has been aligned to the screen's actual behavior. The screen was enhanced additively
+// (optional navigation/route props that fall back to the hooks, plus testIDs on its
+// existing controls and conditional regions) — no functionality was changed.
 
+import 'react-native-gesture-handler/jestSetup';
 import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { Alert, Share } from 'react-native';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
-import { supabase } from '../../services/supabaseService';
 
-jest.mock('../../services/supabaseService');
+// expo-haptics is awaited inside the screen's handlers; a rejecting real call would
+// abort the state updates that follow it, so it must resolve in tests.
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(() => Promise.resolve()),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+}));
+
+// The edit toolbar animates in via reanimated; use its official jest mock.
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 describe('TranscriptDetailScreen', () => {
   const mockNavigation = {
@@ -15,270 +34,182 @@ describe('TranscriptDetailScreen', () => {
     setOptions: jest.fn(),
   };
 
-  const mockRoute = {
-    params: { transcriptId: 'transcript-123' },
-  };
-
-  const mockTranscript = {
-    id: 'transcript-123',
-    title: 'Meeting Notes',
-    text: 'This is the full transcript text of the meeting.',
-    created_at: '2024-01-15T10:00:00Z',
-    duration: 3600,
-    confidence: 0.95,
-    word_count: 500,
-    is_favorite: false,
-    tags: [{ name: 'work', color: '#667eea' }],
-    summary: null,
-    key_points: null,
-    action_items: [],
-  };
+  const renderScreen = (params?: TranscriptParams) =>
+    renderWithProviders(
+      <MockTranscriptDetailScreen
+        navigation={mockNavigation}
+        route={{ params: params ?? { recordingId: 'transcript-123' } }}
+      />
+    );
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    (supabase.from as jest.Mock).mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: mockTranscript,
-            error: null,
-          }),
-        }),
-      }),
-      update: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ error: null }),
-      }),
-    });
   });
 
   describe('Rendering', () => {
-    it('should render transcript detail screen', async () => {
-      const { findByText } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      const title = await findByText('Meeting Notes');
-      expect(title).toBeTruthy();
+    it('should render the transcript title', () => {
+      const { getByText } = renderScreen({ recordingId: 'transcript-123', title: 'Meeting Notes' });
+      expect(getByText('Meeting Notes')).toBeTruthy();
     });
 
-    it('should display transcript text', async () => {
-      const { findByText } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      const text = await findByText(/This is the full transcript/);
-      expect(text).toBeTruthy();
+    it('should fall back to a default title when none is provided', () => {
+      const { getByText } = renderScreen({ recordingId: 'transcript-123' });
+      expect(getByText('Meeting Notes')).toBeTruthy();
     });
 
-    it('should display metadata', async () => {
-      const { findByText } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      const duration = await findByText(/1 hour/);
-      expect(duration).toBeTruthy();
+    it('should render the recording metadata subtitle', () => {
+      const { getByText } = renderScreen();
+      expect(getByText(/January 4, 2026/)).toBeTruthy();
     });
 
-    it('should display tags', async () => {
-      const { findByText } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
+    it('should render speaker labels for diarized segments', () => {
+      const { getByText } = renderScreen();
+      expect(getByText('Speaker 1')).toBeTruthy();
+      expect(getByText('Speaker 2')).toBeTruthy();
+    });
 
-      const tag = await findByText('work');
-      expect(tag).toBeTruthy();
+    it('should render the transcript words', () => {
+      const { getByText } = renderScreen();
+      expect(getByText('Hello')).toBeTruthy();
+      expect(getByText('meeting')).toBeTruthy();
+    });
+
+    it('should render per-segment word counts', () => {
+      const { getByText } = renderScreen();
+      // Segment 1 covers 13 words, segment 2 covers 8 words (MOCK_WORDS).
+      expect(getByText('13 words')).toBeTruthy();
+      expect(getByText('8 words')).toBeTruthy();
     });
   });
 
-  describe('AI Features Tab', () => {
-    it('should switch to summary tab', async () => {
-      const { getByText, findByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByText(/summary/i));
-      const summaryTab = await findByTestId('summary-tab');
-      expect(summaryTab).toBeTruthy();
+  describe('Search', () => {
+    it('should not show the search bar by default', () => {
+      const { queryByTestId } = renderScreen();
+      expect(queryByTestId('search-bar')).toBeNull();
     });
 
-    it('should generate summary', async () => {
-      const { getByText, getByTestId, findByText } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByText(/summary/i));
-      fireEvent.press(getByTestId('generate-summary'));
-
-      await waitFor(() => {
-        expect(supabase.from).toHaveBeenCalled();
-      });
-    });
-
-    it('should switch to key points tab', async () => {
-      const { getByText, findByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByText(/key points/i));
-      const keyPointsTab = await findByTestId('key-points-tab');
-      expect(keyPointsTab).toBeTruthy();
-    });
-
-    it('should switch to action items tab', async () => {
-      const { getByText, findByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByText(/action items/i));
-      const actionItemsTab = await findByTestId('action-items-tab');
-      expect(actionItemsTab).toBeTruthy();
+    it('should reveal the search bar when the search button is pressed', async () => {
+      const { getByTestId, findByTestId } = renderScreen();
+      fireEvent.press(getByTestId('search-button'));
+      expect(await findByTestId('search-bar')).toBeTruthy();
     });
   });
 
   describe('Editing', () => {
-    it('should enable edit mode', async () => {
-      const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByTestId('edit-button'));
-      const editor = await findByTestId('transcript-editor');
-      expect(editor).toBeTruthy();
+    it('should not show the edit toolbar by default', () => {
+      const { queryByTestId } = renderScreen();
+      expect(queryByTestId('edit-toolbar')).toBeNull();
     });
 
-    it('should save edited transcript', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
+    it('should reveal the undo/redo toolbar in edit mode', async () => {
+      const { getByTestId, findByTestId, findByText } = renderScreen();
       fireEvent.press(getByTestId('edit-button'));
-      fireEvent.changeText(getByTestId('transcript-editor'), 'Updated text');
-      fireEvent.press(getByTestId('save-button'));
-
-      await waitFor(() => {
-        expect(supabase.from).toHaveBeenCalled();
-      });
+      expect(await findByTestId('edit-toolbar')).toBeTruthy();
+      expect(await findByText('Undo')).toBeTruthy();
+      expect(await findByText('Redo')).toBeTruthy();
     });
 
-    it('should cancel editing', async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
+    it('should hide the edit toolbar when edit mode is toggled off', async () => {
+      const { getByTestId, findByTestId, queryByTestId } = renderScreen();
       fireEvent.press(getByTestId('edit-button'));
-      fireEvent.press(getByTestId('cancel-button'));
-
-      expect(queryByTestId('transcript-editor')).toBeNull();
+      await findByTestId('edit-toolbar');
+      fireEvent.press(getByTestId('edit-button'));
+      await waitFor(() => expect(queryByTestId('edit-toolbar')).toBeNull());
     });
   });
 
   describe('Actions', () => {
-    it('should toggle favorite', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByTestId('favorite-button'));
-
-      await waitFor(() => {
-        expect(supabase.from).toHaveBeenCalled();
-      });
-    });
-
-    it('should open share sheet', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
+    it('should share the transcript text', async () => {
+      const shareSpy = jest
+        .spyOn(Share, 'share')
+        .mockImplementation(() => Promise.resolve({ action: 'sharedAction' as const }));
+      const { getByTestId } = renderScreen();
 
       fireEvent.press(getByTestId('share-button'));
-      // Share sheet would open
+
+      await waitForCall(shareSpy);
+      expect(shareSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.stringContaining('Hello') })
+      );
+      shareSpy.mockRestore();
     });
 
-    it('should navigate to export screen', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByTestId('export-button'));
-
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('Export', {
-        transcriptId: 'transcript-123',
-      });
-    });
-
-    it('should delete transcript with confirmation', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
+    it('should prompt for confirmation before deleting', () => {
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+      const { getByTestId } = renderScreen();
 
       fireEvent.press(getByTestId('delete-button'));
-      fireEvent.press(getByTestId('confirm-delete'));
 
-      await waitFor(() => {
-        expect(mockNavigation.goBack).toHaveBeenCalled();
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Delete Recording',
+        expect.stringContaining('delete'),
+        expect.any(Array)
+      );
+      alertSpy.mockRestore();
+    });
+
+    it('should navigate back after confirming deletion', () => {
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_title, _msg, buttons) => {
+        const destructive = buttons?.find((b) => b.style === 'destructive');
+        destructive?.onPress?.();
       });
+      const { getByTestId } = renderScreen();
+
+      fireEvent.press(getByTestId('delete-button'));
+
+      expect(mockNavigation.goBack).toHaveBeenCalled();
+      alertSpy.mockRestore();
+    });
+
+    it('should expose a copy action', () => {
+      const { getByTestId } = renderScreen();
+      expect(getByTestId('copy-button')).toBeTruthy();
+    });
+  });
+
+  describe('Navigation', () => {
+    it('should go back when the header back button is pressed', () => {
+      const { getByTestId } = renderScreen();
+      fireEvent.press(getByTestId('back-button'));
+      expect(mockNavigation.goBack).toHaveBeenCalled();
     });
   });
 
   describe('Audio Playback', () => {
-    it('should play audio', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByTestId('play-button'));
-      // Audio playback starts
-    });
-
-    it('should pause audio', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByTestId('play-button'));
-      fireEvent.press(getByTestId('pause-button'));
-      // Audio pauses
-    });
-
-    it('should seek to position', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      const slider = getByTestId('audio-slider');
-      fireEvent(slider, 'valueChange', 0.5);
-      // Audio seeks to 50%
-    });
-  });
-
-  describe('Tags Management', () => {
-    it('should open tags modal', async () => {
-      const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByTestId('manage-tags'));
-      const tagsModal = await findByTestId('tags-modal');
-      expect(tagsModal).toBeTruthy();
-    });
-
-    it('should add tag', async () => {
-      const { getByTestId, getByText } = renderWithProviders(
-        <MockTranscriptDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
-      );
-
-      fireEvent.press(getByTestId('manage-tags'));
-      fireEvent.press(getByText('personal'));
-      fireEvent.press(getByTestId('save-tags'));
-
-      await waitFor(() => {
-        expect(supabase.from).toHaveBeenCalled();
+    it('should render the audio player when an audio URL is provided', () => {
+      const { getByTestId } = renderScreen({
+        recordingId: 'transcript-123',
+        title: 'Meeting Notes',
+        audioUrl: 'https://example.com/audio.m4a',
       });
+      expect(getByTestId('audio-player')).toBeTruthy();
+    });
+
+    it('should not render the audio player without an audio URL', () => {
+      const { queryByTestId } = renderScreen({ recordingId: 'transcript-123' });
+      expect(queryByTestId('audio-player')).toBeNull();
     });
   });
 });
 
-// Mock component
-const MockTranscriptDetailScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};
+// Poll until a spied async handler has been invoked, without relying on fake timers.
+async function waitForCall(spy: { mock: { calls: unknown[] } }) {
+  for (let i = 0; i < 50; i++) {
+    if (spy.mock.calls.length > 0) return;
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+}
+
+// Renders the real TranscriptDetailScreen; kept as a thin alias so the intent
+// (exercising the shipping screen) stays explicit.
+import TranscriptDetailScreen from '../../screens/library/TranscriptDetailScreen';
+
+type TranscriptParams = { recordingId: string; title?: string; audioUrl?: string };
+
+const MockTranscriptDetailScreen = ({
+  navigation,
+  route,
+}: {
+  navigation: { goBack: () => void; navigate: (screen: string, params?: object) => void };
+  route: { params?: TranscriptParams };
+}) => <TranscriptDetailScreen navigation={navigation} route={route} />;

@@ -4,13 +4,9 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import { AppearanceSettingsScreen } from '../../screens/settings/AppearanceSettingsScreen';
 
 describe('AppearanceSettingsScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -18,7 +14,7 @@ describe('AppearanceSettingsScreen', () => {
   describe('Rendering', () => {
     it('should render appearance settings', () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       expect(getByTestId('appearance-settings-screen')).toBeTruthy();
@@ -28,7 +24,7 @@ describe('AppearanceSettingsScreen', () => {
   describe('Theme', () => {
     it('should select light theme', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent.press(getByTestId('theme-light'));
@@ -36,7 +32,7 @@ describe('AppearanceSettingsScreen', () => {
 
     it('should select dark theme', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent.press(getByTestId('theme-dark'));
@@ -44,7 +40,7 @@ describe('AppearanceSettingsScreen', () => {
 
     it('should select system theme', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent.press(getByTestId('theme-system'));
@@ -54,7 +50,7 @@ describe('AppearanceSettingsScreen', () => {
   describe('Accent Color', () => {
     it('should change accent color', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent.press(getByTestId('color-blue'));
@@ -62,7 +58,7 @@ describe('AppearanceSettingsScreen', () => {
 
     it('should show color preview', () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       expect(getByTestId('color-preview')).toBeTruthy();
@@ -72,7 +68,7 @@ describe('AppearanceSettingsScreen', () => {
   describe('Font Size', () => {
     it('should change font size', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent(getByTestId('font-size-slider'), 'onValueChange', 18);
@@ -80,7 +76,7 @@ describe('AppearanceSettingsScreen', () => {
 
     it('should show font preview', () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       expect(getByTestId('font-preview')).toBeTruthy();
@@ -90,7 +86,7 @@ describe('AppearanceSettingsScreen', () => {
   describe('Display Density', () => {
     it('should select compact density', async () => {
       const { getByText } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent.press(getByText(/compact/i));
@@ -98,7 +94,7 @@ describe('AppearanceSettingsScreen', () => {
 
     it('should select comfortable density', async () => {
       const { getByText } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent.press(getByText(/comfortable/i));
@@ -108,7 +104,7 @@ describe('AppearanceSettingsScreen', () => {
   describe('Accessibility', () => {
     it('should toggle reduce motion', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent(getByTestId('reduce-motion-toggle'), 'valueChange', true);
@@ -116,15 +112,10 @@ describe('AppearanceSettingsScreen', () => {
 
     it('should toggle bold text', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAppearanceSettingsScreen navigation={mockNavigation as any} />
+        <AppearanceSettingsScreen />
       );
 
       fireEvent(getByTestId('bold-text-toggle'), 'valueChange', true);
     });
   });
 });
-
-// Mock component
-const MockAppearanceSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

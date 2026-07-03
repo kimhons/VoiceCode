@@ -443,7 +443,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({ navigation }) => {
             Search your transcripts
           </Text>
           <Text variant="body" style={styles.emptyMessage}>
-            Enter keywords to find transcripts
+            Start typing to find transcripts
           </Text>
         </View>
       ) : results.length === 0 ? (

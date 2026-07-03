@@ -5,6 +5,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SettingsScreen from '../../screens/profile/SettingsScreen';
 
 jest.mock('@react-native-async-storage/async-storage');
 
@@ -21,7 +22,7 @@ describe('SettingsScreen', () => {
   describe('Rendering', () => {
     it('should render settings screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('settings-screen')).toBeTruthy();
@@ -29,7 +30,7 @@ describe('SettingsScreen', () => {
 
     it('should display all settings sections', () => {
       const { getByText } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/account/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('SettingsScreen', () => {
   describe('Account Settings', () => {
     it('should display user profile', () => {
       const { getByText } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/profile/i)).toBeTruthy();
@@ -52,7 +53,7 @@ describe('SettingsScreen', () => {
 
     it('should navigate to profile edit', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('edit-profile'));
@@ -62,7 +63,7 @@ describe('SettingsScreen', () => {
 
     it('should handle logout', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('logout-button'));
@@ -79,7 +80,7 @@ describe('SettingsScreen', () => {
   describe('Recording Settings', () => {
     it('should toggle high quality recording', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       const toggle = getByTestId('high-quality-toggle');
@@ -95,7 +96,7 @@ describe('SettingsScreen', () => {
 
     it('should change audio format', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('audio-format-picker'));
@@ -113,7 +114,7 @@ describe('SettingsScreen', () => {
   describe('Notification Settings', () => {
     it('should toggle push notifications', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       const toggle = getByTestId('push-notifications-toggle');
@@ -129,7 +130,7 @@ describe('SettingsScreen', () => {
 
     it('should toggle transcription complete notification', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       const toggle = getByTestId('transcription-complete-toggle');
@@ -144,7 +145,7 @@ describe('SettingsScreen', () => {
   describe('Appearance Settings', () => {
     it('should toggle dark mode', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       const toggle = getByTestId('dark-mode-toggle');
@@ -160,7 +161,7 @@ describe('SettingsScreen', () => {
 
     it('should change font size', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('font-size-picker'));
@@ -178,7 +179,7 @@ describe('SettingsScreen', () => {
   describe('Storage Settings', () => {
     it('should display storage usage', () => {
       const { getByText } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/storage used/i)).toBeTruthy();
@@ -186,7 +187,7 @@ describe('SettingsScreen', () => {
 
     it('should clear cache', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-cache'));
@@ -199,7 +200,7 @@ describe('SettingsScreen', () => {
 
     it('should toggle auto-delete old recordings', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       const toggle = getByTestId('auto-delete-toggle');
@@ -214,7 +215,7 @@ describe('SettingsScreen', () => {
   describe('About Section', () => {
     it('should display app version', () => {
       const { getByText } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/version/i)).toBeTruthy();
@@ -222,7 +223,7 @@ describe('SettingsScreen', () => {
 
     it('should navigate to privacy policy', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('privacy-policy'));
@@ -234,7 +235,7 @@ describe('SettingsScreen', () => {
 
     it('should navigate to terms of service', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSettingsScreen navigation={mockNavigation as any} />
+        <SettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('terms-of-service'));
@@ -245,8 +246,3 @@ describe('SettingsScreen', () => {
     });
   });
 });
-
-// Mock component for testing
-const MockSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null; // Placeholder
-};

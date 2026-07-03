@@ -50,7 +50,10 @@ describe('LoginScreen', () => {
   });
 
   it('should submit valid credentials', async () => {
-    const { getByPlaceholderText, getByText } = renderWithProviders(
+    // The screen authenticates by dispatching loginSuccess to the Redux store
+    // (after a simulated network delay), not by navigating. Assert on that real
+    // behavior rather than a navigation call the screen never makes.
+    const { getByPlaceholderText, getByText, store } = renderWithProviders(
       <LoginScreen navigation={mockNavigation} route={{} as any} />
     );
 
@@ -62,9 +65,12 @@ describe('LoginScreen', () => {
     fireEvent.changeText(passwordInput, 'password123');
     fireEvent.press(submitButton);
 
-    await waitFor(() => {
-      expect(mockNavigation.navigate).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(store.getState().auth.isAuthenticated).toBe(true);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('should navigate to signup screen', () => {

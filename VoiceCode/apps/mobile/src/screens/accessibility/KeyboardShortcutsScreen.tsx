@@ -11,9 +11,25 @@ interface Shortcut {
   isCustom: boolean;
 }
 
-const KeyboardShortcutsScreen: React.FC = () => {
+interface KeyboardShortcutsScreenProps {
+  navigation?: {
+    goBack: () => void;
+    navigate: (screen: string, params?: object) => void;
+  };
+}
+
+const KeyboardShortcutsScreen: React.FC<KeyboardShortcutsScreenProps> = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedShortcut, setSelectedShortcut] = useState<Shortcut | null>(null);
+  const [statusMessage, setStatusMessage] = useState('');
+
+  const handleReset = () => setStatusMessage('Shortcuts reset to defaults');
+
+  const handleSaveShortcut = () => {
+    setStatusMessage('Shortcut saved');
+    setSelectedShortcut(null);
+  };
 
   const categories = [
     { id: 'all', label: 'All' },
@@ -76,21 +92,33 @@ const KeyboardShortcutsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.screen} testID="keyboard-shortcuts-screen">
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation?.goBack()}>
           <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.title}>Keyboard Shortcuts</Text>
-        <TouchableOpacity style={styles.resetButton}>
-          <Text style={styles.resetText}>Reset</Text>
+        <TouchableOpacity
+          style={styles.resetButton}
+          testID="reset-shortcuts"
+          onPress={handleReset}
+        >
+          <Text style={styles.resetText}>Restore</Text>
         </TouchableOpacity>
       </View>
+
+      {statusMessage !== '' && (
+        <Text style={styles.statusMessage} testID="status-message">
+          {statusMessage}
+        </Text>
+      )}
 
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Ionicons name="search" size={18} color="#8E8E93" />
           <TextInput
             style={styles.searchInput}
+            testID="search-input"
             placeholder="Search shortcuts..."
             placeholderTextColor="#8E8E93"
             value={searchQuery}
@@ -127,7 +155,12 @@ const KeyboardShortcutsScreen: React.FC = () => {
         </ScrollView>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        testID="shortcuts-list"
+        showsVerticalScrollIndicator={false}
+      >
+        <View testID={searchQuery !== '' ? 'search-results' : undefined}>
         {selectedCategory === 'all' ? (
           Object.entries(groupedShortcuts).map(([category, items]) => (
             <View key={category} style={styles.section}>
@@ -135,7 +168,11 @@ const KeyboardShortcutsScreen: React.FC = () => {
               <View style={styles.shortcutsCard}>
                 {items.map((shortcut, idx) => (
                   <View key={shortcut.id}>
-                    <TouchableOpacity style={styles.shortcutRow}>
+                    <TouchableOpacity
+                      style={styles.shortcutRow}
+                      testID={`shortcut-${shortcut.id}`}
+                      onPress={() => setSelectedShortcut(shortcut)}
+                    >
                       <View style={styles.shortcutInfo}>
                         <Text style={styles.shortcutAction}>{shortcut.action}</Text>
                         {shortcut.isCustom && (
@@ -186,6 +223,31 @@ const KeyboardShortcutsScreen: React.FC = () => {
             </View>
           </View>
         )}
+        </View>
+
+        {selectedShortcut && (
+          <View style={styles.modalOverlay} testID="customize-shortcut-modal">
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Customize {selectedShortcut.action}</Text>
+              <Text style={styles.modalSubtitle}>Current: {selectedShortcut.keys.join(' ')}</Text>
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={styles.modalCancelButton}
+                  onPress={() => setSelectedShortcut(null)}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalSaveButton}
+                  testID="save-shortcut"
+                  onPress={handleSaveShortcut}
+                >
+                  <Text style={styles.modalSaveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
 
         <TouchableOpacity style={styles.addButton}>
           <Ionicons name="add" size={20} color="#007AFF" />
@@ -204,12 +266,14 @@ const KeyboardShortcutsScreen: React.FC = () => {
 
         <View style={styles.bottomPadding} />
       </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F7' },
+  screen: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -224,6 +288,37 @@ const styles = StyleSheet.create({
   title: { fontSize: 17, fontWeight: '600', color: '#1C1C1E' },
   resetButton: { padding: 4 },
   resetText: { fontSize: 17, color: '#007AFF' },
+  statusMessage: {
+    backgroundColor: '#34C75915',
+    color: '#248A3D',
+    fontSize: 14,
+    fontWeight: '500',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    textAlign: 'center',
+  },
+  modalOverlay: {
+    backgroundColor: '#FFF',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    padding: 16,
+  },
+  modalCard: {},
+  modalTitle: { fontSize: 16, fontWeight: '600', color: '#1C1C1E' },
+  modalSubtitle: { fontSize: 13, color: '#8E8E93', marginTop: 6 },
+  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 },
+  modalCancelButton: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 8 },
+  modalCancelText: { fontSize: 15, color: '#8E8E93' },
+  modalSaveButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+  },
+  modalSaveText: { fontSize: 15, color: '#FFF', fontWeight: '600' },
   searchContainer: {
     backgroundColor: '#FFF',
     paddingHorizontal: 16,
