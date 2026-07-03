@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import AboutScreen from '../../screens/settings/AboutScreen';
 
 describe('AboutScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('AboutScreen', () => {
   describe('Rendering', () => {
     it('should render about screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('about-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('AboutScreen', () => {
 
     it('should display app logo', () => {
       const { getByTestId } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('app-logo')).toBeTruthy();
@@ -34,7 +35,7 @@ describe('AboutScreen', () => {
 
     it('should display app version', () => {
       const { getByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/version/i)).toBeTruthy();
@@ -42,7 +43,7 @@ describe('AboutScreen', () => {
 
     it('should display build number', () => {
       const { getByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/build/i)).toBeTruthy();
@@ -52,7 +53,7 @@ describe('AboutScreen', () => {
   describe('Links', () => {
     it('should open website', async () => {
       const { getByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/website/i));
@@ -60,7 +61,7 @@ describe('AboutScreen', () => {
 
     it('should open privacy policy', async () => {
       const { getByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/privacy/i));
@@ -68,7 +69,7 @@ describe('AboutScreen', () => {
 
     it('should open terms of service', async () => {
       const { getByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/terms/i));
@@ -76,7 +77,7 @@ describe('AboutScreen', () => {
 
     it('should open support', async () => {
       const { getByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/support/i));
@@ -86,7 +87,7 @@ describe('AboutScreen', () => {
   describe('Actions', () => {
     it('should check for updates', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('check-updates'));
@@ -97,7 +98,7 @@ describe('AboutScreen', () => {
 
     it('should rate app', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('rate-app'));
@@ -105,7 +106,7 @@ describe('AboutScreen', () => {
 
     it('should share app', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('share-app'));
@@ -115,7 +116,7 @@ describe('AboutScreen', () => {
   describe('Licenses', () => {
     it('should open licenses', async () => {
       const { getByText } = renderWithProviders(
-        <MockAboutScreen navigation={mockNavigation as any} />
+        <AboutScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/licenses/i));
@@ -124,8 +125,3 @@ describe('AboutScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockAboutScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

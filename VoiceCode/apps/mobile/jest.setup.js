@@ -3,6 +3,81 @@
 // Import testing library setup
 import '@testing-library/jest-native/extend-expect';
 
+// @stripe/stripe-react-native calls new NativeEventEmitter() at import time, which
+// throws in the jest (non-native) env. Mock it so any screen/service reaching the
+// payment layer can load under test.
+jest.mock('@stripe/stripe-react-native', () => ({
+  __esModule: true,
+  StripeProvider: ({ children }) => children,
+  useStripe: () => ({
+    initPaymentSheet: jest.fn(async () => ({})),
+    presentPaymentSheet: jest.fn(async () => ({})),
+    confirmPayment: jest.fn(async () => ({})),
+  }),
+  CardField: () => null,
+  initStripe: jest.fn(async () => undefined),
+  presentPaymentSheet: jest.fn(async () => ({})),
+  initPaymentSheet: jest.fn(async () => ({})),
+  confirmPayment: jest.fn(async () => ({})),
+}));
+
+// @expo/vector-icons pulls native font loading (loadedNativeFonts) that isn't available
+// under jest; render every icon set as a lightweight element so screens using icons mount.
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  const Icon = (props) => React.createElement(Text, { ...props, testID: props.testID }, null);
+  return new Proxy(
+    { __esModule: true },
+    { get: (target, prop) => (prop in target ? target[prop] : Icon) },
+  );
+});
+
+// RN Linking is unimplemented under jest (openURL returns undefined, so `.catch` throws).
+jest.mock('react-native/Libraries/Linking/Linking', () => ({
+  openURL: jest.fn(() => Promise.resolve()),
+  canOpenURL: jest.fn(() => Promise.resolve(true)),
+  getInitialURL: jest.fn(() => Promise.resolve(null)),
+  addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+  removeEventListener: jest.fn(),
+}));
+
+// The real ThemeProvider renders null until an async loadThemePreference() resolves,
+// so synchronous queries in screen tests find nothing. Render children immediately
+// with the real light theme values (keeps screens' theme.* usage faithful).
+jest.mock('./src/contexts/ThemeContext', () => {
+  const React = require('react');
+  const { theme } = require('./src/theme');
+  const value = {
+    theme: theme.light,
+    colorScheme: 'light',
+    themeMode: 'auto',
+    setThemeMode: jest.fn(),
+    isDark: false,
+  };
+  const ThemeContext = React.createContext(value);
+  return {
+    __esModule: true,
+    ThemeContext,
+    ThemeProvider: ({ children }) =>
+      React.createElement(ThemeContext.Provider, { value }, children),
+    useTheme: () => value,
+  };
+});
+
+// expo-constants pulls native modules at import; provide a static config for tests.
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: {
+    expoConfig: {
+      version: '1.0.0',
+      ios: { buildNumber: '1' },
+      android: { versionCode: 1 },
+    },
+    manifest: {},
+  },
+}));
+
 // Silence "Native animated module is not available" from Animated-based components (RN 0.76 path)
 jest.mock('react-native/src/private/animated/NativeAnimatedHelper', () => ({
   __esModule: true,
