@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "VoiceCode - Unified voice assistant platform (Web, Mobile, Desktop, VS Code Extension)",
   "private": true,
+  "packageManager": "pnpm@11.9.0",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -36,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kimhons/VoiceFlow-PRO.git"
+    "url": "https://github.com/kimhons/VoiceCode.git"
   },
   "keywords": [
     "voice-assistant",
@@ -50,5 +51,8 @@
     "vscode-extension"
   ],
   "author": "AlienNova",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.59.0"
+  }
 }

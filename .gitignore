@@ -58,3 +58,17 @@ ANALYSIS_REPORT.md
 
 # Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+# Rust / Tauri build output
+target/
+**/target/
+*.rlib
+*.rmeta
+
+# Coverage
+coverage/
+**/coverage/
+*.lcov
+
+# Turbo
+.turbo/
+**/.turbo/
