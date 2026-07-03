@@ -1,42 +1,24 @@
-// Simple test App to verify Expo is working
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+// VoiceCode Mobile - App Root Smoke Test
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🎉 VoiceCode Pro</Text>
-      <Text style={styles.subtitle}>App is loading successfully!</Text>
-      <Text style={styles.info}>If you see this, the setup works!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import { describe, it, expect } from '@jest/globals';
+import App from './App';
+import { store } from './src/store';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#3B82F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 20,
-    color: '#fff',
-    marginBottom: 20,
-  },
-  info: {
-    fontSize: 16,
-    color: '#E0E7FF',
-    textAlign: 'center',
-  },
+// A full render of <App /> is impractical under jest: jest.setup.js replaces
+// @react-navigation's NavigationContainer with a passthrough, so the real
+// navigators AppNavigator mounts cannot register. This smoke test instead
+// exercises the root module graph — importing App.tsx pulls in the store, the
+// theme/onboarding providers, Stripe, and AppNavigator, so any import-time crash
+// in that wiring fails here — and confirms the root component and store are wired.
+
+describe('App', () => {
+  it('exposes the root component from the app entry module', () => {
+    expect(typeof App).toBe('function');
+    expect(App.name).toBe('App');
+  });
+
+  it('wires up the Redux store with the auth slice the app depends on', () => {
+    expect(store.getState()).toHaveProperty('auth');
+    expect(store.getState().auth).toHaveProperty('isAuthenticated');
+  });
 });
-
