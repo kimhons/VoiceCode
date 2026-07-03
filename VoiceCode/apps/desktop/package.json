@@ -1,0 +1,67 @@
+{
+  "name": "voicecode-desktop",
+  "version": "1.0.0",
+  "description": "VoiceCode - AI-Powered Voice & Text Coding Assistant",
+  "main": "src/index.html",
+  "scripts": {
+    "dev": "node ../../node_modules/@tauri-apps/cli/tauri.js dev",
+    "build": "node ../../node_modules/@tauri-apps/cli/tauri.js build",
+    "build:dev": "node ../../node_modules/@tauri-apps/cli/tauri.js build --debug",
+    "tauri:build": "node ../../node_modules/@tauri-apps/cli/tauri.js build",
+    "tauri:dev": "node ../../node_modules/@tauri-apps/cli/tauri.js dev",
+    "tauri:build:dev": "node ../../node_modules/@tauri-apps/cli/tauri.js build --debug",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "setup": "npm install && cd src-tauri && cargo check",
+    "dist": "npm run build && npm run tauri:build",
+    "ai:examples": "cd src-tauri && cargo run --example ai_ml_api_usage_examples",
+    "ai:check": "cd src-tauri && cargo check --features ai-ml-api",
+    "ai:test": "cd src-tauri && cargo test --features ai-ml-api",
+    "ai:build": "cd src-tauri && cargo build --features ai-ml-api --release"
+  },
+  "keywords": [
+    "voice-assistant",
+    "desktop-app",
+    "tauri",
+    "cross-platform",
+    "voicecode"
+  ],
+  "author": "VoiceCode Team",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.6.3",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.1",
+    "@types/file-saver": "^2.0.7",
+    "@types/node": "^20.8.6",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^1.3.1",
+    "eslint": "^8.50.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-n": "^16.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "jsdom": "^24.0.0",
+    "typescript": "^5.2.2",
+    "vite": "^7.1.12",
+    "vitest": "^1.3.1"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.1",
+    "@types/crypto-js": "^4.2.2",
+    "crypto-js": "^4.2.0",
+    "lucide-react": "^0.344.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zustand": "^4.5.7"
+  },
+  "optionalDependencies": {
+    "@tauri-apps/cli-darwin-arm64": "^2.10.0"
+  }
+}

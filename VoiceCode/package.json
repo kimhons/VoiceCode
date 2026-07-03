@@ -1,0 +1,58 @@
+{
+  "name": "voicecode-monorepo",
+  "version": "1.0.0",
+  "description": "VoiceCode - Unified voice assistant platform (Web, Mobile, Desktop, VS Code Extension)",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "desktop:dev": "npm run dev --workspace=apps/desktop",
+    "desktop:build": "npm run build --workspace=apps/desktop",
+    "web:dev": "npm run dev --workspace=apps/web",
+    "web:build": "npm run build --workspace=apps/web",
+    "mobile:start": "npm run start --workspace=apps/mobile",
+    "mobile:android": "npm run android --workspace=apps/mobile",
+    "mobile:ios": "npm run ios --workspace=apps/mobile",
+    "api:dev": "npm run dev --workspace=apps/api",
+    "api:build": "npm run build --workspace=apps/api"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kimhons/VoiceCode.git"
+  },
+  "keywords": [
+    "voice-assistant",
+    "transcription",
+    "ai",
+    "monorepo",
+    "tauri",
+    "react",
+    "react-native",
+    "expo",
+    "vscode-extension"
+  ],
+  "author": "AlienNova",
+  "license": "MIT",
+  "dependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.59.0"
+  }
+}

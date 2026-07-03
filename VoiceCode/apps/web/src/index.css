@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* VoiceCode Brand Colors */
+    --vc-primary: 243 75% 59%;
+    --vc-primary-hover: 243 75% 52%;
+    --vc-secondary: 160 84% 39%;
+    --vc-accent: 38 92% 50%;
+    --vc-background: 220 14% 96%;
+    --vc-surface: 0 0% 100%;
+    --vc-surface-elevated: 0 0% 100%;
+    --vc-text-primary: 222 47% 11%;
+    --vc-text-secondary: 220 9% 46%;
+    --vc-text-muted: 220 9% 60%;
+    --vc-border: 220 13% 91%;
+    --vc-border-focus: 243 75% 59%;
+
+    /* Gradients */
+    --vc-gradient-primary: linear-gradient(
+      135deg,
+      hsl(243, 75%, 59%) 0%,
+      hsl(280, 87%, 55%) 100%
+    );
+    --vc-gradient-success: linear-gradient(
+      135deg,
+      hsl(160, 84%, 39%) 0%,
+      hsl(172, 66%, 50%) 100%
+    );
+    --vc-gradient-warm: linear-gradient(
+      135deg,
+      hsl(38, 92%, 50%) 0%,
+      hsl(24, 95%, 53%) 100%
+    );
+  }
+
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dark Mode Brand Colors */
+    --vc-primary: 243 75% 65%;
+    --vc-primary-hover: 243 75% 70%;
+    --vc-secondary: 160 84% 45%;
+    --vc-accent: 38 92% 55%;
+    --vc-background: 222 47% 7%;
+    --vc-surface: 222 47% 11%;
+    --vc-surface-elevated: 222 47% 14%;
+    --vc-text-primary: 210 40% 98%;
+    --vc-text-secondary: 215 20% 65%;
+    --vc-text-muted: 215 16% 47%;
+    --vc-border: 215 20% 20%;
+    --vc-border-focus: 243 75% 65%;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    line-height: 1.6;
+  }
+
+  ::selection {
+    background-color: hsl(243, 75%, 59%, 0.3);
+    color: inherit;
+  }
+}
+
+@layer components {
+  /* Professional Button Styles */
+  .vc-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .vc-btn-primary {
+    @apply bg-gradient-to-r from-indigo-500 to-purple-600 text-white;
+    @apply hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25;
+    @apply focus:ring-indigo-500;
+  }
+
+  .vc-btn-secondary {
+    @apply bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700;
+    @apply hover:bg-gray-50 dark:hover:bg-gray-750 hover:border-gray-300 dark:hover:border-gray-600;
+    @apply focus:ring-gray-500;
+  }
+
+  .vc-btn-ghost {
+    @apply bg-transparent text-gray-600 dark:text-gray-300;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800;
+    @apply focus:ring-gray-500;
+  }
+
+  /* Card Styles */
+  .vc-card {
+    @apply bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800;
+    @apply shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  .vc-card-elevated {
+    @apply bg-white dark:bg-gray-900 rounded-xl;
+    @apply shadow-lg shadow-gray-200/50 dark:shadow-none dark:border dark:border-gray-800;
+  }
+
+  /* Input Styles */
+  .vc-input {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700;
+    @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+    @apply placeholder:text-gray-400 dark:placeholder:text-gray-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+
+  /* Glass Effect */
+  .vc-glass {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl;
+    @apply border border-white/20 dark:border-gray-700/50;
+  }
+
+  /* Gradient Text */
+  .vc-gradient-text {
+    @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent;
+  }
+
+  /* Pulse Animation for Recording */
+  .vc-pulse {
+    animation: vc-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes vc-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Recording Ring Animation */
+  .vc-recording-ring {
+    animation: vc-recording-ring 1.5s ease-in-out infinite;
+  }
+
+  @keyframes vc-recording-ring {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  /* Fade In Animation */
+  .vc-fade-in {
+    animation: vc-fade-in 0.3s ease-out;
+  }
+
+  @keyframes vc-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Slide Up Animation */
+  .vc-slide-up {
+    animation: vc-slide-up 0.4s ease-out;
+  }
+
+  @keyframes vc-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Professional Header */
+  .vc-header {
+    @apply sticky top-0 z-50 w-full;
+    @apply bg-white/95 dark:bg-gray-900/95 backdrop-blur-md;
+    @apply border-b border-gray-200/80 dark:border-gray-800/80;
+  }
+
+  /* Scrollbar Styling */
+  .vc-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .vc-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800 rounded-full;
+  }
+
+  .vc-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+    @apply hover:bg-gray-400 dark:hover:bg-gray-500;
+  }
+}
+
+img {
+  object-position: top;
+}
+
+.fixed {
+  position: fixed;
+}

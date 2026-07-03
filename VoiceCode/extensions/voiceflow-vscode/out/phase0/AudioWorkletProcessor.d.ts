@@ -1,0 +1,26 @@
+/**
+ * VoiceFlow Audio Worklet Processor
+ *
+ * Modern audio processing using AudioWorklet API.
+ * This runs on a separate audio rendering thread, preventing main thread blocking.
+ *
+ * Benefits over ScriptProcessorNode:
+ * - No main thread blocking
+ * - Lower latency
+ * - No memory leaks from deprecated API
+ * - Better performance for continuous audio processing
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/AudioWorkletProcessor
+ */
+/**
+ * AudioWorklet processor code as a string.
+ * This will be converted to a Blob and loaded as a module.
+ * Note: AudioWorklet processors must be defined as a separate module.
+ */
+export declare const VOICEFLOW_AUDIO_WORKLET_CODE = "\n/**\n * VoiceFlowAudioProcessor - AudioWorklet Processor\n * Processes audio in real-time on a dedicated audio thread.\n */\nclass VoiceFlowAudioProcessor extends AudioWorkletProcessor {\n  constructor(options) {\n    super();\n    \n    // Configuration\n    this.bufferSize = options?.processorOptions?.bufferSize || 4096;\n    this.silenceThreshold = options?.processorOptions?.silenceThreshold || 0.01;\n    this.silenceDurationMs = options?.processorOptions?.silenceDurationMs || 2000;\n    \n    // State\n    this.buffer = new Float32Array(this.bufferSize);\n    this.bufferIndex = 0;\n    this.isActive = true;\n    this.silenceStartTime = null;\n    this.lastVoiceActivityTime = currentTime;\n    \n    // Listen for control messages from main thread\n    this.port.onmessage = (event) => {\n      const { type, data } = event.data;\n      switch (type) {\n        case 'stop':\n          this.isActive = false;\n          break;\n        case 'start':\n          this.isActive = true;\n          this.silenceStartTime = null;\n          break;\n        case 'configure':\n          if (data.silenceThreshold !== undefined) {\n            this.silenceThreshold = data.silenceThreshold;\n          }\n          if (data.silenceDurationMs !== undefined) {\n            this.silenceDurationMs = data.silenceDurationMs;\n          }\n          break;\n      }\n    };\n    \n    // Notify main thread that processor is ready\n    this.port.postMessage({ type: 'ready' });\n  }\n\n  /**\n   * Calculate RMS (Root Mean Square) energy for voice activity detection\n   */\n  calculateRMS(samples) {\n    let sum = 0;\n    for (let i = 0; i < samples.length; i++) {\n      sum += samples[i] * samples[i];\n    }\n    return Math.sqrt(sum / samples.length);\n  }\n\n  /**\n   * Process audio data\n   * @param inputs - Array of input channels\n   * @param outputs - Array of output channels\n   * @param parameters - AudioParam values\n   * @returns boolean - Return true to keep processor alive\n   */\n  process(inputs, outputs, parameters) {\n    // Check if we should continue processing\n    if (!this.isActive) {\n      return true; // Keep processor alive but don't process\n    }\n\n    const input = inputs[0];\n    if (!input || !input[0] || input[0].length === 0) {\n      return true;\n    }\n\n    const inputChannel = input[0]; // Mono input\n    const inputLength = inputChannel.length;\n\n    // Copy input samples to buffer\n    for (let i = 0; i < inputLength; i++) {\n      this.buffer[this.bufferIndex++] = inputChannel[i];\n      \n      // When buffer is full, process and send\n      if (this.bufferIndex >= this.bufferSize) {\n        this.processBuffer();\n        this.bufferIndex = 0;\n      }\n    }\n\n    return true; // Keep processor running\n  }\n\n  /**\n   * Process full buffer and send to main thread\n   */\n  processBuffer() {\n    // Calculate RMS for voice activity detection\n    const rms = this.calculateRMS(this.buffer);\n    const hasVoiceActivity = rms > this.silenceThreshold;\n    const currentTimeMs = currentTime * 1000;\n\n    if (hasVoiceActivity) {\n      // Voice detected - send audio data\n      this.port.postMessage({\n        type: 'audioData',\n        data: Array.from(this.buffer), // Convert to regular array for transfer\n        rms: rms,\n        timestamp: currentTimeMs\n      });\n      \n      // Reset silence tracking\n      this.silenceStartTime = null;\n      this.lastVoiceActivityTime = currentTimeMs;\n      \n    } else {\n      // Silence detected - track duration\n      if (this.silenceStartTime === null) {\n        this.silenceStartTime = currentTimeMs;\n      }\n      \n      const silenceDuration = currentTimeMs - this.silenceStartTime;\n      \n      // Notify about silence progress\n      this.port.postMessage({\n        type: 'silence',\n        duration: silenceDuration,\n        threshold: this.silenceDurationMs,\n        rms: rms\n      });\n      \n      // Check if silence duration exceeded\n      if (silenceDuration >= this.silenceDurationMs) {\n        this.port.postMessage({ type: 'silenceTimeout' });\n        this.silenceStartTime = null;\n      }\n    }\n  }\n}\n\n// Register the processor\nregisterProcessor('voiceflow-audio-processor', VoiceFlowAudioProcessor);\n";
+/**
+ * Creates a Blob URL for the AudioWorklet processor module
+ * @returns URL string that can be used with audioWorklet.addModule()
+ */
+export declare function createAudioWorkletModuleURL(): string;
+//# sourceMappingURL=AudioWorkletProcessor.d.ts.map

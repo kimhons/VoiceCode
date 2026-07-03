@@ -1,0 +1,233 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Bundle budget check (index-*.js <= 250KB gzip)
+        run: |
+          node -e "const fs=require('fs'),zlib=require('zlib'),path=require('path');const dir='dist/assets';if(!fs.existsSync(dir)){console.error('dist not found');process.exit(1)};const files=fs.readdirSync(dir).filter(f=>/index-.*\.js$/.test(f));if(files.length===0){console.error('index-*.js not found');process.exit(1)};const max=250*1024;let failed=false;for(const f of files){const p=path.join(dir,f);const buf=fs.readFileSync(p);const gz=zlib.gzipSync(buf);console.log('gzip size', f, gz.length, 'bytes');if(gz.length>max){failed=true;console.error('Budget exceeded for', f, gz.length, '>', max);}}process.exit(failed?1:0)"
+
+      - name: Security audit (gate high severity with audit-ci)
+        run: npx audit-ci --high
+
+      - name: Test
+        run: npm test -- --run --reporter=verbose
+
+      - name: Safety eval subset
+        run: npm test -- --run src/services/__tests__/hallucinationDetection.service.test.ts src/services/__tests__/promptSecurity.service.test.ts src/services/__tests__/safety-eval.redteam.test.ts
+
+      - name: Upload safety eval artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-evals
+          path: apps/web/safety-evals
+          if-no-files-found: warn
+
+      - name: Start Vite preview
+        run: npm run preview -- --host --port 4173 &
+        shell: bash
+
+      - name: Wait for preview to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:4173 > /dev/null; then
+              echo "Preview is up"
+              break
+            fi
+            echo "Waiting for preview..."
+            sleep 1
+          done
+
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install chromium
+
+      - name: E2E tests (Playwright)
+        run: npm run test:e2e:smoke
+
+      - name: Upload Playwright artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            apps/web/test-results
+            apps/web/playwright-report
+          if-no-files-found: warn
+
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+
+  desktop-rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/desktop/src-tauri
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            apps/desktop/src-tauri/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('apps/desktop/src-tauri/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Cargo check
+        run: cargo check --lib
+
+      - name: Clippy lint (deny errors, allow dead code in framework layer)
+        run: cargo clippy --lib -- -D clippy::correctness -D clippy::suspicious -A dead_code -A unused
+
+      - name: Unit tests (release mode)
+        run: cargo test --release --lib
+
+      - name: Integration tests (release mode)
+        run: cargo test --release --test integration_tests
+
+      - name: Release build check
+        run: cargo build --release --lib
+
+  desktop-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/desktop/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint . --ext .ts,.tsx --max-warnings 0
+
+      - name: Test
+        run: npm test -- --ci --coverage --maxWorkers=2
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify SSOT documents exist
+        run: |
+          failed=0
+          for f in \
+            docs/ssot/SSOT.md \
+            docs/ssot/MASTER-IMPLEMENTATION-PLAN.md \
+            docs/ssot/traceability_matrix.md \
+            docs/ssot/health_metrics.md \
+            docs/ssot/OWNERSHIP.md \
+            docs/ssot/UI-UX-BLUEPRINT.md \
+            docs/contracts/manifest.md; do
+            if [ -f "$f" ]; then
+              echo "✅ $f"
+            else
+              echo "❌ MISSING: $f"
+              failed=1
+            fi
+          done
+          exit $failed

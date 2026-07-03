@@ -1,0 +1,19 @@
+﻿cargo :    Compiling serde v1.0.228
+At line:1 char:1
++ cargo build --lib 2>&1 | Out-File -FilePath ".\build_errors_full.txt" ...
++ ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Compiling serde v1.0.228:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   Compiling windows-sys v0.61.2
+   Compiling num-traits v0.2.19
+   Compiling parking_lot_core v0.9.12
+   Compiling hashbrown v0.16.1
+   Compiling typenum v1.19.0
+   Compiling yoke v0.8.1
+   Compiling byteorder v1.5.0
+error: Error calling dlltool 'dlltool.exe': program not found
+
+error: could not compile `parking_lot_core` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `windows-sys` (lib) due to 1 previous error

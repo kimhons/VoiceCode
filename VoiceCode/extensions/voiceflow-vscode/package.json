@@ -1,0 +1,1134 @@
+{
+  "name": "voicecode-vscode",
+  "displayName": "VoiceCode - Transcription Pro & Voice Coding Assistant",
+  "description": "Professional voice transcription and AI-powered coding assistant. Code at the speed of thought with voice commands. Works seamlessly with Copilot, Cursor, Cline, and more. Perfect for accessibility and hands-free development.",
+  "version": "1.0.0",
+  "publisher": "voicecode",
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#007AFF",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.105.0",
+    "node": ">=20.0.0"
+  },
+  "categories": [
+    "AI",
+    "Programming Languages",
+    "Other",
+    "Education",
+    "Snippets"
+  ],
+  "keywords": [
+    "voice",
+    "voicecode",
+    "voice-coding",
+    "transcription",
+    "speech-to-text",
+    "dictation",
+    "ai",
+    "copilot",
+    "cursor",
+    "cline",
+    "aider",
+    "augment",
+    "assistant",
+    "accessibility",
+    "hands-free",
+    "voice-control",
+    "speech-recognition",
+    "whisper",
+    "natural-language",
+    "productivity",
+    "automation",
+    "voice-commands",
+    "audio-transcription"
+  ],
+  "badges": [
+    {
+      "url": "https://img.shields.io/badge/voice--first-coding-blue",
+      "href": "https://github.com/kimhons/VoiceCode",
+      "description": "Voice-First Coding"
+    },
+    {
+      "url": "https://img.shields.io/badge/accessibility-friendly-green",
+      "href": "https://github.com/kimhons/VoiceCode",
+      "description": "Accessibility Friendly"
+    }
+  ],
+  "pricing": "Free",
+  "sponsor": {
+    "url": "https://github.com/sponsors/kimhons"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "voicecode.assistant",
+        "name": "voicecode",
+        "fullName": "VoiceCode",
+        "description": "Voice transcription and AI-powered coding assistant with multi-provider support",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "voice",
+            "description": "Execute a voice-like command"
+          },
+          {
+            "name": "explain",
+            "description": "Explain selected code in detail"
+          },
+          {
+            "name": "refactor",
+            "description": "Suggest code refactoring improvements"
+          },
+          {
+            "name": "test",
+            "description": "Generate unit tests for selected code"
+          },
+          {
+            "name": "tools",
+            "description": "List available VoiceCode tools"
+          }
+        ]
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "voicecode-execute-command",
+        "displayName": "Execute VS Code Command",
+        "modelDescription": "Execute any VS Code command by name. Use this to run editor commands like save, format, or navigate.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "command"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-insert-code",
+        "displayName": "Insert Code",
+        "modelDescription": "Insert code at the current cursor position in the active editor.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-read-file",
+        "displayName": "Read File",
+        "modelDescription": "Read the contents of a file in the workspace by its relative path.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-search-workspace",
+        "displayName": "Search Workspace",
+        "modelDescription": "Search for text or patterns across files in the workspace.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "includePattern": {
+              "type": "string"
+            },
+            "excludePattern": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-extract-function",
+        "displayName": "Extract Function",
+        "modelDescription": "Extract selected code into a new function with automatic parameter detection and return type inference.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "functionName": {
+              "type": "string"
+            },
+            "startLine": {
+              "type": "number"
+            },
+            "endLine": {
+              "type": "number"
+            },
+            "async": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "functionName"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-rename-symbol",
+        "displayName": "Rename Symbol",
+        "modelDescription": "Rename a symbol (variable, function, class) across all files in the workspace with proper refactoring.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "oldName": {
+              "type": "string"
+            },
+            "newName": {
+              "type": "string"
+            },
+            "filePath": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "oldName",
+            "newName"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-optimize-imports",
+        "displayName": "Optimize Imports",
+        "modelDescription": "Remove unused imports, sort imports alphabetically, and organize import statements in the current file.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string"
+            },
+            "sortOrder": {
+              "type": "string"
+            },
+            "groupBy": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-generate-tests",
+        "displayName": "Generate Unit Tests",
+        "modelDescription": "Generate comprehensive unit tests for a function, class, or file. Supports Jest, Mocha, Vitest, and pytest frameworks.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetPath": {
+              "type": "string"
+            },
+            "functionName": {
+              "type": "string"
+            },
+            "framework": {
+              "type": "string"
+            },
+            "coverage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "targetPath"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-run-tests",
+        "displayName": "Run Tests",
+        "modelDescription": "Run specific tests or all tests in a file/directory. Returns test results with pass/fail status and error details.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "testPath": {
+              "type": "string"
+            },
+            "testName": {
+              "type": "string"
+            },
+            "watch": {
+              "type": "boolean"
+            },
+            "coverage": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-create-test-file",
+        "displayName": "Create Test File",
+        "modelDescription": "Create a new test file with boilerplate code for the specified source file, following project conventions.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "sourceFile": {
+              "type": "string"
+            },
+            "testDirectory": {
+              "type": "string"
+            },
+            "framework": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sourceFile"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-generate-jsdoc",
+        "displayName": "Generate JSDoc",
+        "modelDescription": "Generate JSDoc/TSDoc documentation for functions, classes, and interfaces with parameter and return type descriptions.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string"
+            },
+            "symbolName": {
+              "type": "string"
+            },
+            "includeExamples": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-explain-code",
+        "displayName": "Explain Code",
+        "modelDescription": "Generate a detailed explanation of selected code including purpose, algorithm, complexity, and usage examples.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            },
+            "detailLevel": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-generate-readme",
+        "displayName": "Generate README Section",
+        "modelDescription": "Generate or update README.md sections like installation, usage, API reference, or contributing guidelines.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "section": {
+              "type": "string"
+            },
+            "projectPath": {
+              "type": "string"
+            },
+            "style": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "section"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-git-commit",
+        "displayName": "Git Commit",
+        "modelDescription": "Create a git commit with auto-generated conventional commit message based on staged changes.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "scope": {
+              "type": "string"
+            },
+            "autoStage": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-git-branch",
+        "displayName": "Git Branch Operations",
+        "modelDescription": "Create, switch, merge, or delete git branches with automatic naming conventions.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "operation": {
+              "type": "string"
+            },
+            "branchName": {
+              "type": "string"
+            },
+            "baseBranch": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "operation"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-git-diff",
+        "displayName": "Git Diff",
+        "modelDescription": "View git diff for staged, unstaged, or committed changes with syntax highlighting and summary.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "diffType": {
+              "type": "string"
+            },
+            "filePath": {
+              "type": "string"
+            },
+            "commitRange": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-analyze-dependencies",
+        "displayName": "Analyze Dependencies",
+        "modelDescription": "Analyze project dependencies for updates, vulnerabilities, unused packages, and circular dependencies.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "analysisType": {
+              "type": "string"
+            },
+            "packageManager": {
+              "type": "string"
+            },
+            "depth": {
+              "type": "number"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-analyze-complexity",
+        "displayName": "Analyze Code Complexity",
+        "modelDescription": "Calculate cyclomatic complexity, cognitive complexity, and maintainability index for code.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string"
+            },
+            "threshold": {
+              "type": "number"
+            },
+            "includeMetrics": {
+              "type": "array"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-find-patterns",
+        "displayName": "Find Code Patterns",
+        "modelDescription": "Detect design patterns, anti-patterns, code smells, and best practice violations in the codebase.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "patternType": {
+              "type": "string"
+            },
+            "filePath": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-voice-to-code",
+        "displayName": "Voice to Code",
+        "modelDescription": "Convert natural language voice description into code. VoiceCode's signature feature for hands-free coding.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            },
+            "context": {
+              "type": "string"
+            },
+            "insertAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "description"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-voice-navigate",
+        "displayName": "Voice Navigate",
+        "modelDescription": "Navigate to files, symbols, or lines using voice commands. Say 'go to login function' or 'open user service'.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string"
+            },
+            "targetType": {
+              "type": "string"
+            },
+            "preview": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "target"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-voice-edit",
+        "displayName": "Voice Edit",
+        "modelDescription": "Make code edits using natural voice commands like 'delete this function' or 'add parameter email to signup'.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "instruction": {
+              "type": "string"
+            },
+            "scope": {
+              "type": "string"
+            },
+            "confirm": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "instruction"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-multi-file-edit",
+        "displayName": "Multi-File Edit",
+        "modelDescription": "Apply coordinated edits across multiple files with preview, diff view, and atomic commit capability.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "edits": {
+              "type": "array"
+            },
+            "preview": {
+              "type": "boolean"
+            },
+            "atomic": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "edits"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-context-gather",
+        "displayName": "Gather Context",
+        "modelDescription": "Intelligently gather relevant context from the codebase including related files, dependencies, and usage patterns.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string"
+            },
+            "symbol": {
+              "type": "string"
+            },
+            "depth": {
+              "type": "number"
+            },
+            "includeTests": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-terminal-run",
+        "displayName": "Run Terminal Command",
+        "modelDescription": "Execute a command in the integrated terminal and return the output. Supports async execution and timeout.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "cwd": {
+              "type": "string"
+            },
+            "timeout": {
+              "type": "number"
+            },
+            "captureOutput": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "command"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-debug-start",
+        "displayName": "Start Debugging",
+        "modelDescription": "Start a debug session with the specified configuration, set breakpoints, and run to a specific point.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "configName": {
+              "type": "string"
+            },
+            "breakpoints": {
+              "type": "array"
+            },
+            "stopOnEntry": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-find-references",
+        "displayName": "Find All References",
+        "modelDescription": "Find all references to a symbol across the workspace with grouping by file and preview snippets.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "symbol": {
+              "type": "string"
+            },
+            "filePath": {
+              "type": "string"
+            },
+            "includeDeclaration": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "symbol"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-type-hierarchy",
+        "displayName": "Show Type Hierarchy",
+        "modelDescription": "Display the type hierarchy (supertypes and subtypes) for a class or interface.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "symbol": {
+              "type": "string"
+            },
+            "filePath": {
+              "type": "string"
+            },
+            "direction": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "symbol"
+          ]
+        }
+      },
+      {
+        "name": "voicecode-quick-fix",
+        "displayName": "Apply Quick Fix",
+        "modelDescription": "Get and apply quick fixes for diagnostics (errors, warnings) at the current position or in a file.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string"
+            },
+            "line": {
+              "type": "number"
+            },
+            "fixAll": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        }
+      },
+      {
+        "name": "voicecode-snippet-create",
+        "displayName": "Create Code Snippet",
+        "modelDescription": "Create a reusable code snippet from selected code with placeholders and tab stops.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "prefix",
+            "code"
+          ]
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "voicecode.startListening",
+        "title": "VoiceCode: Start Listening",
+        "icon": "$(mic)",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.stopListening",
+        "title": "VoiceCode: Stop Listening",
+        "icon": "$(mic-off)",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.toggleListening",
+        "title": "VoiceCode: Toggle Listening",
+        "icon": "$(mic)",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.openSettings",
+        "title": "VoiceCode: Open Settings",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.showCommands",
+        "title": "VoiceCode: Show Available Commands",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.showChatbox",
+        "title": "VoiceCode: Show AI Chatbox",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.signIn",
+        "title": "VoiceCode: Sign In",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.signOut",
+        "title": "VoiceCode: Sign Out",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.createProjectCommands",
+        "title": "VoiceCode: Create Project-Specific Commands",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.walkyTalkyPress",
+        "title": "VoiceCode: Walky-Talky Press (Push-to-Talk)",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.walkyTalkyRelease",
+        "title": "VoiceCode: Walky-Talky Release",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.setProvider",
+        "title": "VoiceCode: Set AI Provider",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.applyRefactoring",
+        "title": "VoiceCode: Apply Refactoring",
+        "category": "voicecode"
+      },
+      {
+        "command": "voicecode.createTestFile",
+        "title": "VoiceCode: Create Test File",
+        "category": "voicecode"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "voicecode.toggleListening",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v"
+      },
+      {
+        "command": "voicecode.showChatbox",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "voicecode",
+          "title": "VoiceCode",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "voicecode": [
+        {
+          "type": "webview",
+          "id": "voicecode.dashboard",
+          "name": "Dashboard",
+          "icon": "$(dashboard)"
+        },
+        {
+          "id": "voicecode.commandHistory",
+          "name": "Command History",
+          "icon": "$(history)"
+        },
+        {
+          "id": "voicecode.availableCommands",
+          "name": "Available Commands",
+          "icon": "$(list-unordered)"
+        }
+      ]
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "voicecode.showChatbox",
+          "group": "VoiceCode@1",
+          "when": "editorTextFocus"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "voicecode.toggleListening",
+          "group": "navigation",
+          "when": "voicecode.enabled"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "voicecode.showCommands",
+          "when": "view == voicecode.dashboard",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "voicecode.startListening",
+          "when": "voicecode.enabled && !VoiceCode.isListening"
+        },
+        {
+          "command": "voicecode.stopListening",
+          "when": "voicecode.enabled && VoiceCode.isListening"
+        }
+      ]
+    },
+    "walkthroughs": [
+      {
+        "id": "voicecode.gettingStarted",
+        "title": "Getting Started with VoiceCode",
+        "description": "Learn how to use voice commands to code faster",
+        "steps": [
+          {
+            "id": "voicecode.welcome",
+            "title": "Welcome to VoiceCode",
+            "description": "VoiceCode lets you code using your voice. Say commands naturally and watch your code come to life.\n\n[Open Dashboard](command:voicecode.showChatbox)",
+            "media": {
+              "markdown": "resources/walkthrough/welcome.md"
+            }
+          },
+          {
+            "id": "voicecode.startListening",
+            "title": "Start Listening",
+            "description": "Click the microphone button or use the keyboard shortcut to start voice recognition.\n\n[Start Listening](command:voicecode.startListening)",
+            "media": {
+              "markdown": "resources/walkthrough/start-listening.md"
+            }
+          },
+          {
+            "id": "voicecode.basicCommands",
+            "title": "Try Basic Commands",
+            "description": "Try saying:\n- \"Create a function called hello world\"\n- \"Add a comment above this line\"\n- \"Format this file\"\n\n[View All Commands](command:voicecode.showCommands)",
+            "media": {
+              "markdown": "resources/walkthrough/basic-commands.md"
+            }
+          },
+          {
+            "id": "voicecode.configureProvider",
+            "title": "Configure AI Provider",
+            "description": "Choose your preferred AI provider for intelligent code generation.\n\n[Open Settings](command:voicecode.openSettings)",
+            "media": {
+              "markdown": "resources/walkthrough/configure-provider.md"
+            }
+          },
+          {
+            "id": "voicecode.chatParticipant",
+            "title": "Use @VoiceCode in Chat",
+            "description": "Type @VoiceCode in VS Code's chat panel to interact with VoiceCode directly.\n\nTry: @VoiceCode /explain this code",
+            "media": {
+              "markdown": "resources/walkthrough/chat-participant.md"
+            }
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "VoiceCode",
+      "properties": {
+        "voicecode.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable VoiceCode voice commands"
+        },
+        "voicecode.language": {
+          "type": "string",
+          "default": "en-US",
+          "description": "Voice recognition language"
+        },
+        "voicecode.sttEngine": {
+          "type": "string",
+          "enum": [
+            "whisper-tiny",
+            "whisper-base",
+            "whisper-small",
+            "whisper-medium",
+            "web-speech-api"
+          ],
+          "default": "whisper-base",
+          "description": "Speech-to-text engine"
+        },
+        "voicecode.aiModel": {
+          "type": "string",
+          "enum": [
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-4-turbo",
+            "claude-3-5-sonnet-20241022"
+          ],
+          "default": "gpt-4o-mini",
+          "description": "AI model for command processing"
+        },
+        "voicecode.wakeWord": {
+          "type": "string",
+          "default": "hey code",
+          "description": "Wake word to activate voice commands"
+        },
+        "voicecode.wakeWordEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable wake word detection"
+        },
+        "voicecode.openaiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API key for embeddings and AI models"
+        },
+        "voicecode.anthropicApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Anthropic API key for Claude models"
+        },
+        "voicecode.embeddingModel": {
+          "type": "string",
+          "enum": [
+            "text-embedding-3-small",
+            "text-embedding-3-large",
+            "text-embedding-ada-002"
+          ],
+          "default": "text-embedding-3-small",
+          "description": "Embedding model for semantic search"
+        },
+        "voicecode.dailyBudgetLimit": {
+          "type": "number",
+          "default": 5.0,
+          "description": "Daily budget limit in USD for API costs"
+        },
+        "voicecode.monthlyBudgetLimit": {
+          "type": "number",
+          "default": 100.0,
+          "description": "Monthly budget limit in USD for API costs"
+        },
+        "voicecode.memoryTokenLimit": {
+          "type": "number",
+          "default": 4000,
+          "description": "Token limit for short-term conversation memory"
+        },
+        "voicecode.chunkSize": {
+          "type": "number",
+          "default": 512,
+          "description": "Chunk size for code indexing"
+        },
+        "voicecode.chunkOverlap": {
+          "type": "number",
+          "default": 50,
+          "description": "Overlap between chunks for code indexing"
+        },
+        "voicecode.autoApproveOperations": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically approve all operations (not recommended)"
+        },
+        "voicecode.autoApproveLowRisk": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically approve low-risk operations"
+        },
+        "voicecode.trustedOperations": {
+          "type": "array",
+          "default": [],
+          "description": "List of trusted operations that don't require approval"
+        },
+        "voicecode.enableSemanticSearch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable semantic code search with LlamaIndex"
+        },
+        "voicecode.enableConversationMemory": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable persistent conversation memory"
+        },
+        "voicecode.enableCostTracking": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable API cost tracking and budget limits"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node build.js --production",
+    "compile": "tsc -p ./",
+    "watch": "node build.js --watch",
+    "pretest": "npm run compile",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:vscode": "node ./out/test/runTest.js",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package --no-dependencies",
+    "publish": "vsce publish"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.76.1",
+    "@xenova/transformers": "^2.17.2",
+    "axios": "^1.7.9",
+    "eventemitter3": "^5.0.1",
+    "llamaindex": "^0.5.0",
+    "@langchain/langgraph": "^0.0.34",
+    "@langchain/core": "^0.2.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^22.10.5",
+    "@types/uuid": "^10.0.0",
+    "@types/vscode": "^1.105.0",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^2.32.0",
+    "esbuild": "^0.24.2",
+    "eslint": "^9.18.0",
+    "jsdom": "^25.0.1",
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.51.0",
+    "vitest": "^2.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kimhons/voicecode-PRO"
+  },
+  "bugs": {
+    "url": "https://github.com/kimhons/voicecode-PRO/issues",
+    "email": "khonour@yahoo.com"
+  },
+  "homepage": "https://github.com/kimhons/voicecode-PRO#readme",
+  "license": "MIT",
+  "qna": "marketplace",
+  "enableMarketplaceQnA": true,
+  "enabledApiProposals": [],
+  "preview": false
+}

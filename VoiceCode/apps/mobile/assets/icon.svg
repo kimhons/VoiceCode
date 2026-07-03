@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="micGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bgGradient)" rx="225.28"/>
+  
+  <!-- Microphone body -->
+  <ellipse cx="512" cy="430.08" rx="122.88" ry="184.32" fill="url(#micGradient)"/>
+  
+  <!-- Microphone base -->
+  <path d="M 389.12 614.4 Q 512 665.6 634.88 614.4" 
+        stroke="url(#micGradient)" stroke-width="25.6" fill="none" stroke-linecap="round"/>
+  
+  <!-- Microphone stand -->
+  <line x1="512" y1="614.4" x2="512" y2="768" 
+        stroke="url(#micGradient)" stroke-width="25.6" stroke-linecap="round"/>
+  
+  <!-- Base -->
+  <line x1="409.6" y1="768" x2="614.4" y2="768" 
+        stroke="url(#micGradient)" stroke-width="30.72" stroke-linecap="round"/>
+  
+  <!-- Sound waves (left) -->
+  <path d="M 256 358.4 Q 225.28 430.08 256 501.76" 
+        stroke="#ffffff" stroke-width="20.48" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 184.32 307.2 Q 143.36 430.08 184.32 552.96" 
+        stroke="#ffffff" stroke-width="20.48" fill="none" stroke-linecap="round" opacity="0.4"/>
+  
+  <!-- Sound waves (right) -->
+  <path d="M 768 358.4 Q 798.72 430.08 768 501.76" 
+        stroke="#ffffff" stroke-width="20.48" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 839.68 307.2 Q 880.64 430.08 839.68 552.96" 
+        stroke="#ffffff" stroke-width="20.48" fill="none" stroke-linecap="round" opacity="0.4"/>
+</svg>

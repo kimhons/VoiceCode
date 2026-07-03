@@ -1,0 +1,2 @@
+# Cargo configuration for VoiceCode Desktop
+# Use default toolchain (MSVC on Windows)

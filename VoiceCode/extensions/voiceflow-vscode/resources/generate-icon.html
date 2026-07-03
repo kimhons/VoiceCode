@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VoiceCode Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #fff;
+        }
+        h1 {
+            color: #007AFF;
+        }
+        canvas {
+            border: 2px solid #007AFF;
+            margin: 20px 0;
+            background: #fff;
+        }
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0051D5;
+        }
+        .preview {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .size-preview {
+            text-align: center;
+        }
+        .size-preview canvas {
+            display: block;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 VoiceCode Icon Generator</h1>
+    <p>This tool generates the icon.png file for the VoiceCode VSCode extension.</p>
+    
+    <h2>Main Icon (256x256)</h2>
+    <canvas id="mainCanvas" width="256" height="256"></canvas>
+    
+    <h2>Size Previews</h2>
+    <div class="preview">
+        <div class="size-preview">
+            <canvas id="preview16" width="16" height="16"></canvas>
+            <div>16x16</div>
+        </div>
+        <div class="size-preview">
+            <canvas id="preview32" width="32" height="32"></canvas>
+            <div>32x32</div>
+        </div>
+        <div class="size-preview">
+            <canvas id="preview64" width="64" height="64"></canvas>
+            <div>64x64</div>
+        </div>
+        <div class="size-preview">
+            <canvas id="preview128" width="128" height="128"></canvas>
+            <div>128x128</div>
+        </div>
+    </div>
+    
+    <button onclick="downloadIcon()">📥 Download icon.png (256x256)</button>
+    <button onclick="downloadIcon128()">📥 Download icon@2x.png (128x128)</button>
+    
+    <h2>Instructions</h2>
+    <ol>
+        <li>Click "Download icon.png (256x256)" button</li>
+        <li>Save the file as <code>icon.png</code> in the <code>resources</code> folder</li>
+        <li>The extension is now ready to package!</li>
+    </ol>
+
+    <script>
+        function drawIcon(canvas) {
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            const scale = size / 256;
+            
+            ctx.scale(scale, scale);
+            
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 256, 256);
+            gradient.addColorStop(0, '#007AFF');
+            gradient.addColorStop(1, '#0051D5');
+            
+            // Background circle
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(128, 128, 120, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Microphone body
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.roundRect(108, 70, 40, 65, 20);
+            ctx.fill();
+            
+            // Microphone stand
+            ctx.fillRect(118, 135, 20, 35);
+            
+            // Microphone base
+            ctx.beginPath();
+            ctx.roundRect(95, 165, 66, 10, 5);
+            ctx.fill();
+            
+            // Code brackets
+            ctx.font = 'bold 70px monospace';
+            ctx.fillText('{', 50, 145);
+            ctx.fillText('}', 175, 145);
+            
+            // Sound waves (left)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(75, 100);
+            ctx.quadraticCurveTo(65, 110, 75, 120);
+            ctx.stroke();
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.moveTo(65, 95);
+            ctx.quadraticCurveTo(50, 110, 65, 125);
+            ctx.stroke();
+            
+            // Sound waves (right)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            ctx.moveTo(181, 100);
+            ctx.quadraticCurveTo(191, 110, 181, 120);
+            ctx.stroke();
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.moveTo(191, 95);
+            ctx.quadraticCurveTo(206, 110, 191, 125);
+            ctx.stroke();
+        }
+        
+        // Draw all previews
+        drawIcon(document.getElementById('mainCanvas'));
+        drawIcon(document.getElementById('preview16'));
+        drawIcon(document.getElementById('preview32'));
+        drawIcon(document.getElementById('preview64'));
+        drawIcon(document.getElementById('preview128'));
+        
+        function downloadIcon() {
+            const canvas = document.getElementById('mainCanvas');
+            const link = document.createElement('a');
+            link.download = 'icon.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadIcon128() {
+            const canvas = document.getElementById('preview128');
+            const link = document.createElement('a');
+            link.download = 'icon@2x.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
+

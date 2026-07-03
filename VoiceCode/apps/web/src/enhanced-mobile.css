@@ -1,0 +1,305 @@
+/* VoiceFlow Pro - Enhanced Mobile-First Responsive CSS */
+
+/* CSS Custom Properties for Mobile Optimization */
+:root {
+  /* Safe area support for mobile devices with notches */
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-right: env(safe-area-inset-right);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  --safe-area-inset-left: env(safe-area-inset-left);
+
+  /* Mobile-optimized spacing */
+  --mobile-spacing-xs: 0.5rem;
+  --mobile-spacing-sm: 0.75rem;
+  --mobile-spacing-md: 1rem;
+  --mobile-spacing-lg: 1.5rem;
+  --mobile-spacing-xl: 2rem;
+
+  /* Touch target sizes */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+
+  /* Mobile typography */
+  --mobile-font-size-xs: 0.75rem;
+  --mobile-font-size-sm: 0.875rem;
+  --mobile-font-size-base: 1rem;
+  --mobile-font-size-lg: 1.125rem;
+  --mobile-font-size-xl: 1.25rem;
+}
+
+/* Base responsive styles */
+.voiceflow-app {
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .voiceflow-app {
+    padding: var(--mobile-spacing-md);
+    padding-bottom: calc(var(--mobile-spacing-xl) + var(--safe-area-inset-bottom));
+    
+    /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden;
+  }
+
+  /* Mobile-first grid layouts */
+  .voiceflow-app .grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--mobile-spacing-md) !important;
+  }
+
+  /* Mobile-optimized buttons */
+  .voiceflow-app button {
+    min-height: var(--touch-target-min);
+    font-size: var(--mobile-font-size-base); /* Prevent zoom on iOS */
+    padding: var(--mobile-spacing-sm) var(--mobile-spacing-md);
+    
+    /* Enhanced touch feedback */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Mobile-optimized form inputs */
+  .voiceflow-app input,
+  .voiceflow-app select,
+  .voiceflow-app textarea {
+    min-height: var(--touch-target-min);
+    font-size: var(--mobile-font-size-base);
+    padding: var(--mobile-spacing-sm) var(--mobile-spacing-md);
+  }
+
+  /* Mobile-optimized cards/sections */
+  .voiceflow-app section,
+  .voiceflow-app .card {
+    padding: var(--mobile-spacing-md);
+    margin-bottom: var(--mobile-spacing-md);
+    border-radius: var(--mobile-spacing-sm);
+    
+    /* Remove shadows on mobile for better performance */
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  /* Mobile-optimized text */
+  .voiceflow-app h1 {
+    font-size: var(--mobile-font-size-xl);
+    line-height: 1.2;
+  }
+
+  .voiceflow-app h2 {
+    font-size: var(--mobile-font-size-lg);
+    line-height: 1.3;
+  }
+
+  .voiceflow-app p {
+    font-size: var(--mobile-font-size-base);
+    line-height: 1.5;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .voiceflow-app {
+    padding: var(--mobile-spacing-lg);
+  }
+
+  .voiceflow-app .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--mobile-spacing-lg);
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .voiceflow-app {
+    /* Optimize for retina displays */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .voiceflow-app {
+    padding: var(--mobile-spacing-sm);
+    padding-left: calc(var(--safe-area-inset-left) + var(--mobile-spacing-sm));
+    padding-right: calc(var(--safe-area-inset-right) + var(--mobile-spacing-sm));
+  }
+
+  /* Reduce header height in landscape */
+  .voiceflow-app header {
+    padding: var(--mobile-spacing-xs) 0;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .voiceflow-app *,
+  .voiceflow-app *::before,
+  .voiceflow-app *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .voiceflow-app {
+    --border-color: #000;
+    --text-color: #000;
+    --background-color: #fff;
+  }
+
+  .voiceflow-app button,
+  .voiceflow-app input,
+  .voiceflow-app select {
+    border: 2px solid var(--border-color);
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .voiceflow-app {
+    /* Optimize dark mode for mobile OLED displays */
+    background-color: #000;
+    color: #fff;
+  }
+
+  /* Reduce blue light on mobile */
+  .voiceflow-app .primary-color {
+    filter: hue-rotate(180deg) brightness(0.8);
+  }
+}
+
+/* Touch device specific optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .voiceflow-app {
+    /* Remove hover states */
+  }
+
+  .voiceflow-app button:hover,
+  .voiceflow-app button:focus {
+    transform: none;
+  }
+
+  .voiceflow-app button:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* iOS specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  .voiceflow-app {
+    /* iOS Safari specific fixes */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .voiceflow-app input,
+  .voiceflow-app textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Fix viewport height issues on iOS */
+  .voiceflow-app {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Android specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .voiceflow-app {
+    /* Android Chrome specific fixes */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+}
+
+/* Performance optimizations */
+.voiceflow-app {
+  /* Enable hardware acceleration for smooth scrolling */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.voiceflow-app .recording-animation {
+  /* Optimize animations for mobile */
+  will-change: transform, opacity;
+}
+
+@media (max-width: 768px) {
+  .voiceflow-app .recording-animation {
+    /* Reduce animation complexity on mobile */
+    animation-duration: 1s;
+  }
+}
+
+/* Loading state optimizations */
+.loading-state {
+  /* GPU acceleration for loading spinners */
+  transform: translateZ(0);
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+}
+
+/* Accessibility improvements */
+.voiceflow-app {
+  /* Ensure sufficient color contrast */
+  color-scheme: light dark;
+}
+
+.voiceflow-app .visually-hidden {
+  /* Screen reader only content */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus management for mobile */
+.voiceflow-app button:focus,
+.voiceflow-app input:focus,
+.voiceflow-app select:focus {
+  outline: 2px solid #007acc;
+  outline-offset: 2px;
+}
+
+/* Error boundary styles */
+.error-boundary {
+  padding: var(--mobile-spacing-md);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--mobile-spacing-sm);
+  color: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error-boundary {
+    background-color: #1f1f1f;
+    border-color: #374151;
+    color: #f87171;
+  }
+}

@@ -1,0 +1,6 @@
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="7.727306999999999">
+<testsuite name="smoke.spec.ts" timestamp="2025-10-31T00:06:38.695Z" hostname="chromium" tests="1" failures="0" skipped="0" time="6.165" errors="0">
+<testcase name="E2E Smoke: login → dashboard → recording UI › landing → login → app (ModernDashboard) → dashboard" classname="smoke.spec.ts" time="6.165">
+</testcase>
+</testsuite>
+</testsuites>

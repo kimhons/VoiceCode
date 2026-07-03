@@ -1,0 +1,70 @@
+name: UI E2E Tests
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/ui-e2e.yml"
+  push:
+    branches: [main, master]
+    paths:
+      - "apps/web/**"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Security audit
+        run: npx audit-ci --high
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install chromium
+
+      - name: Start Vite preview
+        run: npm run preview -- --host --port 4173 &
+        shell: bash
+
+      - name: Wait for preview
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:4173 > /dev/null; then
+              echo "Preview is up"
+              break
+            fi
+            echo "Waiting for preview..."
+            sleep 1
+          done
+
+      - name: E2E smoke tests
+        run: npx playwright test e2e/smoke.spec.ts
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: |
+            apps/web/test-results
+            apps/web/playwright-report
+          if-no-files-found: warn
+
