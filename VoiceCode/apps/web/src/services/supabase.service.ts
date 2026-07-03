@@ -1,15 +1,29 @@
 /**
  * Supabase Service
  * Phase 2.3: Cloud Sync & Storage
- * 
+ *
  * Provides cloud storage, real-time sync, and collaboration features
  */
 
-import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
+import {
+  createClient,
+  SupabaseClient,
+  User,
+  Session,
+} from '@supabase/supabase-js';
 
 // Supabase configuration
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Check if credentials are actually configured (not empty/placeholder)
+const isConfigured = () => {
+  const configured =
+    SUPABASE_URL.length > 10 &&
+    SUPABASE_URL.includes('supabase.co') &&
+    SUPABASE_ANON_KEY.length > 30;
+  return configured;
+};
 
 // Database types
 export interface Transcript {
@@ -51,7 +65,7 @@ export interface TranscriptMetadata {
   version: string;
   tags?: string[];
   custom_vocabulary?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface UserProfile {
@@ -151,10 +165,17 @@ export class SupabaseService {
   }
 
   /**
-   * Check if service is available
+   * Check if service is available and properly configured
+   * DEMO MODE: Returns false to enable local testing without Supabase
    */
   isAvailable(): boolean {
-    return this.isInitialized && this.client !== null;
+    // Force demo mode for local testing - set to true when Supabase is configured
+    const FORCE_DEMO_MODE = true;
+    if (FORCE_DEMO_MODE) {
+      console.log('Demo mode enabled - Supabase bypassed');
+      return false;
+    }
+    return this.isInitialized && this.client !== null && isConfigured();
   }
 
   /**
@@ -167,7 +188,11 @@ export class SupabaseService {
   /**
    * Sign up with email and password
    */
-  async signUp(email: string, password: string, fullName?: string): Promise<User> {
+  async signUp(
+    email: string,
+    password: string,
+    fullName?: string
+  ): Promise<User> {
     if (!this.client) throw new Error('Supabase not initialized');
 
     const { data, error } = await this.client.auth.signUp({
@@ -268,9 +293,7 @@ export class SupabaseService {
       },
     };
 
-    const { error } = await this.client
-      .from('user_profiles')
-      .insert(profile);
+    const { error } = await this.client.from('user_profiles').insert(profile);
 
     // Ignore duplicate key errors (profile already exists from trigger)
     if (error && !error.message.includes('duplicate key')) {
@@ -318,7 +341,9 @@ export class SupabaseService {
   /**
    * Save transcript to cloud
    */
-  async saveTranscript(transcript: Omit<Transcript, 'id' | 'created_at' | 'updated_at'>): Promise<Transcript> {
+  async saveTranscript(
+    transcript: Omit<Transcript, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Transcript> {
     if (!this.client) throw new Error('Supabase not initialized');
     if (!this.currentUser) throw new Error('No user logged in');
 
@@ -355,7 +380,10 @@ export class SupabaseService {
   /**
    * Get all transcripts for current user
    */
-  async getTranscripts(limit: number = 50, offset: number = 0): Promise<Transcript[]> {
+  async getTranscripts(
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<Transcript[]> {
     if (!this.client) throw new Error('Supabase not initialized');
     if (!this.currentUser) throw new Error('No user logged in');
 
@@ -374,7 +402,10 @@ export class SupabaseService {
   /**
    * Update transcript
    */
-  async updateTranscript(id: string, updates: Partial<Transcript>): Promise<Transcript> {
+  async updateTranscript(
+    id: string,
+    updates: Partial<Transcript>
+  ): Promise<Transcript> {
     if (!this.client) throw new Error('Supabase not initialized');
 
     const { data, error } = await this.client
@@ -411,7 +442,10 @@ export class SupabaseService {
   /**
    * Search transcripts
    */
-  async searchTranscripts(query: string, limit: number = 20): Promise<Transcript[]> {
+  async searchTranscripts(
+    query: string,
+    limit: number = 20
+  ): Promise<Transcript[]> {
     if (!this.client) throw new Error('Supabase not initialized');
     if (!this.currentUser) throw new Error('No user logged in');
 
@@ -440,4 +474,3 @@ export function getSupabaseService(): SupabaseService {
 }
 
 export default getSupabaseService;
-

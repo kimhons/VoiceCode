@@ -2,7 +2,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
     "module": "esnext",
     "moduleResolution": "node",
@@ -15,6 +17,8 @@
   "extends": "expo/tsconfig.base",
   "exclude": [
     "node_modules",
+    "VoiceCodeMobile",
+    "VoiceCodeMobile_Legacy",
     "VoiceFlowMobile",
     "VoiceFlowMobile_Legacy",
     "**/__tests__/**",
@@ -22,5 +26,11 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "**/*.spec.tsx"
+  ],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
   ]
 }

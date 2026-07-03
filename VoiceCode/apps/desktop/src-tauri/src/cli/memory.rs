@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Memory System - Hierarchical persistent context management
 // Inspired by Claude Code's CLAUDE.md, Codex's AGENTS.md, and Manus's file-based memory
 // Provides zero-hallucination context through validated, persistent memories
@@ -758,6 +759,54 @@ impl MemorySystem {
     /// Get the working directory
     pub fn working_dir(&self) -> &Path {
         &self.working_dir
+    }
+
+    /// Get all context as a single string (for integration with context engine)
+    pub fn get_all_context(&self) -> Option<String> {
+        let context = self.build_system_prompt(None);
+        if context.is_empty() {
+            None
+        } else {
+            Some(context)
+        }
+    }
+
+    /// Add an auto-memory entry (for integration with context engine)
+    pub async fn add_auto_memory(&mut self, key: &str, value: &str, memory_type: AutoMemoryType) -> Result<(), String> {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+
+        let memory = self
+            .auto_memories
+            .entry(memory_type)
+            .or_insert_with(|| AutoMemory {
+                memory_type,
+                entries: Vec::new(),
+                updated_at: now,
+            });
+
+        // Check if we already have this entry
+        if let Some(entry) = memory.entries.iter_mut().find(|e| e.key == key) {
+            entry.frequency += 1;
+            entry.last_used = now;
+            entry.value = value.to_string();
+        } else {
+            memory.entries.push(AutoMemoryEntry {
+                key: key.to_string(),
+                value: value.to_string(),
+                frequency: 1,
+                last_used: now,
+                confidence: 0.5,
+            });
+        }
+
+        memory.updated_at = now;
+
+        // Persist to disk - use working dir from context if available
+        let working_dir = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
+        self.save_auto_memories(&working_dir).await
     }
 }
 

@@ -8,8 +8,7 @@ use colored::Colorize;
 
 // Import from the main library
 use voicecode_desktop::cli::{
-    self, ReplConfig, BatchMode, AgentRegistry, AgentOrchestrator,
-    OrchestratorConfig, ExternalAgentFactory,
+    self, ReplConfig, BatchMode, AgentRegistry, ExternalAgentFactory,
 };
 
 #[derive(Parser)]
@@ -278,9 +277,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Execute command
-    let result = match cli.command {
+    let result = match &cli.command {
         None | Some(Commands::Interactive(_)) => {
-            run_interactive(cli).await
+            run_interactive(&cli).await
         }
         Some(Commands::Prompt(args)) => {
             run_prompt(args, &cli).await
@@ -336,20 +335,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-async fn run_interactive(cli: Cli) -> Result<(), String> {
+async fn run_interactive(cli: &Cli) -> Result<(), String> {
     let (registry, orchestrator) = cli::init_cli();
 
     let mut config = ReplConfig::default();
 
-    if let Some(cwd) = cli.cwd {
-        config.working_dir = cwd;
+    if let Some(ref cwd) = cli.cwd {
+        config.working_dir = cwd.clone();
     }
 
     let mut session = cli::ReplSession::new(config, registry, orchestrator);
     session.run().await
 }
 
-async fn run_prompt(args: PromptArgs, cli: &Cli) -> Result<(), String> {
+async fn run_prompt(args: &PromptArgs, cli: &Cli) -> Result<(), String> {
     let (registry, orchestrator) = cli::init_cli();
     let mut batch = BatchMode::new(registry, orchestrator);
 
@@ -363,14 +362,14 @@ async fn run_prompt(args: PromptArgs, cli: &Cli) -> Result<(), String> {
         if result.success {
             println!("{}", result.output);
         } else {
-            if let Some(error) = result.error {
+            if let Some(ref error) = result.error {
                 eprintln!("{}", error);
             }
         }
     }
 
-    if let Some(output_path) = args.output {
-        std::fs::write(&output_path, &result.output)
+    if let Some(ref output_path) = args.output {
+        std::fs::write(output_path, &result.output)
             .map_err(|e| format!("Failed to write output: {}", e))?;
         println!("{} {}", "Output written to:".green(), output_path.display());
     }
@@ -378,7 +377,7 @@ async fn run_prompt(args: PromptArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_script(args: ScriptArgs, cli: &Cli) -> Result<(), String> {
+async fn run_script(args: &ScriptArgs, cli: &Cli) -> Result<(), String> {
     let (registry, orchestrator) = cli::init_cli();
     let mut batch = BatchMode::new(registry, orchestrator);
 
@@ -400,7 +399,7 @@ async fn run_script(args: ScriptArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_generate(args: GenerateArgs, _cli: &Cli) -> Result<(), String> {
+async fn run_generate(args: &GenerateArgs, _cli: &Cli) -> Result<(), String> {
     let prompt = format!(
         "Generate {} code: {}",
         args.language.as_deref().unwrap_or(""),
@@ -409,8 +408,8 @@ async fn run_generate(args: GenerateArgs, _cli: &Cli) -> Result<(), String> {
 
     let result = cli::execute_command(&prompt).await?;
 
-    if let Some(output_path) = args.output {
-        std::fs::write(&output_path, &result.output)
+    if let Some(ref output_path) = args.output {
+        std::fs::write(output_path, &result.output)
             .map_err(|e| format!("Failed to write: {}", e))?;
         println!("{} {}", "Created:".green(), output_path.display());
     } else {
@@ -420,8 +419,8 @@ async fn run_generate(args: GenerateArgs, _cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_review(args: ReviewArgs, cli: &Cli) -> Result<(), String> {
-    for file in args.files {
+async fn run_review(args: &ReviewArgs, cli: &Cli) -> Result<(), String> {
+    for file in &args.files {
         let focus = if args.focus.is_empty() {
             String::new()
         } else {
@@ -441,12 +440,12 @@ async fn run_review(args: ReviewArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_fix(args: FixArgs, cli: &Cli) -> Result<(), String> {
-    let file_str = args.file
+async fn run_fix(args: &FixArgs, cli: &Cli) -> Result<(), String> {
+    let file_str = args.file.as_ref()
         .map(|f| f.display().to_string())
         .unwrap_or_else(|| "current file".to_string());
 
-    let prompt = if let Some(error) = args.error {
+    let prompt = if let Some(ref error) = args.error {
         format!("Fix the error '{}' in {}", error, file_str)
     } else {
         format!("Fix bugs in {}", file_str)
@@ -470,8 +469,8 @@ async fn run_fix(args: FixArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_refactor(args: RefactorArgs, cli: &Cli) -> Result<(), String> {
-    for file in args.files {
+async fn run_refactor(args: &RefactorArgs, cli: &Cli) -> Result<(), String> {
+    for file in &args.files {
         let prompt = format!(
             "Refactor {} in {} - type: {}{}{}",
             args.target.as_deref().unwrap_or("code"),
@@ -493,8 +492,8 @@ async fn run_refactor(args: RefactorArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_test(args: TestArgs, cli: &Cli) -> Result<(), String> {
-    for file in args.files {
+async fn run_test(args: &TestArgs, cli: &Cli) -> Result<(), String> {
+    for file in &args.files {
         let prompt = format!(
             "Generate {} tests for {} with {}% coverage{}",
             args.test_type,
@@ -515,7 +514,7 @@ async fn run_test(args: TestArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_explain(args: ExplainArgs, cli: &Cli) -> Result<(), String> {
+async fn run_explain(args: &ExplainArgs, cli: &Cli) -> Result<(), String> {
     let prompt = format!(
         "Explain the code in {} with {} detail{}",
         args.file.display(),
@@ -534,7 +533,7 @@ async fn run_explain(args: ExplainArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_search(args: SearchArgs, cli: &Cli) -> Result<(), String> {
+async fn run_search(args: &SearchArgs, cli: &Cli) -> Result<(), String> {
     let prompt = format!(
         "Search for '{}' in {} scope{}",
         args.query,
@@ -553,7 +552,7 @@ async fn run_search(args: SearchArgs, cli: &Cli) -> Result<(), String> {
     Ok(())
 }
 
-async fn run_agents(args: AgentsArgs, cli: &Cli) -> Result<(), String> {
+async fn run_agents(args: &AgentsArgs, cli: &Cli) -> Result<(), String> {
     let registry = std::sync::Arc::new(AgentRegistry::with_voicecode_agent());
     let agents = if args.available {
         registry.list_available().await
@@ -582,7 +581,7 @@ async fn run_agents(args: AgentsArgs, cli: &Cli) -> Result<(), String> {
                 println!("   Type: {:?}", agent.agent_type);
                 println!("   Priority: {}", agent.priority);
                 println!("   Capabilities: {:?}", agent.capabilities.len());
-                if let Some(endpoint) = agent.endpoint {
+                if let Some(ref endpoint) = agent.endpoint {
                     println!("   Endpoint: {}", endpoint);
                 }
                 println!();

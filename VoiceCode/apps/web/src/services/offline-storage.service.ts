@@ -7,7 +7,7 @@
 
 import { Transcript } from './supabase.service';
 
-const DB_NAME = 'voiceflow_pro';
+const DB_NAME = 'voicecode';
 const DB_VERSION = 1;
 const TRANSCRIPTS_STORE = 'transcripts';
 const METADATA_STORE = 'metadata';

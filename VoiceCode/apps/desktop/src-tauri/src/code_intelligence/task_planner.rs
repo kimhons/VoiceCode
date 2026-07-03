@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 5: Agentic Capabilities - Task Planner
 // Plans multi-step coding tasks with execution strategy
 
@@ -10,7 +11,7 @@ use uuid::Uuid;
 
 use super::context_builder::ProjectContext;
 use super::intent_classifier::{ClassifiedIntent, CodingIntent};
-use super::llm_client::{LLMClient, LLMRequest, Message, ModelConfig};
+use super::llm_client::{LLMClient, LLMRequest, Message};
 
 /// A planned task step
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -546,7 +547,7 @@ Keep the plan focused and actionable. Maximum {} steps."#,
 
         // Parse LLM response into plan
         // For now, create a basic plan and enhance it
-        let mut plan = self.create_plan(intent, Some(context.clone()))?;
+        let plan = self.create_plan(intent, Some(context.clone()))?;
 
         // Could parse LLM response to add more detailed steps
         // This is a simplified version
@@ -643,11 +644,15 @@ impl StepExecutor {
         plan: &mut TaskPlan,
         step_id: &str,
     ) -> Result<StepResult, String> {
-        let step = plan.get_step_mut(step_id)
-            .ok_or("Step not found")?;
+        // First, check if step exists and get dependencies
+        let (dependencies, target, action) = {
+            let step = plan.steps.iter().find(|s| s.id == step_id)
+                .ok_or("Step not found")?;
+            (step.dependencies.clone(), step.target.clone(), step.action.clone())
+        };
 
         // Check dependencies
-        for dep_id in &step.dependencies {
+        for dep_id in &dependencies {
             if let Some(dep_step) = plan.steps.iter().find(|s| &s.id == dep_id) {
                 if dep_step.status != StepStatus::Completed {
                     return Err(format!("Dependency {} not completed", dep_id));
@@ -655,51 +660,59 @@ impl StepExecutor {
             }
         }
 
-        step.status = StepStatus::InProgress;
-        let start = std::time::Instant::now();
+        // Set status to in progress
+        if let Some(step) = plan.steps.iter_mut().find(|s| s.id == step_id) {
+            step.status = StepStatus::InProgress;
+        }
 
-        let result = match &step.action {
-            StepAction::ReadFile => self.execute_read_file(&step.target).await,
-            StepAction::WriteFile => self.execute_write_file(&step.target).await,
-            StepAction::ModifyCode => self.execute_modify_code(&step.target, plan.context.as_ref()).await,
-            StepAction::Delete => self.execute_delete(&step.target).await,
-            StepAction::RunCommand => self.execute_run_command(&step.target).await,
-            StepAction::Search => self.execute_search(&step.target).await,
-            StepAction::GenerateCode => self.execute_generate_code(&step.target, plan.context.as_ref()).await,
-            StepAction::Verify => self.execute_verify(&step.target).await,
-            StepAction::Analyze => self.execute_analyze(&step.target).await,
-            StepAction::CreateDirectory => self.execute_create_directory(&step.target).await,
-            StepAction::MoveFile => self.execute_move_file(&step.target).await,
-            StepAction::InstallDependency => self.execute_install_dep(&step.target).await,
+        let start = std::time::Instant::now();
+        let context = plan.context.clone();
+
+        let result = match action {
+            StepAction::ReadFile => self.execute_read_file(&target).await,
+            StepAction::WriteFile => self.execute_write_file(&target).await,
+            StepAction::ModifyCode => self.execute_modify_code(&target, context.as_ref()).await,
+            StepAction::Delete => self.execute_delete(&target).await,
+            StepAction::RunCommand => self.execute_run_command(&target).await,
+            StepAction::Search => self.execute_search(&target).await,
+            StepAction::GenerateCode => self.execute_generate_code(&target, context.as_ref()).await,
+            StepAction::Verify => self.execute_verify(&target).await,
+            StepAction::Analyze => self.execute_analyze(&target).await,
+            StepAction::CreateDirectory => self.execute_create_directory(&target).await,
+            StepAction::MoveFile => self.execute_move_file(&target).await,
+            StepAction::InstallDependency => self.execute_install_dep(&target).await,
         };
 
         let duration = start.elapsed().as_millis() as u64;
 
         match result {
             Ok(output) => {
-                let step = plan.get_step_mut(step_id).unwrap();
-                step.status = StepStatus::Completed;
-                step.result = Some(StepResult {
+                let step_result = StepResult {
                     success: true,
                     output: Some(output),
                     error: None,
                     artifacts: vec![],
                     duration_ms: duration,
-                });
+                };
+                if let Some(step) = plan.steps.iter_mut().find(|s| s.id == step_id) {
+                    step.status = StepStatus::Completed;
+                    step.result = Some(step_result.clone());
+                }
                 plan.executed_steps += 1;
                 plan.total_duration_ms += duration;
-                Ok(step.result.clone().unwrap())
+                Ok(step_result)
             }
             Err(error) => {
-                let step = plan.get_step_mut(step_id).unwrap();
-                step.status = StepStatus::Failed;
-                step.result = Some(StepResult {
-                    success: false,
-                    output: None,
-                    error: Some(error.clone()),
-                    artifacts: vec![],
-                    duration_ms: duration,
-                });
+                if let Some(step) = plan.steps.iter_mut().find(|s| s.id == step_id) {
+                    step.status = StepStatus::Failed;
+                    step.result = Some(StepResult {
+                        success: false,
+                        output: None,
+                        error: Some(error.clone()),
+                        artifacts: vec![],
+                        duration_ms: duration,
+                    });
+                }
                 plan.status = PlanStatus::Failed;
                 Err(error)
             }

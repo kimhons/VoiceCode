@@ -17,6 +17,7 @@ export declare const getOnboardingService: () => Promise<import("./OnboardingSer
  * PRO TIER SERVICES (Lazy load on-demand)
  */
 export declare const getBillingService: () => Promise<import("./BillingService").BillingService>;
+export declare const getPricingService: () => Promise<import("./PricingService").PricingService>;
 export declare const getCloudSyncService: () => Promise<import("./CloudSyncService").CloudSyncService>;
 export declare const getVoiceTrainingService: () => Promise<import("./VoiceTrainingService").VoiceTrainingService>;
 /**
@@ -36,6 +37,18 @@ export declare const getVoiceFlowChatParticipant: () => Promise<import("./VoiceF
  */
 export declare const getMultiFileEditingService: () => Promise<import("./MultiFileEditingService").MultiFileEditingService>;
 export declare const getTelemetryService: () => Promise<import("./TelemetryService").TelemetryService>;
+/**
+ * ENHANCED AGENTIC SERVICES (New)
+ */
+export declare const getCodebaseIndexService: () => Promise<import("./CodebaseIndexService").CodebaseIndexService>;
+export declare const getConversationMemoryService: () => Promise<import("./ConversationMemoryService").ConversationMemoryService>;
+export declare const getCostTrackingService: () => Promise<import("./CostTrackingService").CostTrackingService>;
+export declare const getToolChainExecutor: () => Promise<import("./ToolChainExecutor").ToolChainExecutor>;
+export declare const getHumanApprovalService: () => Promise<import("./HumanApprovalService").HumanApprovalService>;
+export declare const getAgentFactory: () => Promise<import("./SpecializedAgents").AgentFactory>;
+export declare const getAgentRegistry: () => Promise<import("./AgentRegistry").AgentRegistry>;
+export declare const getAgentCommunicationHub: () => Promise<import("./AgentCommunicationHub").AgentCommunicationHub>;
+export declare const getVoiceSettingsService: () => Promise<import("./VoiceSettingsService").VoiceSettingsService>;
 /**
  * Service initialization based on user tier
  */

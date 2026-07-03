@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Multi-Agent Collaboration System
 // Enables collaborative and sequential task execution across external AI agents
 // Supports Claude Code, Gemini CLI, Codex CLI, and custom agents
@@ -131,7 +132,7 @@ impl ExternalAgentType {
             ],
             ExternalAgentType::Aider => vec![
                 TaskCategory::CodeGeneration,
-                TaskCategory::Refactoring,
+                TaskCategory::ComplexRefactoring,
                 TaskCategory::GitOperations,
             ],
             ExternalAgentType::ContinueDev => {
@@ -554,8 +555,8 @@ pub struct CollaborativeTask {
     pub parent_id: Option<String>,
     /// Dependencies (task IDs that must complete first)
     pub dependencies: Vec<String>,
-    /// Deadline (optional)
-    pub deadline: Option<Instant>,
+    /// Deadline timeout in milliseconds (optional)
+    pub deadline_ms: Option<u64>,
     /// Metadata
     pub metadata: HashMap<String, String>,
 }
@@ -981,7 +982,7 @@ impl MultiAgentOrchestrator {
             error: None,
             timestamp: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
+                .unwrap_or_default()
                 .as_secs(),
         })
     }
@@ -1059,7 +1060,7 @@ impl MultiAgentOrchestrator {
             error: None,
             timestamp: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
+                .unwrap_or_default()
                 .as_secs(),
         })
     }
@@ -1152,7 +1153,7 @@ impl MultiAgentOrchestrator {
             error: None,
             timestamp: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
+                .unwrap_or_default()
                 .as_secs(),
         })
     }
@@ -1190,7 +1191,7 @@ impl MultiAgentOrchestrator {
                     all_changes.extend(self.parse_file_changes(&output));
                     completed_stages.push(stage.name.clone());
                 }
-                Ok(Err(e)) | Err(_) => {
+                Ok(Err(_)) | Err(_) => {
                     if stage.required {
                         if config.rollback_on_failure {
                             // Rollback logic would go here
@@ -1217,7 +1218,7 @@ impl MultiAgentOrchestrator {
             error: None,
             timestamp: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
+                .unwrap_or_default()
                 .as_secs(),
         })
     }
@@ -1356,7 +1357,7 @@ impl MultiAgentOrchestrator {
             error: None,
             timestamp: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
+                .unwrap_or_default()
                 .as_secs(),
         })
     }
@@ -1441,9 +1442,307 @@ impl MultiAgentOrchestrator {
     }
 
     /// Helper: parse file changes from output
-    fn parse_file_changes(&self, _output: &str) -> Vec<FileChange> {
-        // TODO: Implement actual parsing based on agent output format
-        Vec::new()
+    /// Supports multiple formats: markdown code blocks, diff patches, JSON, and natural language
+    fn parse_file_changes(&self, output: &str) -> Vec<FileChange> {
+        let mut changes = Vec::new();
+
+        // Try parsing as JSON first (structured output)
+        if let Some(json_changes) = self.try_parse_json_changes(output) {
+            return json_changes;
+        }
+
+        // Parse markdown code blocks with file paths
+        changes.extend(self.parse_markdown_code_blocks(output));
+
+        // Parse diff/patch format
+        changes.extend(self.parse_diff_format(output));
+
+        // Parse natural language file references
+        changes.extend(self.parse_natural_language_changes(output));
+
+        // Deduplicate by path
+        let mut seen_paths = std::collections::HashSet::new();
+        changes.retain(|c| seen_paths.insert(c.path.clone()));
+
+        changes
+    }
+
+    /// Try to parse JSON-formatted file changes
+    fn try_parse_json_changes(&self, output: &str) -> Option<Vec<FileChange>> {
+        // Look for JSON array or object containing file changes
+        if let Some(json_start) = output.find('[') {
+            if let Some(json_end) = output.rfind(']') {
+                let json_str = &output[json_start..=json_end];
+                if let Ok(changes) = serde_json::from_str::<Vec<FileChange>>(json_str) {
+                    return Some(changes);
+                }
+            }
+        }
+
+        // Try parsing as {"file_changes": [...]} format
+        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(output) {
+            if let Some(changes) = parsed.get("file_changes").or(parsed.get("changes")) {
+                if let Ok(file_changes) = serde_json::from_value::<Vec<FileChange>>(changes.clone()) {
+                    return Some(file_changes);
+                }
+            }
+        }
+
+        None
+    }
+
+    /// Parse markdown code blocks that specify file paths
+    fn parse_markdown_code_blocks(&self, output: &str) -> Vec<FileChange> {
+        let mut changes = Vec::new();
+        let lines: Vec<&str> = output.lines().collect();
+        let mut i = 0;
+
+        while i < lines.len() {
+            let line = lines[i];
+
+            // Look for file path annotations before code blocks
+            // Patterns: "// file: path.rs", "# path.py", "<!-- path.html -->"
+            let file_path = self.extract_file_path_annotation(line);
+
+            // Check for code block start
+            if line.trim().starts_with("```") {
+                let lang = line.trim().trim_start_matches("```").trim();
+                let mut content = String::new();
+                i += 1;
+
+                // Collect code block content
+                while i < lines.len() && !lines[i].trim().starts_with("```") {
+                    content.push_str(lines[i]);
+                    content.push('\n');
+                    i += 1;
+                }
+
+                // If we found a file path, create a change
+                if let Some(path) = file_path {
+                    changes.push(FileChange {
+                        path: PathBuf::from(path),
+                        change_type: FileChangeType::Modified,
+                        old_content: None,
+                        new_content: Some(content.trim_end().to_string()),
+                        diff: None,
+                    });
+                } else if !lang.is_empty() && !content.is_empty() {
+                    // Try to infer filename from language
+                    let ext = Self::lang_to_extension(lang);
+                    if !ext.is_empty() {
+                        changes.push(FileChange {
+                            path: PathBuf::from(format!("generated.{}", ext)),
+                            change_type: FileChangeType::Created,
+                            old_content: None,
+                            new_content: Some(content.trim_end().to_string()),
+                            diff: None,
+                        });
+                    }
+                }
+            }
+
+            i += 1;
+        }
+
+        changes
+    }
+
+    /// Extract file path from annotation comments
+    fn extract_file_path_annotation(&self, line: &str) -> Option<String> {
+        let patterns = [
+            ("// file:", ""),
+            ("# file:", ""),
+            ("/* file:", "*/"),
+            ("<!-- file:", "-->"),
+            ("// ", ""),
+            ("# ", ""),
+        ];
+
+        let trimmed = line.trim();
+
+        for (prefix, suffix) in &patterns {
+            if trimmed.starts_with(prefix) {
+                let rest = trimmed.trim_start_matches(prefix).trim();
+                let path = if !suffix.is_empty() && rest.ends_with(suffix) {
+                    rest.trim_end_matches(suffix).trim()
+                } else {
+                    rest
+                };
+
+                // Check if it looks like a file path
+                if path.contains('.') && !path.contains(' ') && path.len() < 200 {
+                    return Some(path.to_string());
+                }
+            }
+        }
+
+        None
+    }
+
+    /// Parse unified diff format
+    fn parse_diff_format(&self, output: &str) -> Vec<FileChange> {
+        let mut changes = Vec::new();
+        let mut current_file: Option<String> = None;
+        let mut current_diff = String::new();
+        let mut old_content = String::new();
+        let mut new_content = String::new();
+        let mut in_diff = false;
+
+        for line in output.lines() {
+            // Detect diff start
+            if line.starts_with("diff --git") || line.starts_with("--- a/") {
+                // Save previous diff if any
+                if let Some(ref path) = current_file {
+                    if !current_diff.is_empty() {
+                        changes.push(FileChange {
+                            path: PathBuf::from(path),
+                            change_type: FileChangeType::Modified,
+                            old_content: if old_content.is_empty() { None } else { Some(old_content.clone()) },
+                            new_content: if new_content.is_empty() { None } else { Some(new_content.clone()) },
+                            diff: Some(current_diff.clone()),
+                        });
+                    }
+                }
+
+                // Reset for new file
+                current_diff.clear();
+                old_content.clear();
+                new_content.clear();
+                in_diff = true;
+
+                // Extract file path
+                if line.starts_with("diff --git") {
+                    // Format: diff --git a/path b/path
+                    if let Some(b_path) = line.split(" b/").last() {
+                        current_file = Some(b_path.to_string());
+                    }
+                } else if line.starts_with("--- a/") {
+                    current_file = Some(line.trim_start_matches("--- a/").to_string());
+                }
+            } else if in_diff {
+                current_diff.push_str(line);
+                current_diff.push('\n');
+
+                // Collect old/new content from diff
+                if line.starts_with('-') && !line.starts_with("---") {
+                    old_content.push_str(&line[1..]);
+                    old_content.push('\n');
+                } else if line.starts_with('+') && !line.starts_with("+++") {
+                    new_content.push_str(&line[1..]);
+                    new_content.push('\n');
+                }
+            }
+        }
+
+        // Save last diff
+        if let Some(ref path) = current_file {
+            if !current_diff.is_empty() {
+                changes.push(FileChange {
+                    path: PathBuf::from(path),
+                    change_type: FileChangeType::Modified,
+                    old_content: if old_content.is_empty() { None } else { Some(old_content) },
+                    new_content: if new_content.is_empty() { None } else { Some(new_content) },
+                    diff: Some(current_diff),
+                });
+            }
+        }
+
+        changes
+    }
+
+    /// Parse natural language file references
+    fn parse_natural_language_changes(&self, output: &str) -> Vec<FileChange> {
+        let mut changes = Vec::new();
+
+        // Patterns for file operations
+        let create_patterns = ["created", "create", "added", "add", "new file"];
+        let modify_patterns = ["modified", "modify", "updated", "update", "changed", "change"];
+        let delete_patterns = ["deleted", "delete", "removed", "remove"];
+
+        for line in output.lines() {
+            let line_lower = line.to_lowercase();
+
+            // Look for file paths in the line
+            if let Some(path) = self.extract_file_path_from_line(line) {
+                let change_type = if create_patterns.iter().any(|p| line_lower.contains(p)) {
+                    FileChangeType::Created
+                } else if delete_patterns.iter().any(|p| line_lower.contains(p)) {
+                    FileChangeType::Deleted
+                } else if modify_patterns.iter().any(|p| line_lower.contains(p)) {
+                    FileChangeType::Modified
+                } else {
+                    continue; // Skip if no clear change type
+                };
+
+                changes.push(FileChange {
+                    path: PathBuf::from(path),
+                    change_type,
+                    old_content: None,
+                    new_content: None,
+                    diff: None,
+                });
+            }
+        }
+
+        changes
+    }
+
+    /// Extract file path from a line of text
+    fn extract_file_path_from_line(&self, line: &str) -> Option<String> {
+        // Common file extensions to look for
+        let extensions = [
+            ".rs", ".ts", ".tsx", ".js", ".jsx", ".py", ".go", ".java",
+            ".c", ".cpp", ".h", ".hpp", ".cs", ".rb", ".php", ".swift",
+            ".kt", ".scala", ".vue", ".svelte", ".html", ".css", ".scss",
+            ".json", ".yaml", ".yml", ".toml", ".xml", ".md",
+        ];
+
+        // Split line into words and look for file paths
+        for word in line.split(|c: char| c.is_whitespace() || c == '`' || c == '"' || c == '\'') {
+            let word = word.trim_matches(|c: char| !c.is_alphanumeric() && c != '.' && c != '/' && c != '\\' && c != '_' && c != '-');
+
+            if word.len() > 2 && word.len() < 200 {
+                for ext in &extensions {
+                    if word.ends_with(ext) {
+                        return Some(word.to_string());
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
+    /// Convert language name to file extension
+    fn lang_to_extension(lang: &str) -> &'static str {
+        match lang.to_lowercase().as_str() {
+            "rust" | "rs" => "rs",
+            "typescript" | "ts" => "ts",
+            "javascript" | "js" => "js",
+            "python" | "py" => "py",
+            "go" | "golang" => "go",
+            "java" => "java",
+            "c" => "c",
+            "cpp" | "c++" => "cpp",
+            "csharp" | "c#" => "cs",
+            "ruby" | "rb" => "rb",
+            "php" => "php",
+            "swift" => "swift",
+            "kotlin" | "kt" => "kt",
+            "scala" => "scala",
+            "html" => "html",
+            "css" => "css",
+            "scss" => "scss",
+            "json" => "json",
+            "yaml" | "yml" => "yaml",
+            "toml" => "toml",
+            "xml" => "xml",
+            "markdown" | "md" => "md",
+            "sql" => "sql",
+            "shell" | "bash" | "sh" => "sh",
+            "powershell" | "ps1" => "ps1",
+            _ => "",
+        }
     }
 
     /// Helper: merge results from parallel execution
@@ -1522,6 +1821,34 @@ impl MultiAgentOrchestrator {
             if which::which(cmd).is_ok() {
                 installed.push(agent_type);
             }
+        }
+
+        installed
+    }
+
+    /// Detect installed agents and register only those found on the system
+    pub async fn detect_and_register(&self) -> Vec<ExternalAgentType> {
+        let installed = self.detect_installed_agents().await;
+
+        for agent_type in &installed {
+            let config = match agent_type {
+                ExternalAgentType::ClaudeCode => ExternalAgentConfig::claude_code(),
+                ExternalAgentType::GeminiCli => ExternalAgentConfig::gemini_cli(),
+                ExternalAgentType::CodexCli => ExternalAgentConfig::codex_cli(),
+                ExternalAgentType::Aider => ExternalAgentConfig::aider(),
+                ExternalAgentType::CopilotCli => ExternalAgentConfig {
+                    id: "copilot-cli".to_string(),
+                    agent_type: ExternalAgentType::CopilotCli,
+                    name: "GitHub Copilot CLI".to_string(),
+                    command: "gh".to_string(),
+                    default_args: vec!["copilot".to_string(), "suggest".to_string()],
+                    priority: 75,
+                    enabled: true,
+                    ..ExternalAgentConfig::default()
+                },
+                _ => continue,
+            };
+            self.register_agent(config).await;
         }
 
         installed

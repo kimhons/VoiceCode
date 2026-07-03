@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Sync Settings Screen
+// VoiceCode Mobile - Sync Settings Screen
 // Phase 0: Stub Screen
 
 import React from 'react';

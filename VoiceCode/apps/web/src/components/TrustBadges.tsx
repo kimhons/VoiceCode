@@ -186,7 +186,7 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({ isMobile, colors, spac
               margin: '0 auto',
               lineHeight: 1.6,
             }}>
-              Try VoiceFlow Pro risk-free. If you're not completely satisfied within 30 days, we'll refund your money—no questions asked.
+              Try VoiceCode risk-free. If you're not completely satisfied within 30 days, we'll refund your money—no questions asked.
             </p>
           </div>
         </div>

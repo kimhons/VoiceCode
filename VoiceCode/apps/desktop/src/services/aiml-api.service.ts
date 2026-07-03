@@ -1,10 +1,11 @@
 /**
  * AIML API Service
- * Unified gateway to 300+ AI models for VoiceFlow Pro
+ * Unified gateway to 300+ AI models for VoiceCode
  * Provides STT, TTS, Chat, Image, Video, and OCR capabilities
  */
 
 // import { TranscriptionSegment } from '@/types'; // TODO: Use for segment analysis
+import type { StreamingEventHandler } from './websocket-streaming.service';
 
 // AIML API Configuration
 const AIML_API_KEY = import.meta.env.VITE_AIML_API_KEY || '';
@@ -356,19 +357,19 @@ export class AIMLAPIService {
       const streamingService = getStreamingService(this.apiKey);
 
       // Register transcript handler
-      const transcriptHandler = (data: any) => {
+      const transcriptHandler = (data: { text: string; isFinal: boolean }) => {
         onTranscript(data.text, data.isFinal);
       };
 
       // Register error handler
-      const errorHandler = (data: any) => {
+      const errorHandler = (data: { error?: string }) => {
         if (onError) {
           onError(data.error || 'Streaming error');
         }
       };
 
-      streamingService.on('transcript', transcriptHandler);
-      streamingService.on('error', errorHandler);
+      streamingService.on('transcript', transcriptHandler as StreamingEventHandler);
+      streamingService.on('error', errorHandler as StreamingEventHandler);
 
       // Connect to WebSocket
       const opts = options || {};
@@ -386,8 +387,8 @@ export class AIMLAPIService {
 
       // Return cleanup function
       return () => {
-        streamingService.off('transcript', transcriptHandler);
-        streamingService.off('error', errorHandler);
+        streamingService.off('transcript', transcriptHandler as StreamingEventHandler);
+        streamingService.off('error', errorHandler as StreamingEventHandler);
         streamingService.stopStreaming();
       };
 
@@ -586,7 +587,7 @@ export class AIMLAPIService {
     });
   }
 
-  private async pollSTTResult(generationId: string, maxAttempts = 60): Promise<any> {
+  private async pollSTTResult(generationId: string, maxAttempts = 60): Promise<Record<string, unknown>> {
     for (let i = 0; i < maxAttempts; i++) {
       const response = await fetch(`${this.baseUrl}/stt/${generationId}`, {
         headers: {
@@ -613,28 +614,32 @@ export class AIMLAPIService {
     throw new Error('STT timeout: transcription took too long');
   }
 
-  private parseSTTResult(result: any): STTResult {
-    const channel = result.result?.results?.channels?.[0];
-    const alternative = channel?.alternatives?.[0];
+  private parseSTTResult(result: Record<string, unknown>): STTResult {
+    const resultData = result.result as Record<string, unknown> | undefined;
+    const results = resultData?.results as Record<string, unknown> | undefined;
+    const channels = results?.channels as Array<Record<string, unknown>> | undefined;
+    const channel = channels?.[0];
+    const alternatives = channel?.alternatives as Array<Record<string, unknown>> | undefined;
+    const alternative = alternatives?.[0];
 
     return {
-      transcript: alternative?.transcript || '',
-      confidence: alternative?.confidence || 0,
-      words: alternative?.words?.map((w: any) => ({
+      transcript: (alternative?.transcript as string) || '',
+      confidence: (alternative?.confidence as number) || 0,
+      words: (alternative?.words as Array<{ word: string; start: number; end: number; confidence: number }>)?.map((w) => ({
         word: w.word,
         start: w.start,
         end: w.end,
         confidence: w.confidence,
       })),
-      speakers: channel?.speakers?.map((s: any) => ({
+      speakers: (channel?.speakers as Array<{ speaker: number; text: string; start: number; end: number }>)?.map((s) => ({
         speaker: s.speaker,
         text: s.text,
         start: s.start,
         end: s.end,
       })),
-      entities: result.result?.entities,
-      sentiment: result.result?.sentiment,
-      summary: result.result?.summary,
+      entities: resultData?.entities as STTResult['entities'],
+      sentiment: resultData?.sentiment as STTResult['sentiment'],
+      summary: resultData?.summary as string | undefined,
     };
   }
 }

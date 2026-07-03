@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Export Slice
+// VoiceCode Mobile - Export Slice
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {

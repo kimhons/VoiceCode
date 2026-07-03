@@ -230,7 +230,7 @@ export class AudioProcessingService extends EventEmitter<AudioProcessingEvents> 
 
     // Save transcript to database
     if (this.supabase.isAvailable()) {
-      const savedTranscript = await this.supabase.saveTranscript(transcript as any);
+      const savedTranscript = await this.supabase.saveTranscript(transcript as Transcript);
       return savedTranscript;
     }
 

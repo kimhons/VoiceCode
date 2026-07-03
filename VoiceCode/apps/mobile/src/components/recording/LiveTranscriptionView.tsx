@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Live Transcription View
+// VoiceCode Mobile - Live Transcription View
 // Real-time transcription display with confidence indicators
 
 import React, { useEffect, useRef } from 'react';

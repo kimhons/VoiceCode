@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Audio Waveform Component
+// VoiceCode Pro Mobile - Audio Waveform Component
 
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Easing } from 'react-native';

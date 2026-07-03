@@ -1,4 +1,4 @@
-// Export all VoiceFlow Pro UI components
+// Export all VoiceCode UI components
 
 export { VoiceRecording } from './VoiceRecording';
 export { TranscriptionDisplay } from './TranscriptionDisplay';

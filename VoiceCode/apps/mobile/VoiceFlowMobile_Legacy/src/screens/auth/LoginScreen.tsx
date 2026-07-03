@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Login Screen
+// VoiceCode Pro Mobile - Login Screen
 
 import React, { useState } from 'react';
 import {
@@ -102,7 +102,7 @@ export const LoginScreen: React.FC = () => {
       >
         <View style={styles.header}>
           <Text variant="h1" align="center" color={theme.colors.primary}>
-            VoiceFlow Pro
+            VoiceCode Pro
           </Text>
           <Text
             variant="body"
@@ -185,7 +185,7 @@ export const LoginScreen: React.FC = () => {
 
         <View style={styles.footer}>
           <Text variant="body" color={theme.colors.textSecondary}>
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
           </Text>
           <TouchableOpacity onPress={handleSignup}>
             <Text variant="body" color={theme.colors.primary} style={styles.signupLink}>

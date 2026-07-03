@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Account Settings Screen
+// VoiceCode Mobile - Account Settings Screen
 
 import React, { useState } from 'react';
 import {

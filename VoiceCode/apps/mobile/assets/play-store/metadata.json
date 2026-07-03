@@ -1,0 +1,63 @@
+{
+  "appInfo": {
+    "packageName": "com.voicecode.app",
+    "defaultLanguage": "en-US",
+    "contactEmail": "support@voicecode.com",
+    "contactWebsite": "https://voicecode.com",
+    "privacyPolicyUrl": "https://voicecode.com/privacy"
+  },
+  "listing": {
+    "en-US": {
+      "title": "VoiceCode - Voice Transcription",
+      "shortDescription": "AI-powered voice to text transcription. Record meetings, lectures & more.",
+      "fullDescription": "VoiceCode is the ultimate voice transcription app that converts your speech to text with incredible accuracy. Whether you're recording meetings, lectures, interviews, or personal notes, VoiceCode uses advanced AI to deliver fast, accurate transcriptions.\n\n<b>KEY FEATURES:</b>\n\n<b>🎙️ Real-Time Transcription</b>\nWatch your words appear as you speak with live transcription powered by cutting-edge AI.\n\n<b>👥 Multi-Speaker Detection</b>\nAutomatically identify and label different speakers in your recordings.\n\n<b>🤖 AI-Powered Summaries</b>\nGet instant summaries, key points, and action items from your transcripts.\n\n<b>☁️ Cross-Platform Sync</b>\nAccess your recordings and transcripts across all your devices.\n\n<b>📴 Offline Mode</b>\nRecord and transcribe even without an internet connection.\n\n<b>📤 Export Options</b>\nShare your transcripts as text, PDF, Word documents, or subtitles (SRT/VTT).\n\n<b>🔒 Secure Storage</b>\nYour data is encrypted and protected with enterprise-grade security.\n\n<b>PERFECT FOR:</b>\n• Business professionals recording meetings\n• Students capturing lectures\n• Journalists conducting interviews\n• Content creators making podcasts\n• Anyone who needs accurate voice-to-text conversion\n\n<b>SUBSCRIPTION OPTIONS:</b>\n• Free: 60 minutes/month, 5-minute max recording\n• Pro: 600 minutes/month, 30-minute max recording, AI features\n• Enterprise: Unlimited minutes, 2-hour max recording, team features\n\nDownload VoiceCode today and transform how you capture and organize spoken content!"
+    }
+  },
+  "graphics": {
+    "featureGraphic": "feature_graphic.png",
+    "icon": "icon_512.png",
+    "screenshots": {
+      "phone": [
+        "screenshot_home.png",
+        "screenshot_recording.png",
+        "screenshot_transcript.png",
+        "screenshot_ai_features.png",
+        "screenshot_library.png"
+      ],
+      "tablet7": [
+        "screenshot_home_7.png",
+        "screenshot_recording_7.png",
+        "screenshot_transcript_7.png"
+      ],
+      "tablet10": [
+        "screenshot_home_10.png",
+        "screenshot_recording_10.png",
+        "screenshot_transcript_10.png"
+      ]
+    }
+  },
+  "categorization": {
+    "category": "PRODUCTIVITY",
+    "contentRating": "Everyone",
+    "targetedCountries": [
+      "US",
+      "GB",
+      "CA",
+      "AU",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "JP",
+      "KR",
+      "BR",
+      "MX",
+      "IN"
+    ]
+  },
+  "contactDetails": {
+    "email": "support@voicecode.com",
+    "phone": "+1-555-VOICE",
+    "website": "https://voicecode.com"
+  }
+}

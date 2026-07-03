@@ -476,7 +476,7 @@ export class ExportService {
    * Sanitize filename
    */
   private sanitizeFilename(filename: string): string {
-    return filename.replace(/[^a-z0-9_\-]/gi, '_').toLowerCase();
+    return filename.replace(/[^a-z0-9_-]/gi, '_').toLowerCase();
   }
 }
 

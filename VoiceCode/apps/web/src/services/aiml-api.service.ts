@@ -1,10 +1,12 @@
 /**
  * AIML API Service
- * Unified gateway to 300+ AI models for VoiceFlow Pro
+ * Unified gateway to 300+ AI models for VoiceCode
  * Provides STT, TTS, Chat, Image, Video, and OCR capabilities
  */
 
 
+
+import { STTCreateResponseSchema, StreamingTranscriptEventSchema, StreamingErrorEventSchema, parseApiResponse } from './api-schemas';
 
 // AIML API Configuration
 const AIML_API_KEY = import.meta.env.VITE_AIML_API_KEY || '';
@@ -307,7 +309,7 @@ export class AIMLAPIService {
       const base64Audio = await this.blobToBase64(audioBlob);
 
       // Create STT request
-      const data = await this.makeRequest<{ generation_id: string }>(
+      const rawData = await this.makeRequest<unknown>(
         `${this.baseUrl}/stt/create`,
         {
           method: 'POST',
@@ -328,11 +330,8 @@ export class AIMLAPIService {
         }
       );
 
+      const data = parseApiResponse(STTCreateResponseSchema, rawData, 'STT create');
       const generationId = data.generation_id;
-
-      if (!generationId) {
-        throw new AIMLAPIError('No generation ID returned from API', undefined, false);
-      }
 
       // Poll for result
       const result = await this.pollSTTResult(generationId);
@@ -356,14 +355,18 @@ export class AIMLAPIService {
       const streamingService = getStreamingService(this.apiKey);
 
       // Register transcript handler
-      const transcriptHandler = (data: any) => {
-        onTranscript(data.text, data.isFinal);
+      const transcriptHandler = (data: unknown) => {
+        const parsed = StreamingTranscriptEventSchema.safeParse(data);
+        if (parsed.success) {
+          onTranscript(parsed.data.text, parsed.data.isFinal);
+        }
       };
 
       // Register error handler
-      const errorHandler = (data: any) => {
+      const errorHandler = (data: unknown) => {
         if (onError) {
-          onError(data.error || 'Streaming error');
+          const parsed = StreamingErrorEventSchema.safeParse(data);
+          onError(parsed.success ? (parsed.data.error || 'Streaming error') : 'Streaming error');
         }
       };
 

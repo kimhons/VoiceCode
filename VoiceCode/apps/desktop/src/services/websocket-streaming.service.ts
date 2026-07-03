@@ -32,14 +32,14 @@ export interface StreamingTranscript {
   }>;
 }
 
-export type StreamingEventType = 
+export type StreamingEventType =
   | 'connected'
   | 'disconnected'
   | 'transcript'
   | 'error'
   | 'status';
 
-export type StreamingEventHandler = (data: any) => void;
+export type StreamingEventHandler = (data: StreamingTranscript | { error?: string } | { status?: string } | Record<string, unknown>) => void;
 
 /**
  * WebSocket Streaming Manager
@@ -53,7 +53,8 @@ export class WebSocketStreamingService {
   private pingTimer: NodeJS.Timeout | null = null;
   private isConnecting = false;
   private isStreaming = false;
-  private eventHandlers: Map<StreamingEventType, Set<StreamingEventHandler>> = new Map();
+  private eventHandlers: Map<StreamingEventType, Set<StreamingEventHandler>> =
+    new Map();
   private audioContext: AudioContext | null = null;
 
   constructor(apiKey: string) {
@@ -83,10 +84,10 @@ export class WebSocketStreamingService {
     }
   }
 
-  private emit(event: StreamingEventType, data: any): void {
+  private emit(event: StreamingEventType, data: StreamingTranscript | { error?: string } | { status?: string } | Record<string, unknown>): void {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
-      handlers.forEach(handler => {
+      handlers.forEach((handler) => {
         try {
           handler(data);
         } catch (error) {
@@ -116,7 +117,10 @@ export class WebSocketStreamingService {
         url.searchParams.set('model', options.model || '#g1_nova-2-general');
         url.searchParams.set('punctuate', String(options.punctuate !== false));
         url.searchParams.set('diarize', String(options.diarize || false));
-        url.searchParams.set('interim_results', String(options.interimResults !== false));
+        url.searchParams.set(
+          'interim_results',
+          String(options.interimResults !== false)
+        );
 
         this.ws = new WebSocket(url.toString());
 
@@ -124,7 +128,7 @@ export class WebSocketStreamingService {
           console.log('✅ WebSocket connected');
           this.isConnecting = false;
           this.reconnectAttempts = 0;
-          
+
           this.sendMessage({
             type: 'auth',
             token: this.apiKey,
@@ -142,7 +146,10 @@ export class WebSocketStreamingService {
         this.ws.onerror = (error) => {
           console.error('❌ WebSocket error:', error);
           this.isConnecting = false;
-          this.emit('error', { error: 'WebSocket connection error', timestamp: Date.now() });
+          this.emit('error', {
+            error: 'WebSocket connection error',
+            timestamp: Date.now(),
+          });
           reject(error);
         };
 
@@ -150,13 +157,19 @@ export class WebSocketStreamingService {
           console.log('🔌 WebSocket closed:', event.code, event.reason);
           this.isConnecting = false;
           this.stopPingInterval();
-          this.emit('disconnected', { code: event.code, reason: event.reason, timestamp: Date.now() });
+          this.emit('disconnected', {
+            code: event.code,
+            reason: event.reason,
+            timestamp: Date.now(),
+          });
 
-          if (event.code !== 1000 && this.reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          if (
+            event.code !== 1000 &&
+            this.reconnectAttempts < MAX_RECONNECT_ATTEMPTS
+          ) {
             this.scheduleReconnect(options);
           }
         };
-
       } catch (error) {
         this.isConnecting = false;
         console.error('Failed to create WebSocket:', error);
@@ -173,10 +186,12 @@ export class WebSocketStreamingService {
     this.reconnectAttempts++;
     const delay = RECONNECT_DELAY_MS * Math.pow(2, this.reconnectAttempts - 1);
 
-    console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+    console.log(
+      `Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`
+    );
 
     this.reconnectTimer = setTimeout(() => {
-      this.connect(options).catch(error => {
+      this.connect(options).catch((error) => {
         console.error('Reconnection failed:', error);
       });
     }, delay);
@@ -184,7 +199,7 @@ export class WebSocketStreamingService {
 
   private startPingInterval(): void {
     this.stopPingInterval();
-    
+
     this.pingTimer = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.sendMessage({ type: 'ping' });
@@ -206,7 +221,10 @@ export class WebSocketStreamingService {
       switch (message.type) {
         case 'auth_success':
           console.log('✅ Authentication successful');
-          this.emit('status', { status: 'authenticated', timestamp: Date.now() });
+          this.emit('status', {
+            status: 'authenticated',
+            timestamp: Date.now(),
+          });
           break;
 
         case 'transcript':
@@ -230,7 +248,7 @@ export class WebSocketStreamingService {
     }
   }
 
-  private handleTranscript(message: any): void {
+  private handleTranscript(message: { text?: string; transcript?: string; is_final?: boolean; isFinal?: boolean; confidence?: number; timestamp?: number; words?: StreamingTranscript['words'] }): void {
     const transcript: StreamingTranscript = {
       text: message.text || message.transcript || '',
       isFinal: message.is_final || message.isFinal || false,
@@ -242,7 +260,7 @@ export class WebSocketStreamingService {
     this.emit('transcript', transcript);
   }
 
-  private sendMessage(message: any): void {
+  private sendMessage(message: Record<string, unknown>): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
     } else {
@@ -271,7 +289,9 @@ export class WebSocketStreamingService {
     this.emit('status', { status: 'streaming', timestamp: Date.now() });
   }
 
-  private async initializeAudioProcessing(mediaStream: MediaStream): Promise<void> {
+  private async initializeAudioProcessing(
+    mediaStream: MediaStream
+  ): Promise<void> {
     this.audioContext = new AudioContext({ sampleRate: 16000 });
     const source = this.audioContext.createMediaStreamSource(mediaStream);
     const processor = this.audioContext.createScriptProcessor(4096, 1, 1);
@@ -292,7 +312,7 @@ export class WebSocketStreamingService {
     const int16Array = new Int16Array(float32Array.length);
     for (let i = 0; i < float32Array.length; i++) {
       const s = Math.max(-1, Math.min(1, float32Array[i]));
-      int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
     }
     return int16Array;
   }
@@ -300,7 +320,9 @@ export class WebSocketStreamingService {
   private sendAudioChunk(audioData: Int16Array): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
-    const base64Audio = this.arrayBufferToBase64(audioData.buffer);
+    const base64Audio = this.arrayBufferToBase64(
+      audioData.buffer as ArrayBuffer
+    );
 
     this.sendMessage({
       type: 'audio_chunk',
@@ -359,28 +381,36 @@ export class WebSocketStreamingService {
 
   getState(): string {
     if (!this.ws) return 'disconnected';
-    
+
     switch (this.ws.readyState) {
-      case WebSocket.CONNECTING: return 'connecting';
-      case WebSocket.OPEN: return 'connected';
-      case WebSocket.CLOSING: return 'closing';
-      case WebSocket.CLOSED: return 'disconnected';
-      default: return 'unknown';
+      case WebSocket.CONNECTING:
+        return 'connecting';
+      case WebSocket.OPEN:
+        return 'connected';
+      case WebSocket.CLOSING:
+        return 'closing';
+      case WebSocket.CLOSED:
+        return 'disconnected';
+      default:
+        return 'unknown';
     }
   }
 }
 
 let streamingServiceInstance: WebSocketStreamingService | null = null;
 
-export function getStreamingService(apiKey?: string): WebSocketStreamingService {
+export function getStreamingService(
+  apiKey?: string
+): WebSocketStreamingService {
   if (!streamingServiceInstance && apiKey) {
     streamingServiceInstance = new WebSocketStreamingService(apiKey);
   }
-  
+
   if (!streamingServiceInstance) {
-    throw new Error('Streaming service not initialized. Provide API key on first call.');
+    throw new Error(
+      'Streaming service not initialized. Provide API key on first call.'
+    );
   }
-  
+
   return streamingServiceInstance;
 }
-

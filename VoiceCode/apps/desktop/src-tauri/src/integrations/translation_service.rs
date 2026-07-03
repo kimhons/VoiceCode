@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Translation Service for Multilingual Processing
 // Provides advanced translation capabilities with context awareness
 
@@ -5,7 +6,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use super::ai_ml_core::{AIMLClient, AIMLError, AIMLService};
+use super::ai_ml_core::{AIMLClient, AIMLError};
 
 /// Translation Service
 #[derive(Debug)]

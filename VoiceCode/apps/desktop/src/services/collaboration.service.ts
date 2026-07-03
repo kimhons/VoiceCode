@@ -1,7 +1,7 @@
 /**
  * Collaboration Service
  * Phase 3.4: Collaboration Features
- * 
+ *
  * Handles workspaces, sharing, comments, annotations, and notifications
  */
 
@@ -18,7 +18,7 @@ export interface Workspace {
   name: string;
   description?: string;
   owner_id: string;
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   created_at: string;
   updated_at: string;
   is_deleted: boolean;
@@ -91,7 +91,12 @@ export interface Annotation {
   };
 }
 
-export type NotificationType = 'comment' | 'mention' | 'share' | 'invite' | 'system';
+export type NotificationType =
+  | 'comment'
+  | 'mention'
+  | 'share'
+  | 'invite'
+  | 'system';
 
 export interface Notification {
   id: string;
@@ -100,7 +105,7 @@ export interface Notification {
   title: string;
   message: string;
   link?: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   is_read: boolean;
   created_at: string;
 }
@@ -112,7 +117,7 @@ export interface Activity {
   action: string;
   resource_type: string;
   resource_id?: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
   user?: {
     id: string;
@@ -133,11 +138,15 @@ export class CollaborationService {
   // WORKSPACES
   // =====================================================
 
-  async createWorkspace(name: string, description?: string): Promise<Workspace> {
+  async createWorkspace(
+    name: string,
+    description?: string
+  ): Promise<Workspace> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('workspaces')
       .insert({
         name,
@@ -149,27 +158,30 @@ export class CollaborationService {
       .single();
 
     if (error) throw error;
+    const workspace = data as unknown as Workspace;
 
     // Add owner as member
-    await this.supabase.getClient()
-      .from('workspace_members')
-      .insert({
-        workspace_id: data.id,
-        user_id: user.id,
-        role: 'owner',
-      });
+    await this.supabase.getClient().from('workspace_members').insert({
+      workspace_id: workspace.id,
+      user_id: user.id,
+      role: 'owner',
+    });
 
     // Log activity
-    await this.logActivity(data.id, user.id, 'created', 'workspace', data.id);
+    await this.logActivity(workspace.id, user.id, 'created', 'workspace', workspace.id);
 
-    return data;
+    return workspace;
   }
 
-  async updateWorkspace(id: string, updates: Partial<Workspace>): Promise<Workspace> {
+  async updateWorkspace(
+    id: string,
+    updates: Partial<Workspace>
+  ): Promise<Workspace> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('workspaces')
       .update(updates)
       .eq('id', id)
@@ -181,14 +193,15 @@ export class CollaborationService {
     // Log activity
     await this.logActivity(id, user.id, 'updated', 'workspace', id);
 
-    return data;
+    return data as unknown as Workspace;
   }
 
   async deleteWorkspace(id: string): Promise<void> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('workspaces')
       .update({ is_deleted: true })
       .eq('id', id);
@@ -203,18 +216,20 @@ export class CollaborationService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('workspaces')
       .select('*')
       .eq('is_deleted', false)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Workspace[];
   }
 
   async getWorkspace(id: string): Promise<Workspace> {
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('workspaces')
       .select('*')
       .eq('id', id)
@@ -222,32 +237,39 @@ export class CollaborationService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Workspace;
   }
 
   // =====================================================
   // MEMBERS
   // =====================================================
 
-  async inviteMember(workspaceId: string, email: string, role: Role): Promise<Member> {
+  async inviteMember(
+    workspaceId: string,
+    email: string,
+    role: Role
+  ): Promise<Member> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
     // Find user by email
-    const { data: userData, error: userError } = await this.supabase.getClient()
+    const { data: userData, error: userError } = await this.supabase
+      .getClient()
       .from('user_profiles')
       .select('id')
       .eq('email', email)
       .single();
 
     if (userError) throw new Error('User not found');
+    const userRecord = userData as Record<string, unknown>;
 
     // Add member
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('workspace_members')
       .insert({
         workspace_id: workspaceId,
-        user_id: userData.id,
+        user_id: userRecord.id as string,
         role,
       })
       .select()
@@ -257,7 +279,7 @@ export class CollaborationService {
 
     // Create notification
     await this.createNotification(
-      userData.id,
+      userRecord.id as string,
       'invite',
       'Workspace Invitation',
       `You've been invited to join a workspace`,
@@ -265,16 +287,23 @@ export class CollaborationService {
     );
 
     // Log activity
-    await this.logActivity(workspaceId, user.id, 'invited', 'member', userData.id);
+    await this.logActivity(
+      workspaceId,
+      user.id,
+      'invited',
+      'member',
+      userRecord.id as string
+    );
 
-    return data;
+    return data as unknown as Member;
   }
 
   async removeMember(workspaceId: string, userId: string): Promise<void> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('workspace_members')
       .delete()
       .eq('workspace_id', workspaceId)
@@ -286,11 +315,16 @@ export class CollaborationService {
     await this.logActivity(workspaceId, user.id, 'removed', 'member', userId);
   }
 
-  async updateMemberRole(workspaceId: string, userId: string, role: Role): Promise<Member> {
+  async updateMemberRole(
+    workspaceId: string,
+    userId: string,
+    role: Role
+  ): Promise<Member> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('workspace_members')
       .update({ role })
       .eq('workspace_id', workspaceId)
@@ -301,23 +335,33 @@ export class CollaborationService {
     if (error) throw error;
 
     // Log activity
-    await this.logActivity(workspaceId, user.id, 'updated_role', 'member', userId, { role });
+    await this.logActivity(
+      workspaceId,
+      user.id,
+      'updated_role',
+      'member',
+      userId,
+      { role }
+    );
 
-    return data;
+    return data as unknown as Member;
   }
 
   async getMembers(workspaceId: string): Promise<Member[]> {
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('workspace_members')
-      .select(`
+      .select(
+        `
         *,
         user:user_profiles(id, email, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('workspace_id', workspaceId)
       .order('joined_at', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Member[];
   }
 
   // =====================================================
@@ -332,7 +376,8 @@ export class CollaborationService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('shared_transcripts')
       .insert({
         transcript_id: transcriptId,
@@ -360,16 +405,26 @@ export class CollaborationService {
     }
 
     // Log activity
-    await this.logActivity(workspaceId, user.id, 'shared', 'transcript', transcriptId);
+    await this.logActivity(
+      workspaceId,
+      user.id,
+      'shared',
+      'transcript',
+      transcriptId
+    );
 
-    return data;
+    return data as unknown as SharedTranscript;
   }
 
-  async unshareTranscript(transcriptId: string, workspaceId: string): Promise<void> {
+  async unshareTranscript(
+    transcriptId: string,
+    workspaceId: string
+  ): Promise<void> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('shared_transcripts')
       .delete()
       .eq('transcript_id', transcriptId)
@@ -378,7 +433,13 @@ export class CollaborationService {
     if (error) throw error;
 
     // Log activity
-    await this.logActivity(workspaceId, user.id, 'unshared', 'transcript', transcriptId);
+    await this.logActivity(
+      workspaceId,
+      user.id,
+      'unshared',
+      'transcript',
+      transcriptId
+    );
   }
 
   async updateSharePermissions(
@@ -389,7 +450,8 @@ export class CollaborationService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('shared_transcripts')
       .update({ permissions })
       .eq('transcript_id', transcriptId)
@@ -400,31 +462,44 @@ export class CollaborationService {
     if (error) throw error;
 
     // Log activity
-    await this.logActivity(workspaceId, user.id, 'updated_permissions', 'transcript', transcriptId);
+    await this.logActivity(
+      workspaceId,
+      user.id,
+      'updated_permissions',
+      'transcript',
+      transcriptId
+    );
 
-    return data;
+    return data as unknown as SharedTranscript;
   }
 
   async getSharedTranscripts(workspaceId: string): Promise<SharedTranscript[]> {
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('shared_transcripts')
       .select('*')
       .eq('workspace_id', workspaceId)
       .order('shared_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as SharedTranscript[];
   }
 
   // =====================================================
   // COMMENTS
   // =====================================================
 
-  async addComment(transcriptId: string, content: string, timestamp?: number, parentId?: string): Promise<Comment> {
+  async addComment(
+    transcriptId: string,
+    content: string,
+    timestamp?: number,
+    parentId?: string
+  ): Promise<Comment> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('comments')
       .insert({
         transcript_id: transcriptId,
@@ -439,15 +514,17 @@ export class CollaborationService {
     if (error) throw error;
 
     // Notify transcript owner
-    const { data: transcript } = await this.supabase.getClient()
+    const { data: transcript } = await this.supabase
+      .getClient()
       .from('transcripts')
       .select('user_id')
       .eq('id', transcriptId)
       .single();
 
-    if (transcript && transcript.user_id !== user.id) {
+    const transcriptRecord = transcript as Record<string, unknown> | null;
+    if (transcriptRecord && transcriptRecord.user_id !== user.id) {
       await this.createNotification(
-        transcript.user_id,
+        transcriptRecord.user_id as string,
         'comment',
         'New Comment',
         'Someone commented on your transcript',
@@ -455,14 +532,15 @@ export class CollaborationService {
       );
     }
 
-    return data;
+    return data as unknown as Comment;
   }
 
   async editComment(commentId: string, content: string): Promise<Comment> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('comments')
       .update({ content })
       .eq('id', commentId)
@@ -471,14 +549,15 @@ export class CollaborationService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Comment;
   }
 
   async deleteComment(commentId: string): Promise<void> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('comments')
       .update({ is_deleted: true })
       .eq('id', commentId)
@@ -488,12 +567,15 @@ export class CollaborationService {
   }
 
   async getComments(transcriptId: string): Promise<Comment[]> {
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('comments')
-      .select(`
+      .select(
+        `
         *,
         user:user_profiles(id, email, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('transcript_id', transcriptId)
       .eq('is_deleted', false)
       .order('created_at', { ascending: true });
@@ -501,17 +583,17 @@ export class CollaborationService {
     if (error) throw error;
 
     // Build threaded comments
-    const comments = data || [];
+    const comments = (data || []) as Comment[];
     const commentMap = new Map<string, Comment>();
     const rootComments: Comment[] = [];
 
     // First pass: create map
-    comments.forEach(comment => {
+    comments.forEach((comment: Comment) => {
       commentMap.set(comment.id, { ...comment, replies: [] });
     });
 
     // Second pass: build tree
-    comments.forEach(comment => {
+    comments.forEach((comment: Comment) => {
       const commentWithReplies = commentMap.get(comment.id)!;
       if (comment.parent_id) {
         const parent = commentMap.get(comment.parent_id);
@@ -540,7 +622,8 @@ export class CollaborationService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('annotations')
       .insert({
         transcript_id: transcriptId,
@@ -554,14 +637,18 @@ export class CollaborationService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Annotation;
   }
 
-  async editAnnotation(annotationId: string, content: string): Promise<Annotation> {
+  async editAnnotation(
+    annotationId: string,
+    content: string
+  ): Promise<Annotation> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('annotations')
       .update({ content })
       .eq('id', annotationId)
@@ -570,14 +657,15 @@ export class CollaborationService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Annotation;
   }
 
   async deleteAnnotation(annotationId: string): Promise<void> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('annotations')
       .update({ is_deleted: true })
       .eq('id', annotationId)
@@ -587,18 +675,21 @@ export class CollaborationService {
   }
 
   async getAnnotations(transcriptId: string): Promise<Annotation[]> {
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('annotations')
-      .select(`
+      .select(
+        `
         *,
         user:user_profiles(id, email, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('transcript_id', transcriptId)
       .eq('is_deleted', false)
       .order('start_time', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Annotation[];
   }
 
   // =====================================================
@@ -609,7 +700,8 @@ export class CollaborationService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)
@@ -617,11 +709,12 @@ export class CollaborationService {
       .limit(50);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Notification[];
   }
 
   async markNotificationRead(notificationId: string): Promise<void> {
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('notifications')
       .update({ is_read: true })
       .eq('id', notificationId);
@@ -633,7 +726,8 @@ export class CollaborationService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('notifications')
       .update({ is_read: true })
       .eq('user_id', user.id)
@@ -646,7 +740,8 @@ export class CollaborationService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { count, error } = await this.supabase.getClient()
+    const { count, error } = await this.supabase
+      .getClient()
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
@@ -660,19 +755,25 @@ export class CollaborationService {
   // ACTIVITY
   // =====================================================
 
-  async getActivity(workspaceId: string, limit: number = 50): Promise<Activity[]> {
-    const { data, error } = await this.supabase.getClient()
+  async getActivity(
+    workspaceId: string,
+    limit: number = 50
+  ): Promise<Activity[]> {
+    const { data, error } = await this.supabase
+      .getClient()
       .from('activity_log')
-      .select(`
+      .select(
+        `
         *,
         user:user_profiles(id, email, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('workspace_id', workspaceId)
       .order('created_at', { ascending: false })
       .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Activity[];
   }
 
   // =====================================================
@@ -685,7 +786,7 @@ export class CollaborationService {
     title: string,
     message: string,
     link?: string,
-    metadata: Record<string, any> = {}
+    metadata: Record<string, unknown> = {}
   ): Promise<void> {
     await this.supabase.getClient().rpc('create_notification', {
       p_user_id: userId,
@@ -703,7 +804,7 @@ export class CollaborationService {
     action: string,
     resourceType: string,
     resourceId?: string,
-    metadata: Record<string, any> = {}
+    metadata: Record<string, unknown> = {}
   ): Promise<void> {
     await this.supabase.getClient().rpc('log_activity', {
       p_workspace_id: workspaceId,
@@ -725,4 +826,3 @@ export function getCollaborationService(): CollaborationService {
   }
   return collaborationServiceInstance;
 }
-

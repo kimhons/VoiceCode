@@ -310,7 +310,8 @@ export class AIFeaturesService {
   /**
    * Call AIML API
    */
-  private async callAIMLAPI(endpoint: string, data: any): Promise<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async callAIMLAPI(endpoint: string, data: Record<string, unknown>): Promise<any> {
     const response = await fetch(`${this.baseUrl}/${endpoint}`, {
       method: 'POST',
       headers: {

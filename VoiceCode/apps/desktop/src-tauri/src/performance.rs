@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 1.1: Performance Optimization Module
 // Target: <100ms startup time (AquaVoice: <50ms)
 

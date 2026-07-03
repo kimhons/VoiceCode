@@ -1,4 +1,4 @@
-// Export all custom hooks for VoiceFlow Pro
+// Export all custom hooks for VoiceCode
 
 // Mobile and responsive hooks
 export { 

@@ -43,7 +43,9 @@ module.exports = {
     browser: true,
     es2021: true,
     node: true,
-    'react-native/react-native': true,
+  },
+  globals: {
+    __DEV__: 'readonly',
   },
 };
 

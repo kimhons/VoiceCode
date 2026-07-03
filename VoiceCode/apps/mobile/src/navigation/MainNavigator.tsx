@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Main Navigator (Bottom Tabs)
+// VoiceCode Mobile - Main Navigator (Bottom Tabs)
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -9,6 +9,7 @@ import { HomeNavigator } from './HomeNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
 import { EnterpriseNavigator } from './EnterpriseNavigator';
+import { ExploreNavigator } from './ExploreNavigator';
 import { LibraryScreen } from '../screens/library';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -32,8 +33,9 @@ export const MainNavigator: React.FC = () => {
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '600',
+          fontWeight: '600' as const,
         },
+        tabBarShowLabel: true,
       }}
     >
       <Tab.Screen
@@ -41,9 +43,15 @@ export const MainNavigator: React.FC = () => {
         component={HomeNavigator}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color }}>🏠</Text>
-          ),
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>🏠</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Explore"
+        component={ExploreNavigator}
+        options={{
+          tabBarLabel: 'Explore',
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>🔍</Text>,
         }}
       />
       <Tab.Screen
@@ -51,9 +59,7 @@ export const MainNavigator: React.FC = () => {
         component={LibraryScreen}
         options={{
           tabBarLabel: 'Library',
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color }}>📚</Text>
-          ),
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>📚</Text>,
         }}
       />
       <Tab.Screen
@@ -61,9 +67,7 @@ export const MainNavigator: React.FC = () => {
         component={EnterpriseNavigator}
         options={{
           tabBarLabel: 'Enterprise',
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color }}>🏢</Text>
-          ),
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>🏢</Text>,
         }}
       />
       <Tab.Screen
@@ -71,9 +75,7 @@ export const MainNavigator: React.FC = () => {
         component={SettingsNavigator}
         options={{
           tabBarLabel: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color }}>⚙️</Text>
-          ),
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>⚙️</Text>,
         }}
       />
       <Tab.Screen
@@ -81,12 +83,9 @@ export const MainNavigator: React.FC = () => {
         component={ProfileNavigator}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color }}>👤</Text>
-          ),
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>👤</Text>,
         }}
       />
     </Tab.Navigator>
   );
 };
-

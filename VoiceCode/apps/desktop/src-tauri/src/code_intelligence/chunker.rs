@@ -1,8 +1,8 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 2.1: Code Chunking Strategy
 // Intelligent code segmentation for embedding and context retrieval
 
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use super::ast_engine::{ParsedFile, CodeStructure, FunctionDefinition, ClassDefinition};
@@ -284,7 +284,7 @@ impl CodeChunker {
             documentation: structure.module_doc.clone(),
             language: language.to_string(),
             references: structure.imports.iter().map(|i| i.source.clone()).collect(),
-            definitions: structure.exports.clone(),
+            definitions: structure.exports.iter().map(|e| e.name.clone()).collect(),
             metadata: ChunkMetadata {
                 is_exported: true,
                 ..Default::default()
@@ -308,8 +308,8 @@ impl CodeChunker {
         let first_import = structure.imports.first()?;
         let last_import = structure.imports.last()?;
 
-        let start_line = first_import.line;
-        let end_line = last_import.line;
+        let start_line = first_import.line();
+        let end_line = last_import.line();
 
         let import_content = extract_lines(content, start_line, end_line);
         let token_count = estimate_tokens(&import_content);
@@ -350,9 +350,9 @@ impl CodeChunker {
     ) -> Vec<CodeChunk> {
         let mut chunks = Vec::new();
 
-        let class_content = extract_lines(content, class.start_line, class.end_line);
+        let class_content = extract_lines(content, class.start_line(), class.end_line());
         let token_count = estimate_tokens(&class_content);
-        let class_id = generate_chunk_id(file_path, &class.name, class.start_line);
+        let class_id = generate_chunk_id(file_path, &class.name, class.start_line());
 
         // Create class chunk
         let class_chunk = CodeChunk {
@@ -362,22 +362,22 @@ impl CodeChunker {
             name: class.name.clone(),
             qualified_name: format!("{}::{}", file_path.to_string_lossy(), class.name),
             content: class_content,
-            start_line: class.start_line,
-            end_line: class.end_line,
-            start_col: class.start_col,
-            end_col: class.end_col,
+            start_line: class.start_line(),
+            end_line: class.end_line(),
+            start_col: class.start_col(),
+            end_col: class.end_col(),
             parent_id: Some(parent_id.to_string()),
             children: Vec::new(),
             token_count,
-            byte_start: class.byte_start,
-            byte_end: class.byte_end,
+            byte_start: class.byte_start(),
+            byte_end: class.byte_end(),
             signature: Some(format!(
                 "class {}{}",
                 class.name,
-                if class.extends.is_some() || !class.implements.is_empty() {
+                if !class.extends.is_empty() || !class.implements.is_empty() {
                     let mut parts = Vec::new();
-                    if let Some(ext) = &class.extends {
-                        parts.push(format!("extends {}", ext));
+                    if !class.extends.is_empty() {
+                        parts.push(format!("extends {}", class.extends.join(", ")));
                     }
                     if !class.implements.is_empty() {
                         parts.push(format!("implements {}", class.implements.join(", ")));
@@ -387,13 +387,13 @@ impl CodeChunker {
                     String::new()
                 }
             )),
-            documentation: class.documentation.clone(),
+            documentation: class.documentation().map(|s| s.to_string()),
             language: language.to_string(),
             references: Vec::new(),
             definitions: class.methods.iter().map(|m| m.name.clone()).collect(),
             metadata: ChunkMetadata {
                 is_exported: class.is_exported,
-                visibility: class.visibility.clone(),
+                visibility: Some(format!("{:?}", class.visibility())),
                 ..Default::default()
             },
         };
@@ -429,7 +429,7 @@ impl CodeChunker {
         class_name: &str,
         parent_id: &str,
     ) -> Option<CodeChunk> {
-        let method_content = extract_lines(content, method.start_line, method.end_line);
+        let method_content = extract_lines(content, method.start_line(), method.end_line());
         let token_count = estimate_tokens(&method_content);
 
         if token_count < self.config.min_chunk_tokens {
@@ -437,30 +437,30 @@ impl CodeChunker {
         }
 
         Some(CodeChunk {
-            id: generate_chunk_id(file_path, &format!("{}_{}", class_name, method.name), method.start_line),
+            id: generate_chunk_id(file_path, &format!("{}_{}", class_name, method.name), method.start_line()),
             file_path: file_path.to_path_buf(),
             chunk_type: ChunkType::Function,
             name: method.name.clone(),
             qualified_name: format!("{}::{}::{}", file_path.to_string_lossy(), class_name, method.name),
             content: method_content,
-            start_line: method.start_line,
-            end_line: method.end_line,
-            start_col: method.start_col,
-            end_col: method.end_col,
+            start_line: method.start_line(),
+            end_line: method.end_line(),
+            start_col: method.start_col(),
+            end_col: method.end_col(),
             parent_id: Some(parent_id.to_string()),
             children: Vec::new(),
             token_count,
-            byte_start: method.byte_start,
-            byte_end: method.byte_end,
+            byte_start: method.byte_start(),
+            byte_end: method.byte_end(),
             signature: Some(method.signature.clone()),
-            documentation: method.documentation.clone(),
+            documentation: method.documentation().map(|s| s.to_string()),
             language: language.to_string(),
-            references: method.references.clone(),
+            references: method.references(),
             definitions: Vec::new(),
             metadata: ChunkMetadata {
                 is_async: method.is_async,
                 is_exported: method.is_exported,
-                visibility: method.visibility.clone(),
+                visibility: Some(format!("{:?}", method.visibility)),
                 return_type: method.return_type.clone(),
                 param_count: method.parameters.len(),
                 ..Default::default()
@@ -477,7 +477,7 @@ impl CodeChunker {
         func: &FunctionDefinition,
         parent_id: &str,
     ) -> Option<CodeChunk> {
-        let func_content = extract_lines(content, func.start_line, func.end_line);
+        let func_content = extract_lines(content, func.start_line(), func.end_line());
         let token_count = estimate_tokens(&func_content);
 
         if token_count < self.config.min_chunk_tokens {
@@ -490,31 +490,31 @@ impl CodeChunker {
             || func.decorators.iter().any(|d| d.contains("test") || d.contains("Test"));
 
         Some(CodeChunk {
-            id: generate_chunk_id(file_path, &func.name, func.start_line),
+            id: generate_chunk_id(file_path, &func.name, func.start_line()),
             file_path: file_path.to_path_buf(),
             chunk_type: if is_test { ChunkType::Test } else { ChunkType::Function },
             name: func.name.clone(),
             qualified_name: format!("{}::{}", file_path.to_string_lossy(), func.name),
             content: func_content,
-            start_line: func.start_line,
-            end_line: func.end_line,
-            start_col: func.start_col,
-            end_col: func.end_col,
+            start_line: func.start_line(),
+            end_line: func.end_line(),
+            start_col: func.start_col(),
+            end_col: func.end_col(),
             parent_id: Some(parent_id.to_string()),
             children: Vec::new(),
             token_count,
-            byte_start: func.byte_start,
-            byte_end: func.byte_end,
+            byte_start: func.byte_start(),
+            byte_end: func.byte_end(),
             signature: Some(func.signature.clone()),
-            documentation: func.documentation.clone(),
+            documentation: func.documentation().map(|s| s.to_string()),
             language: language.to_string(),
-            references: func.references.clone(),
+            references: func.references(),
             definitions: Vec::new(),
             metadata: ChunkMetadata {
                 is_async: func.is_async,
                 is_exported: func.is_exported,
                 is_test,
-                visibility: func.visibility.clone(),
+                visibility: Some(format!("{:?}", func.visibility)),
                 return_type: func.return_type.clone(),
                 param_count: func.parameters.len(),
                 ..Default::default()
@@ -531,7 +531,7 @@ impl CodeChunker {
         iface: &super::ast_engine::InterfaceDefinition,
         parent_id: &str,
     ) -> Option<CodeChunk> {
-        let iface_content = extract_lines(content, iface.start_line, iface.end_line);
+        let iface_content = extract_lines(content, iface.start_line(), iface.end_line());
         let token_count = estimate_tokens(&iface_content);
 
         if token_count < self.config.min_chunk_tokens {
@@ -539,14 +539,14 @@ impl CodeChunker {
         }
 
         Some(CodeChunk {
-            id: generate_chunk_id(file_path, &iface.name, iface.start_line),
+            id: generate_chunk_id(file_path, &iface.name, iface.start_line()),
             file_path: file_path.to_path_buf(),
             chunk_type: ChunkType::Interface,
             name: iface.name.clone(),
             qualified_name: format!("{}::{}", file_path.to_string_lossy(), iface.name),
             content: iface_content,
-            start_line: iface.start_line,
-            end_line: iface.end_line,
+            start_line: iface.start_line(),
+            end_line: iface.end_line(),
             start_col: 0,
             end_col: 0,
             parent_id: Some(parent_id.to_string()),
@@ -555,7 +555,7 @@ impl CodeChunker {
             byte_start: 0,
             byte_end: 0,
             signature: None,
-            documentation: iface.documentation.clone(),
+            documentation: iface.docstring.clone(),
             language: language.to_string(),
             references: iface.extends.clone(),
             definitions: iface.properties.iter().map(|p| p.name.clone()).collect(),
@@ -575,7 +575,7 @@ impl CodeChunker {
         type_alias: &super::ast_engine::TypeAlias,
         parent_id: &str,
     ) -> Option<CodeChunk> {
-        let type_content = extract_lines(content, type_alias.line, type_alias.line);
+        let type_content = extract_lines(content, type_alias.line(), type_alias.line());
         let token_count = estimate_tokens(&type_content);
 
         // Type aliases are usually small, so lower threshold
@@ -584,14 +584,14 @@ impl CodeChunker {
         }
 
         Some(CodeChunk {
-            id: generate_chunk_id(file_path, &type_alias.name, type_alias.line),
+            id: generate_chunk_id(file_path, &type_alias.name, type_alias.line()),
             file_path: file_path.to_path_buf(),
             chunk_type: ChunkType::Interface, // Use Interface for type aliases too
             name: type_alias.name.clone(),
             qualified_name: format!("{}::{}", file_path.to_string_lossy(), type_alias.name),
             content: type_content,
-            start_line: type_alias.line,
-            end_line: type_alias.line,
+            start_line: type_alias.line(),
+            end_line: type_alias.line(),
             start_col: 0,
             end_col: 0,
             parent_id: Some(parent_id.to_string()),
@@ -600,7 +600,7 @@ impl CodeChunker {
             byte_start: 0,
             byte_end: 0,
             signature: Some(format!("type {} = {}", type_alias.name, type_alias.definition)),
-            documentation: type_alias.documentation.clone(),
+            documentation: type_alias.docstring.clone(),
             language: language.to_string(),
             references: Vec::new(),
             definitions: Vec::new(),

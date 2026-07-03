@@ -1,7 +1,7 @@
 /**
  * AI Features Panel Component
  * Desktop App - Feature Parity Implementation
- * 
+ *
  * Displays AI-powered analysis of transcripts:
  * - Summary (short, medium, long)
  * - Key Points extraction
@@ -10,13 +10,37 @@
  * - Topic Detection
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useAIFeatures } from '../hooks/useAIFeatures';
+import { Transcript } from '../services/supabase.service';
 
 export interface AIFeaturesPanelProps {
   transcript: string;
   autoAnalyze?: boolean;
   onClose?: () => void;
+}
+
+// Helper to create a minimal valid Transcript from text
+function createTranscriptFromText(text: string): Transcript {
+  return {
+    id: Date.now().toString(),
+    user_id: 'local',
+    title: 'Voice Transcript',
+    content: text,
+    language: 'en-US',
+    professional_mode: 'general',
+    duration: 0,
+    word_count: text.split(/\s+/).filter(Boolean).length,
+    confidence: 1.0,
+    metadata: {
+      device: 'desktop',
+      platform: navigator.platform || 'unknown',
+      version: '1.0.0',
+    },
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_deleted: false,
+  };
 }
 
 export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
@@ -45,61 +69,80 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
     clearError,
   } = useAIFeatures();
 
+  // Create a proper Transcript object from the text
+  const transcriptObj = useMemo(
+    () => createTranscriptFromText(transcript),
+    [transcript]
+  );
+
   // Auto-analyze on mount if enabled
   useEffect(() => {
     if (autoAnalyze && transcript) {
-      const transcriptObj = { text: transcript, id: Date.now().toString() };
       generateSummary(transcriptObj);
       extractKeyPoints(transcriptObj);
       detectActionItems(transcriptObj);
       analyzeSentiment(transcriptObj);
       detectTopics(transcriptObj);
     }
-  }, [autoAnalyze, transcript]);
+  }, [autoAnalyze, transcript, transcriptObj]);
 
   // Get sentiment color
   const getSentimentColor = (sentiment: string): string => {
     switch (sentiment) {
-      case 'positive': return '#28a745';
-      case 'negative': return '#dc3545';
-      default: return '#6c757d';
+      case 'positive':
+        return '#28a745';
+      case 'negative':
+        return '#dc3545';
+      default:
+        return '#6c757d';
     }
   };
 
   // Get sentiment emoji
   const getSentimentEmoji = (sentiment: string): string => {
     switch (sentiment) {
-      case 'positive': return '😊';
-      case 'negative': return '😞';
-      default: return '😐';
+      case 'positive':
+        return '😊';
+      case 'negative':
+        return '😞';
+      default:
+        return '😐';
     }
   };
 
   // Get priority color
   const getPriorityColor = (priority: string): string => {
     switch (priority) {
-      case 'high': return '#dc3545';
-      case 'medium': return '#ffc107';
-      case 'low': return '#28a745';
-      default: return '#6c757d';
+      case 'high':
+        return '#dc3545';
+      case 'medium':
+        return '#ffc107';
+      case 'low':
+        return '#28a745';
+      default:
+        return '#6c757d';
     }
   };
 
   return (
-    <div style={{ 
-      fontFamily: 'Arial, sans-serif',
-      height: '100%',
-      overflowY: 'auto',
-      padding: '20px',
-      backgroundColor: '#f8f9fa',
-    }}>
+    <div
+      style={{
+        fontFamily: 'Arial, sans-serif',
+        height: '100%',
+        overflowY: 'auto',
+        padding: '20px',
+        backgroundColor: '#f8f9fa',
+      }}
+    >
       {/* Header with Close Button */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '20px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
         <h2 style={{ margin: 0, color: '#FF6B35' }}>🤖 AI Features</h2>
         {onClose && (
           <button
@@ -121,18 +164,22 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div style={{
-          padding: '15px',
-          marginBottom: '20px',
-          backgroundColor: '#f8d7da',
-          border: '1px solid #f5c6cb',
-          borderRadius: '5px',
-          color: '#721c24',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span><strong>Error:</strong> {error}</span>
+        <div
+          style={{
+            padding: '15px',
+            marginBottom: '20px',
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            borderRadius: '5px',
+            color: '#721c24',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span>
+            <strong>Error:</strong> {error}
+          </span>
           <button
             onClick={clearError}
             style={{
@@ -149,18 +196,29 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
       )}
 
       {/* Summary Section */}
-      <div style={{
-        padding: '20px',
-        marginBottom: '20px',
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <div
+        style={{
+          padding: '20px',
+          marginBottom: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '15px',
+          }}
+        >
           <h3 style={{ margin: 0 }}>📝 Summary</h3>
           <button
-            onClick={() => generateSummary({ text: transcript, id: Date.now().toString() })}
+            onClick={() =>
+              generateSummary(createTranscriptFromText(transcript))
+            }
             disabled={isSummarizing || !transcript}
             style={{
               padding: '8px 16px',
@@ -179,20 +237,54 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
         {summary && (
           <div>
             <div style={{ marginBottom: '15px' }}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>Short (1-2 sentences)</h4>
-              <p style={{ margin: 0, padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+              <h4
+                style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}
+              >
+                Short (1-2 sentences)
+              </h4>
+              <p
+                style={{
+                  margin: 0,
+                  padding: '10px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '5px',
+                }}
+              >
                 {summary.short}
               </p>
             </div>
             <div style={{ marginBottom: '15px' }}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>Medium (1 paragraph)</h4>
-              <p style={{ margin: 0, padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+              <h4
+                style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}
+              >
+                Medium (1 paragraph)
+              </h4>
+              <p
+                style={{
+                  margin: 0,
+                  padding: '10px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '5px',
+                }}
+              >
                 {summary.medium}
               </p>
             </div>
             <div style={{ marginBottom: '15px' }}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>Long (2-3 paragraphs)</h4>
-              <p style={{ margin: 0, padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px', whiteSpace: 'pre-wrap' }}>
+              <h4
+                style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}
+              >
+                Long (2-3 paragraphs)
+              </h4>
+              <p
+                style={{
+                  margin: 0,
+                  padding: '10px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '5px',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
                 {summary.long}
               </p>
             </div>
@@ -204,18 +296,29 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
       </div>
 
       {/* Key Points Section */}
-      <div style={{
-        padding: '20px',
-        marginBottom: '20px',
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <div
+        style={{
+          padding: '20px',
+          marginBottom: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '15px',
+          }}
+        >
           <h3 style={{ margin: 0 }}>🎯 Key Points</h3>
           <button
-            onClick={() => extractKeyPoints({ text: transcript, id: Date.now().toString() })}
+            onClick={() =>
+              extractKeyPoints(createTranscriptFromText(transcript))
+            }
             disabled={isExtractingKeyPoints || !transcript}
             style={{
               padding: '8px 16px',
@@ -223,7 +326,10 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
               color: 'white',
               border: 'none',
               borderRadius: '5px',
-              cursor: isExtractingKeyPoints || !transcript ? 'not-allowed' : 'pointer',
+              cursor:
+                isExtractingKeyPoints || !transcript
+                  ? 'not-allowed'
+                  : 'pointer',
               fontSize: '14px',
             }}
           >
@@ -235,17 +341,21 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
           <ul style={{ margin: 0, paddingLeft: '20px' }}>
             {keyPoints.map((point, index) => (
               <li key={point.id} style={{ marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'start', gap: '10px' }}>
-                  <span style={{
-                    display: 'inline-block',
-                    minWidth: '30px',
-                    padding: '2px 8px',
-                    backgroundColor: '#FF6B35',
-                    color: 'white',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    textAlign: 'center',
-                  }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'start', gap: '10px' }}
+                >
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      minWidth: '30px',
+                      padding: '2px 8px',
+                      backgroundColor: '#FF6B35',
+                      color: 'white',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      textAlign: 'center',
+                    }}
+                  >
                     {index + 1}
                   </span>
                   <span>{point.text}</span>
@@ -257,18 +367,29 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
       </div>
 
       {/* Action Items Section */}
-      <div style={{
-        padding: '20px',
-        marginBottom: '20px',
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <div
+        style={{
+          padding: '20px',
+          marginBottom: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '15px',
+          }}
+        >
           <h3 style={{ margin: 0 }}>✅ Action Items</h3>
           <button
-            onClick={() => detectActionItems({ text: transcript, id: Date.now().toString() })}
+            onClick={() =>
+              detectActionItems(createTranscriptFromText(transcript))
+            }
             disabled={isDetectingActionItems || !transcript}
             style={{
               padding: '8px 16px',
@@ -276,7 +397,10 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
               color: '#000',
               border: 'none',
               borderRadius: '5px',
-              cursor: isDetectingActionItems || !transcript ? 'not-allowed' : 'pointer',
+              cursor:
+                isDetectingActionItems || !transcript
+                  ? 'not-allowed'
+                  : 'pointer',
               fontSize: '14px',
             }}
           >
@@ -285,8 +409,10 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
         </div>
 
         {actionItems.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {actionItems.map(item => (
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+          >
+            {actionItems.map((item) => (
               <div
                 key={item.id}
                 style={{
@@ -306,19 +432,30 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
                   style={{ marginTop: '3px', cursor: 'pointer' }}
                 />
                 <div style={{ flex: 1 }}>
-                  <div style={{
-                    textDecoration: item.completed ? 'line-through' : 'none',
-                    color: item.completed ? '#666' : '#000',
-                  }}>
+                  <div
+                    style={{
+                      textDecoration: item.completed ? 'line-through' : 'none',
+                      color: item.completed ? '#666' : '#000',
+                    }}
+                  >
                     {item.text}
                   </div>
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '5px', fontSize: '12px' }}>
-                    <span style={{
-                      padding: '2px 8px',
-                      backgroundColor: getPriorityColor(item.priority),
-                      color: 'white',
-                      borderRadius: '3px',
-                    }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '10px',
+                      marginTop: '5px',
+                      fontSize: '12px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        padding: '2px 8px',
+                        backgroundColor: getPriorityColor(item.priority),
+                        color: 'white',
+                        borderRadius: '3px',
+                      }}
+                    >
                       {item.priority}
                     </span>
                   </div>
@@ -327,23 +464,36 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
             ))}
           </div>
         ) : (
-          <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>No action items detected</p>
+          <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
+            No action items detected
+          </p>
         )}
       </div>
 
       {/* Sentiment Section */}
-      <div style={{
-        padding: '20px',
-        marginBottom: '20px',
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <div
+        style={{
+          padding: '20px',
+          marginBottom: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '15px',
+          }}
+        >
           <h3 style={{ margin: 0 }}>😊 Sentiment Analysis</h3>
           <button
-            onClick={() => analyzeSentiment({ text: transcript, id: Date.now().toString() })}
+            onClick={() =>
+              analyzeSentiment(createTranscriptFromText(transcript))
+            }
             disabled={isAnalyzingSentiment || !transcript}
             style={{
               padding: '8px 16px',
@@ -351,7 +501,8 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
               color: 'white',
               border: 'none',
               borderRadius: '5px',
-              cursor: isAnalyzingSentiment || !transcript ? 'not-allowed' : 'pointer',
+              cursor:
+                isAnalyzingSentiment || !transcript ? 'not-allowed' : 'pointer',
               fontSize: '14px',
             }}
           >
@@ -361,52 +512,76 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
 
         {sentiment && (
           <div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '15px',
-              marginBottom: '20px',
-              padding: '15px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '5px',
-            }}>
-              <span style={{ fontSize: '48px' }}>{getSentimentEmoji(sentiment.overall)}</span>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '15px',
+                marginBottom: '20px',
+                padding: '15px',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '5px',
+              }}
+            >
+              <span style={{ fontSize: '48px' }}>
+                {getSentimentEmoji(sentiment.overall)}
+              </span>
               <div>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  color: getSentimentColor(sentiment.overall),
-                  textTransform: 'capitalize',
-                }}>
+                <div
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: getSentimentColor(sentiment.overall),
+                    textTransform: 'capitalize',
+                  }}
+                >
                   {sentiment.overall}
                 </div>
                 <div style={{ fontSize: '14px', color: '#666' }}>
-                  Score: {sentiment.score.toFixed(2)} • Confidence: {(sentiment.confidence * 100).toFixed(0)}%
+                  Score: {sentiment.score.toFixed(2)} • Confidence:{' '}
+                  {(sentiment.confidence * 100).toFixed(0)}%
                 </div>
               </div>
             </div>
 
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>Emotion Breakdown</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>
+              Emotion Breakdown
+            </h4>
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+            >
               {Object.entries(sentiment.emotions).map(([emotion, value]) => (
                 <div key={emotion}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px', fontSize: '14px' }}>
-                    <span style={{ textTransform: 'capitalize' }}>{emotion}</span>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '3px',
+                      fontSize: '14px',
+                    }}
+                  >
+                    <span style={{ textTransform: 'capitalize' }}>
+                      {emotion}
+                    </span>
                     <span>{(value * 100).toFixed(0)}%</span>
                   </div>
-                  <div style={{
-                    width: '100%',
-                    height: '8px',
-                    backgroundColor: '#e9ecef',
-                    borderRadius: '4px',
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      width: `${value * 100}%`,
-                      height: '100%',
-                      backgroundColor: '#FF6B35',
-                      transition: 'width 0.3s',
-                    }} />
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '8px',
+                      backgroundColor: '#e9ecef',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${value * 100}%`,
+                        height: '100%',
+                        backgroundColor: '#FF6B35',
+                        transition: 'width 0.3s',
+                      }}
+                    />
                   </div>
                 </div>
               ))}
@@ -416,17 +591,26 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
       </div>
 
       {/* Topics Section */}
-      <div style={{
-        padding: '20px',
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <div
+        style={{
+          padding: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '15px',
+          }}
+        >
           <h3 style={{ margin: 0 }}>🏷️ Topics</h3>
           <button
-            onClick={() => detectTopics({ text: transcript, id: Date.now().toString() })}
+            onClick={() => detectTopics(createTranscriptFromText(transcript))}
             disabled={isDetectingTopics || !transcript}
             style={{
               padding: '8px 16px',
@@ -434,7 +618,8 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
               color: 'white',
               border: 'none',
               borderRadius: '5px',
-              cursor: isDetectingTopics || !transcript ? 'not-allowed' : 'pointer',
+              cursor:
+                isDetectingTopics || !transcript ? 'not-allowed' : 'pointer',
               fontSize: '14px',
             }}
           >
@@ -444,7 +629,7 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
 
         {topics.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            {topics.map(topic => (
+            {topics.map((topic) => (
               <div
                 key={topic.id}
                 style={{
@@ -455,7 +640,9 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
                   fontSize: '14px',
                 }}
               >
-                <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>{topic.name}</div>
+                <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>
+                  {topic.name}
+                </div>
                 <div style={{ fontSize: '12px', color: '#666' }}>
                   {(topic.confidence * 100).toFixed(0)}% confidence
                 </div>
@@ -469,4 +656,3 @@ export const AIFeaturesPanel: React.FC<AIFeaturesPanelProps> = ({
 };
 
 export default AIFeaturesPanel;
-

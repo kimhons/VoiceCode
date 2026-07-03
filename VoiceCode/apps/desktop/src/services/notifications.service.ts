@@ -1,7 +1,7 @@
 /**
  * Advanced Notifications Service
  * Phase 5.1: Advanced Notifications
- * 
+ *
  * Handles push notifications, email notifications, SMS notifications
  */
 
@@ -11,9 +11,9 @@ import { getSupabaseService } from './supabase.service';
 // TYPES
 // =====================================================
 
-export type NotificationType = 
-  | 'transcript_complete' 
-  | 'audio_processed' 
+export type NotificationType =
+  | 'transcript_complete'
+  | 'audio_processed'
   | 'export_ready'
   | 'ai_analysis_complete'
   | 'comment_added'
@@ -36,7 +36,7 @@ export interface Notification {
   message: string;
   priority: NotificationPriority;
   channels: NotificationChannel[];
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   is_read: boolean;
   is_sent: boolean;
   sent_at?: string;
@@ -166,7 +166,7 @@ export class NotificationsService {
 
   async createNotification(
     type: NotificationType,
-    data: Record<string, any> = {},
+    data: Record<string, unknown> = {},
     customChannels?: NotificationChannel[]
   ): Promise<Notification> {
     const user = await this.supabase.getCurrentUser();
@@ -174,27 +174,37 @@ export class NotificationsService {
 
     // Get template
     const template = NOTIFICATION_TEMPLATES[type];
-    
+
     // Replace placeholders in title and message
     const title = this.replacePlaceholders(template.title, data);
     const message = this.replacePlaceholders(template.message, data);
 
     // Get user preferences
     const preferences = await this.getPreferences();
-    
+
     // Determine channels based on preferences
-    const channels = customChannels || this.getEnabledChannels(template.channels, preferences, type);
+    const channels =
+      customChannels ||
+      this.getEnabledChannels(template.channels, preferences, type);
 
     // Check quiet hours
     if (preferences.quiet_hours_enabled && this.isQuietHours(preferences)) {
       // Only send urgent notifications during quiet hours
       if (template.priority !== 'urgent') {
-        return this.queueNotification(type, title, message, template.priority, channels, data);
+        return this.queueNotification(
+          type,
+          title,
+          message,
+          template.priority,
+          channels,
+          data
+        );
       }
     }
 
     // Create notification
-    const { data: notification, error } = await this.supabase.getClient()
+    const { data: notification, error } = await this.supabase
+      .getClient()
       .from('notifications')
       .insert({
         user_id: user.id,
@@ -213,13 +223,14 @@ export class NotificationsService {
     if (error) throw error;
 
     // Send notification through channels
-    await this.sendNotification(notification);
+    const typedNotification = notification as unknown as Notification;
+    await this.sendNotification(typedNotification);
 
-    return notification;
+    return typedNotification;
   }
 
-  private replacePlaceholders(text: string, data: Record<string, any>): string {
-    return text.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] || '');
+  private replacePlaceholders(text: string, data: Record<string, unknown>): string {
+    return text.replace(/\{\{(\w+)\}\}/g, (_, key) => (data[key] as string) || '');
   }
 
   private getEnabledChannels(
@@ -236,9 +247,11 @@ export class NotificationsService {
 
     for (const channel of defaultChannels) {
       if (channel === 'push' && preferences.push_enabled) channels.push('push');
-      if (channel === 'email' && preferences.email_enabled) channels.push('email');
+      if (channel === 'email' && preferences.email_enabled)
+        channels.push('email');
       if (channel === 'sms' && preferences.sms_enabled) channels.push('sms');
-      if (channel === 'in_app' && preferences.in_app_enabled) channels.push('in_app');
+      if (channel === 'in_app' && preferences.in_app_enabled)
+        channels.push('in_app');
     }
 
     return channels.length > 0 ? channels : ['in_app'];
@@ -247,7 +260,7 @@ export class NotificationsService {
   private isQuietHours(preferences: NotificationPreferences): boolean {
     const now = new Date();
     const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    
+
     const start = preferences.quiet_hours_start;
     const end = preferences.quiet_hours_end;
 
@@ -265,12 +278,13 @@ export class NotificationsService {
     message: string,
     priority: NotificationPriority,
     channels: NotificationChannel[],
-    data: Record<string, any>
+    data: Record<string, unknown>
   ): Promise<Notification> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data: notification, error } = await this.supabase.getClient()
+    const { data: notification, error } = await this.supabase
+      .getClient()
       .from('notifications')
       .insert({
         user_id: user.id,
@@ -287,7 +301,7 @@ export class NotificationsService {
       .single();
 
     if (error) throw error;
-    return notification;
+    return notification as unknown as Notification;
   }
 
   // =====================================================
@@ -310,13 +324,16 @@ export class NotificationsService {
     await Promise.allSettled(promises);
 
     // Mark as sent
-    await this.supabase.getClient()
+    await this.supabase
+      .getClient()
       .from('notifications')
       .update({ is_sent: true, sent_at: new Date().toISOString() })
       .eq('id', notification.id);
   }
 
-  private async sendPushNotification(notification: Notification): Promise<void> {
+  private async sendPushNotification(
+    notification: Notification
+  ): Promise<void> {
     if (!this.pushSubscription) {
       console.warn('Push subscription not available');
       return;
@@ -334,17 +351,21 @@ export class NotificationsService {
     }
   }
 
-  private async sendEmailNotification(notification: Notification): Promise<void> {
+  private async sendEmailNotification(
+    notification: Notification
+  ): Promise<void> {
     try {
       // Call Supabase Edge Function to send email
-      const { error } = await this.supabase.getClient().functions.invoke('send-email', {
-        body: {
-          notification_id: notification.id,
-          title: notification.title,
-          message: notification.message,
-          data: notification.data,
-        },
-      });
+      const { error } = await this.supabase
+        .getClient()
+        .functions.invoke('send-email', {
+          body: {
+            notification_id: notification.id,
+            title: notification.title,
+            message: notification.message,
+            data: notification.data,
+          },
+        });
 
       if (error) throw error;
     } catch (error) {
@@ -355,12 +376,14 @@ export class NotificationsService {
   private async sendSMSNotification(notification: Notification): Promise<void> {
     try {
       // Call Supabase Edge Function to send SMS
-      const { error } = await this.supabase.getClient().functions.invoke('send-sms', {
-        body: {
-          notification_id: notification.id,
-          message: `${notification.title}: ${notification.message}`,
-        },
-      });
+      const { error } = await this.supabase
+        .getClient()
+        .functions.invoke('send-sms', {
+          body: {
+            notification_id: notification.id,
+            message: `${notification.title}: ${notification.message}`,
+          },
+        });
 
       if (error) throw error;
     } catch (error) {
@@ -380,12 +403,12 @@ export class NotificationsService {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      
+
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: this.urlBase64ToUint8Array(
           process.env.VITE_VAPID_PUBLIC_KEY || ''
-        ),
+        ) as BufferSource,
       });
 
       this.pushSubscription = subscription;
@@ -414,23 +437,24 @@ export class NotificationsService {
     }
   }
 
-  private async savePushSubscription(subscription: PushSubscription): Promise<void> {
+  private async savePushSubscription(
+    subscription: PushSubscription
+  ): Promise<void> {
     const user = await this.supabase.getCurrentUser();
     if (!user) return;
 
-    await this.supabase.getClient()
-      .from('push_subscriptions')
-      .upsert({
-        user_id: user.id,
-        subscription: subscription.toJSON(),
-      });
+    await this.supabase.getClient().from('push_subscriptions').upsert({
+      user_id: user.id,
+      subscription: subscription.toJSON(),
+    });
   }
 
   private async removePushSubscription(): Promise<void> {
     const user = await this.supabase.getCurrentUser();
     if (!user) return;
 
-    await this.supabase.getClient()
+    await this.supabase
+      .getClient()
       .from('push_subscriptions')
       .delete()
       .eq('user_id', user.id);
@@ -438,7 +462,9 @@ export class NotificationsService {
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
     const rawData = window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
     for (let i = 0; i < rawData.length; ++i) {
@@ -455,7 +481,8 @@ export class NotificationsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)
@@ -463,14 +490,15 @@ export class NotificationsService {
       .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Notification[];
   }
 
   async getUnreadCount(): Promise<number> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { count, error } = await this.supabase.getClient()
+    const { count, error } = await this.supabase
+      .getClient()
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
@@ -481,7 +509,8 @@ export class NotificationsService {
   }
 
   async markAsRead(notificationId: string): Promise<void> {
-    await this.supabase.getClient()
+    await this.supabase
+      .getClient()
       .from('notifications')
       .update({ is_read: true, read_at: new Date().toISOString() })
       .eq('id', notificationId);
@@ -491,7 +520,8 @@ export class NotificationsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    await this.supabase.getClient()
+    await this.supabase
+      .getClient()
       .from('notifications')
       .update({ is_read: true, read_at: new Date().toISOString() })
       .eq('user_id', user.id)
@@ -499,7 +529,8 @@ export class NotificationsService {
   }
 
   async deleteNotification(notificationId: string): Promise<void> {
-    await this.supabase.getClient()
+    await this.supabase
+      .getClient()
       .from('notifications')
       .delete()
       .eq('id', notificationId);
@@ -509,7 +540,8 @@ export class NotificationsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    await this.supabase.getClient()
+    await this.supabase
+      .getClient()
       .from('notifications')
       .delete()
       .eq('user_id', user.id);
@@ -523,7 +555,8 @@ export class NotificationsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('notification_preferences')
       .select('*')
       .eq('user_id', user.id)
@@ -534,14 +567,17 @@ export class NotificationsService {
       return this.getDefaultPreferences();
     }
 
-    return data;
+    return data as unknown as NotificationPreferences;
   }
 
-  async updatePreferences(updates: Partial<NotificationPreferences>): Promise<NotificationPreferences> {
+  async updatePreferences(
+    updates: Partial<NotificationPreferences>
+  ): Promise<NotificationPreferences> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('notification_preferences')
       .upsert({
         user_id: user.id,
@@ -551,7 +587,7 @@ export class NotificationsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as NotificationPreferences;
   }
 
   private getDefaultPreferences(): NotificationPreferences {
@@ -596,4 +632,3 @@ export function getNotificationsService(): NotificationsService {
   }
   return notificationsServiceInstance;
 }
-

@@ -118,7 +118,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isMobile }) => {
               marginBottom: '0.5rem',
             }}
           >
-            VoiceFlow Pro
+            VoiceCode
           </h2>
           <p
             style={{

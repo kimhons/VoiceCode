@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AIActionItemsScreen Tests
+// VoiceCode Mobile - AIActionItemsScreen Tests
 
 import { configureStore } from '@reduxjs/toolkit';
 import aiReducer, { extractActionItems, updateActionItem } from '@/store/slices/aiSlice';

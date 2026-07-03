@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Typography System
+// VoiceCode Mobile - Typography System
 // Apple-inspired typography with SF Pro font family
 
 import { Platform } from 'react-native';

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Subscription Management Screen
+// VoiceCode Mobile - Subscription Management Screen
 
 import React, { useState } from 'react';
 import {

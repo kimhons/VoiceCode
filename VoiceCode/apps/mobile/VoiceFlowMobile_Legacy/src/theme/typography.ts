@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Typography System
+// VoiceCode Pro Mobile - Typography System
 
 import { Platform } from 'react-native';
 

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Permissions Screen
+// VoiceCode Pro Mobile - Permissions Screen
 
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Platform } from 'react-native';
@@ -124,7 +124,7 @@ export const PermissionsScreen: React.FC = () => {
             color={theme.colors.textSecondary}
             style={styles.subtitle}
           >
-            VoiceFlow Pro needs a few permissions to work properly
+            VoiceCode Pro needs a few permissions to work properly
           </Text>
         </View>
 

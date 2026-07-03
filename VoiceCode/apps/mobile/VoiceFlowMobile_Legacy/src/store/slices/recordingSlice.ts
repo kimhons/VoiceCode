@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Recording Slice
+// VoiceCode Pro Mobile - Recording Slice
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Recording, RecordingState } from '../../types';

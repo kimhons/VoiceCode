@@ -200,7 +200,7 @@ describe('EncryptionService', () => {
       const uri = service.generateKeyUri(secret, 'test@example.com');
       expect(uri).toContain('otpauth://totp/');
       expect(uri).toContain('secret=');
-      expect(uri).toContain('issuer=VoiceFlowPro');
+      expect(uri).toContain('issuer=VoiceCode');
     });
 
     it('should use custom issuer', () => {

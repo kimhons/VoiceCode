@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Spacing System
+// VoiceCode Mobile - Spacing System
 
 // Base unit: 4px
 const BASE_UNIT = 4;

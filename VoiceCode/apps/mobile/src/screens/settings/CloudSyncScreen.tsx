@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Cloud Sync Screen
+// VoiceCode Mobile - Cloud Sync Screen
 // Week 3 Day 19-20: Comprehensive Cloud Sync Management
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';

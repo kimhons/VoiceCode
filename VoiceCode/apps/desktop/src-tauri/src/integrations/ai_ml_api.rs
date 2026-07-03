@@ -1,8 +1,8 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // AI/ML API Integration Layer for VoiceFlow Pro
 // Provides unified access to multiple AI services via aimlapi.com
 
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -11,10 +11,10 @@ use reqwest::Client as HttpClient;
 use tokio::time::Duration;
 
 // Re-export AI service types from sibling modules
-pub use crate::integrations::ai_ml_core::{AIMLClient, AIMLConfig, AIMLError, AIMLService};
-pub use crate::integrations::text_enhancement::{TextEnhancer, EnhancementRequest, EnhancementResult};
-pub use crate::integrations::voice_generation::{VoiceGenerator, VoiceRequest, VoiceResult};
-pub use crate::integrations::translation_service::{Translator, TranslationRequest, TranslationResult};
+pub use crate::integrations::ai_ml_core::{AIMLClient, AIMLError};
+pub use crate::integrations::text_enhancement::{TextEnhancer, EnhancementRequest};
+pub use crate::integrations::voice_generation::{VoiceGenerator, VoiceResult};
+pub use crate::integrations::translation_service::{Translator, TranslationResult};
 pub use crate::integrations::context_processor::{ContextProcessor, ContextAwareRequest, ContextAwareResult};
 
 /// AI ML API Gateway - Main entry point for all AI services
@@ -327,7 +327,7 @@ impl AIMLAPIGateway {
         let mut suggestions = Vec::new();
         let mut confidence_scores = HashMap::new();
         let mut errors = Vec::new();
-        let mut translation_result = None;
+        let translation_result = None;
 
         // Process each requested operation
         for operation in &request.operations {

@@ -44,6 +44,8 @@ export declare function createLazyService<T>(serviceName: string, importFn: () =
  */
 export declare enum ServiceTier {
     FREE = "free",
+    BASIC = "basic",
+    STANDARD = "standard",
     PRO = "pro",
     ENTERPRISE = "enterprise"
 }

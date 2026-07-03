@@ -1,9 +1,10 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // PHASE 1.3: Structured Logging Implementation
 // Comprehensive logging system with tracing library
 
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::{info, warn, error, debug, Level};
+use tracing::{info, Level};
 use tracing_subscriber::{
     fmt::{self, format::FmtSpan},
     layer::SubscriberExt,

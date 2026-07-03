@@ -1,0 +1,1874 @@
+﻿cargo :     Checking voicecode-desktop v1.0.0 (C:\Githhub\VoiceCode\VoiceCode\apps\desktop\src-tauri)
+At line:1 char:1
++ cargo check --lib 2>&1 | Out-File -FilePath ".\build_errors20.txt" -E ...
++ ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Checking vo...ktop\src-tauri):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: unused import: `oneshot`
+ --> src\error_boundary.rs:6:26
+  |
+6 | use tokio::sync::{Mutex, oneshot};
+  |                          ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `std::fmt`
+ --> src\errors.rs:5:5
+  |
+5 | use std::fmt;
+  |     ^^^^^^^^
+
+warning: unused import: `uuid::Uuid`
+  --> src\global_dictation.rs:10:5
+   |
+10 | use uuid::Uuid;
+   |     ^^^^^^^^^^
+
+warning: unused imports: `debug`, `error`, and `warn`
+ --> src\logging.rs:6:21
+  |
+6 | use tracing::{info, warn, error, debug, Level};
+  |                     ^^^^  ^^^^^  ^^^^^
+
+warning: unused import: `Weak`
+ --> src\memory.rs:5:22
+  |
+5 | use std::sync::{Arc, Weak};
+  |                      ^^^^
+
+warning: unused imports: `MutexGuard` and `OwnedMutexGuard`
+ --> src\memory.rs:7:26
+  |
+7 | use tokio::sync::{Mutex, OwnedMutexGuard, MutexGuard, RwLock};
+  |                          ^^^^^^^^^^^^^^^  ^^^^^^^^^^
+
+warning: unused import: `error`
+  --> src\memory.rs:10:27
+   |
+10 | use tracing::{info, warn, error, debug};
+   |                           ^^^^^
+
+warning: unused import: `mpsc`
+ --> src\coding_agent.rs:7:27
+  |
+7 | use tokio::sync::{RwLock, mpsc, broadcast};
+  |                           ^^^^
+
+warning: unused import: `mpsc`
+ --> src\streaming.rs:9:19
+  |
+9 | use tokio::sync::{mpsc, RwLock, broadcast};
+  |                   ^^^^
+
+warning: unused import: `TranscriptionResult`
+  --> src\streaming.rs:13:49
+   |
+13 |     SttProvider, SttProviderManager, SttConfig, TranscriptionResult,
+   |                                                 ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::time::Duration`
+ --> src\stt\provider.rs:8:5
+  |
+8 | use std::time::Duration;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `CorrectionRecord` and `FileReference`
+  --> src\stt\deepgram.rs:20:56
+   |
+20 |     StreamingSession, TranscriptionResult, WordTiming, FileReference,
+   |                                                        ^^^^^^^^^^^^^
+21 |     CorrectionRecord,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+  --> src\stt\whisper.rs:14:5
+   |
+14 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+
+warning: unused import: `tokio::sync::Mutex`
+  --> src\stt\whisper.rs:15:5
+   |
+15 | use tokio::sync::Mutex;
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `CorrectionRecord` and `FileReference`
+  --> src\stt\whisper.rs:20:56
+   |
+20 |     StreamingSession, TranscriptionResult, WordTiming, FileReference,
+   |                                                        ^^^^^^^^^^^^^
+21 |     CorrectionRecord,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\file_tagging\fuzzy_search.rs:8:5
+  |
+8 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `Rgba`
+ --> src\computer_vision.rs:4:56
+  |
+4 | use image::{DynamicImage, GenericImageView, GrayImage, Rgba, RgbaImage};
+  |                                                        ^^^^
+
+warning: unnecessary parentheses around method argument
+   --> src\computer_vision.rs:652:69
+    |
+652 |         while top > 0 && self.has_horizontal_edge(edges, left, top, (right - left), threshold) {
+    |                                                                     ^            ^
+    |
+    = note: `#[warn(unused_parens)]` on by default
+help: remove these parentheses
+    |
+652 -         while top > 0 && self.has_horizontal_edge(edges, left, top, (right - left), threshold) {
+652 +         while top > 0 && self.has_horizontal_edge(edges, left, top, right - left, threshold) {
+    |
+
+warning: unnecessary parentheses around method argument
+   --> src\computer_vision.rs:658:84
+    |
+658 |         while bottom < height - 1 && self.has_horizontal_edge(edges, left, bottom, (right - left), threshold) {
+    |                                                                                    ^            ^
+    |
+help: remove these parentheses
+    |
+658 -         while bottom < height - 1 && self.has_horizontal_edge(edges, left, bottom, (right - left), threshold) {
+658 +         while bottom < height - 1 && self.has_horizontal_edge(edges, left, bottom, right - left, threshold) {
+    |
+
+warning: unused import: `std::collections::HashMap`
+ --> src\vision\file_agent.rs:4:5
+  |
+4 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Path`
+ --> src\vision\ocr_engine.rs:4:17
+  |
+4 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `Path`
+ --> src\vision\visual_explainer.rs:5:17
+  |
+5 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src\code_intelligence\ast_engine.rs:4:5
+  |
+4 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `parking_lot::RwLock`
+ --> src\code_intelligence\ast_engine.rs:8:5
+  |
+8 | use parking_lot::RwLock;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `QueryCursor`
+  --> src\code_intelligence\ast_engine.rs:10:46
+   |
+10 | use tree_sitter::{Parser, Tree, Node, Query, QueryCursor};
+   |                                              ^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\chunker.rs:5:5
+  |
+5 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `CodeStructure`
+  --> src\code_intelligence\code_graph.rs:13:36
+   |
+13 | use super::ast_engine::{ASTEngine, CodeStructure, Language};
+   |                                    ^^^^^^^^^^^^^
+
+warning: unused imports: `SymbolKind` and `Symbol`
+  --> src\code_intelligence\code_graph.rs:14:27
+   |
+14 | use super::symbol_table::{Symbol, SymbolKind, SymbolTable};
+   |                           ^^^^^^  ^^^^^^^^^^
+
+warning: unused import: `Path`
+ --> src\code_intelligence\context_integration.rs:5:17
+  |
+5 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused imports: `LoadResult as MemoryLoadResult` and `MemoryScope`
+  --> src\code_intelligence\context_integration.rs:11:40
+   |
+11 | use crate::cli::memory::{MemorySystem, MemoryScope, AutoMemoryType, LoadResult as MemoryLoadResult};
+   |                                        ^^^^^^^^^^^                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `McpTool`
+  --> src\code_intelligence\context_integration.rs:13:51
+   |
+13 | use crate::cli::mcp::{McpClient, McpServerConfig, McpTool};
+   |                                                   ^^^^^^^
+
+warning: unused imports: `ContextEvent` and `UnifiedContext`
+  --> src\code_intelligence\context_integration.rs:15:52
+   |
+15 | use super::unified_context::{UnifiedContextEngine, UnifiedContext, UnifiedContextRequest, ContextEvent};
+   |                                                    ^^^^^^^^^^^^^^                         ^^^^^^^^^^^^
+
+warning: unused import: `AgentTask`
+  --> src\code_intelligence\context_integration.rs:16:65
+   |
+16 | use super::meta_agent::{MetaAgentOrchestrator, MetaAgentConfig, AgentTask, TaskType, CollaborationStrategy};
+   |                                                                 ^^^^^^^^^
+
+warning: unused import: `SearchResult`
+  --> src\code_intelligence\context_lineage.rs:15:48
+   |
+15 | use super::semantic_search::{EmbeddingService, SearchResult};
+   |                                                ^^^^^^^^^^^^
+
+warning: unused import: `mpsc`
+ --> src\code_intelligence\ide_bridge.rs:9:19
+  |
+9 | use tokio::sync::{mpsc, RwLock, broadcast};
+  |                   ^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\llm_client.rs:5:5
+  |
+5 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `super::token_budget::LLMModel`
+  --> src\code_intelligence\llm_client.rs:12:5
+   |
+12 | use super::token_budget::LLMModel;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `mpsc`
+  --> src\code_intelligence\meta_agent.rs:10:38
+   |
+10 | use tokio::sync::{broadcast, RwLock, mpsc};
+   |                                      ^^^^
+
+warning: unused import: `UnifiedContext`
+  --> src\code_intelligence\meta_agent.rs:14:52
+   |
+14 | use super::unified_context::{UnifiedContextEngine, UnifiedContext, UnifiedContextRequest};
+   |                                                    ^^^^^^^^^^^^^^
+
+warning: unused imports: `LLMRequest` and `Message`
+  --> src\code_intelligence\meta_agent.rs:15:36
+   |
+15 | use super::llm_client::{LLMClient, LLMRequest, Message};
+   |                                    ^^^^^^^^^^  ^^^^^^^
+
+warning: unused import: `HashSet`
+ --> src\code_intelligence\multi_repo.rs:4:33
+  |
+4 | use std::collections::{HashMap, HashSet};
+  |                                 ^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\multi_repo.rs:6:5
+  |
+6 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused imports: `SymbolTable` and `Symbol`
+  --> src\code_intelligence\multi_repo.rs:10:27
+   |
+10 | use super::symbol_table::{SymbolTable, Symbol};
+   |                           ^^^^^^^^^^^  ^^^^^^
+
+warning: unused imports: `CodeGraphManager` and `GraphNode`
+  --> src\code_intelligence\multi_repo.rs:11:25
+   |
+11 | use super::code_graph::{CodeGraphManager, GraphNode};
+   |                         ^^^^^^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `Command`
+ --> src\code_intelligence\sandbox.rs:6:20
+  |
+6 | use std::process::{Command, Stdio};
+  |                    ^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\sandbox.rs:7:5
+  |
+7 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `Path`
+ --> src\code_intelligence\tribal_knowledge.rs:5:17
+  |
+5 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `CodeStructure`
+  --> src\code_intelligence\tribal_knowledge.rs:11:36
+   |
+11 | use super::ast_engine::{ASTEngine, CodeStructure, Language};
+   |                                    ^^^^^^^^^^^^^
+
+warning: unused import: `Duration`
+ --> src\code_intelligence\voice_streaming.rs:6:17
+  |
+6 | use std::time::{Duration, Instant};
+  |                 ^^^^^^^^
+
+warning: unused import: `Mutex`
+ --> src\code_intelligence\voice_streaming.rs:7:44
+  |
+7 | use tokio::sync::{broadcast, mpsc, RwLock, Mutex};
+  |                                            ^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\few_shot_db.rs:6:5
+  |
+6 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\mcp_oauth.rs:5:5
+  |
+5 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `Duration`
+ --> src\code_intelligence\mcp_oauth.rs:6:17
+  |
+6 | use std::time::{Duration, SystemTime, UNIX_EPOCH};
+  |                 ^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src\code_intelligence\mcp_servers.rs:4:5
+  |
+4 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `parking_lot::RwLock`
+ --> src\code_intelligence\mcp_servers.rs:8:5
+  |
+8 | use parking_lot::RwLock;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `OAuthConfig`
+  --> src\code_intelligence\mcp_servers.rs:10:41
+   |
+10 | use super::mcp_oauth::{McpOAuthManager, OAuthConfig};
+   |                                         ^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\plugin_system.rs:6:5
+  |
+6 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src\code_intelligence\team_knowledge.rs:4:5
+  |
+4 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PathBuf`
+ --> src\code_intelligence\team_knowledge.rs:5:23
+  |
+5 | use std::path::{Path, PathBuf};
+  |                       ^^^^^^^
+
+warning: unused import: `Language`
+  --> src\code_intelligence\context_builder.rs:10:63
+   |
+10 | use super::ast_engine::{ASTEngine, CodeStructure, ParsedFile, Language};
+   |                                                               ^^^^^^^^
+
+warning: unused imports: `SymbolKind` and `Symbol`
+  --> src\code_intelligence\context_builder.rs:11:40
+   |
+11 | use super::symbol_table::{SymbolTable, Symbol, SymbolKind};
+   |                                        ^^^^^^  ^^^^^^^^^^
+
+warning: unused imports: `ChunkerConfig` and `CodeChunk`
+  --> src\code_intelligence\context_builder.rs:12:35
+   |
+12 | use super::chunker::{CodeChunker, CodeChunk, ChunkType, ChunkerConfig};
+   |                                   ^^^^^^^^^             ^^^^^^^^^^^^^
+
+warning: unused import: `TruncationStrategy`
+  --> src\code_intelligence\context_builder.rs:13:67
+   |
+13 | use super::token_budget::{TokenBudget, ContentCategory, LLMModel, TruncationStrategy};
+   |                                                                   ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashSet`
+ --> src\code_intelligence\project_indexer.rs:4:5
+  |
+4 | use std::collections::HashSet;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `CodeStructure`
+  --> src\code_intelligence\project_indexer.rs:13:36
+   |
+13 | use super::ast_engine::{ASTEngine, CodeStructure, Language};
+   |                                    ^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\code_intelligence\symbol_table.rs:6:5
+  |
+6 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `ExportDeclaration`
+  --> src\code_intelligence\symbol_table.rs:14:5
+   |
+14 |     ExportDeclaration, Visibility,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ModelConfig`
+  --> src\code_intelligence\task_planner.rs:13:57
+   |
+13 | use super::llm_client::{LLMClient, LLMRequest, Message, ModelConfig};
+   |                                                         ^^^^^^^^^^^
+
+warning: unused import: `HashSet`
+ --> src\code_intelligence\unified_context.rs:4:33
+  |
+4 | use std::collections::{HashMap, HashSet};
+  |                                 ^^^^^^^
+
+warning: unused import: `Language`
+  --> src\code_intelligence\unified_context.rs:11:36
+   |
+11 | use super::ast_engine::{ASTEngine, Language};
+   |                                    ^^^^^^^^
+
+warning: unused imports: `CodeGraph`, `GraphNodeType`, and `SymbolContext`
+  --> src\code_intelligence\unified_context.rs:12:25
+   |
+12 | use super::code_graph::{CodeGraph, CodeGraphManager, GraphNode, GraphNodeType, SymbolContext};
+   |                         ^^^^^^^^^                               ^^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `ProjectContext`
+  --> src\code_intelligence\unified_context.rs:13:68
+   |
+13 | use super::context_builder::{ContextBuilder, ContextBuilderConfig, ProjectContext, ContextItem, ContextPriority, ContextType};
+   |                                                                    ^^^^^^^^^^^^^^
+
+warning: unused imports: `ChangeExplanation` and `CommitSummary`
+  --> src\code_intelligence\unified_context.rs:14:61
+   |
+14 | use super::context_lineage::{ContextLineage, LineageConfig, CommitSummary, ChangeExplanation};
+   |                                                             ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `SearchResult`
+  --> src\code_intelligence\unified_context.rs:17:48
+   |
+17 | use super::semantic_search::{EmbeddingService, SearchResult};
+   |                                                ^^^^^^^^^^^^
+
+warning: unused import: `Symbol`
+  --> src\code_intelligence\unified_context.rs:18:40
+   |
+18 | use super::symbol_table::{SymbolTable, Symbol};
+   |                                        ^^^^^^
+
+warning: unused imports: `AgentMessage` and `AgentProtocol`
+  --> src\cli\agent_registry.rs:11:46
+   |
+11 | use super::agent_protocol::{AgentCapability, AgentMessage, AgentProtocol};
+   |                                              ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `TaskStatus`
+  --> src\cli\commands.rs:11:42
+   |
+11 | use super::agent_protocol::{TaskContext, TaskStatus, TaskType};
+   |                                          ^^^^^^^^^^
+
+warning: unused import: `AgentInfo`
+  --> src\cli\commands.rs:12:29
+   |
+12 | use super::agent_registry::{AgentInfo, AgentRegistry};
+   |                             ^^^^^^^^^
+
+warning: unused import: `HashMap`
+ --> src\cli\consensus.rs:5:24
+  |
+5 | use std::collections::{HashMap, HashSet};
+  |                        ^^^^^^^
+
+warning: unused imports: `ChangeType`, `CodeChange`, and `TaskStatus`
+ --> src\cli\consensus.rs:8:29
+  |
+8 | use super::agent_protocol::{CodeChange, ChangeType, TaskResult, TaskStatus};
+  |                             ^^^^^^^^^^  ^^^^^^^^^^              ^^^^^^^^^^
+
+warning: unused import: `TaskResult`
+  --> src\cli\enhanced_agents.rs:13:59
+   |
+13 |     AgentCapability, CodeChange, ChangeType, TaskContext, TaskResult, TaskStatus, TaskType,
+   |                                                           ^^^^^^^^^^
+
+warning: unused import: `TaskContext`
+  --> src\cli\internal_agents.rs:12:46
+   |
+12 |     AgentCapability, CodeChange, ChangeType, TaskContext, TaskResult, TaskStatus, TaskType,
+   |                                              ^^^^^^^^^^^
+
+warning: unused imports: `SubagentConfig` and `TokenUsage`
+  --> src\cli\internal_agents.rs:18:38
+   |
+18 | use super::subagents::{SubagentType, SubagentConfig, TokenUsage};
+   |                                      ^^^^^^^^^^^^^^  ^^^^^^^^^^
+
+warning: unused import: `compare_code`
+  --> src\cli\internal_agents.rs:19:24
+   |
+19 | use super::consensus::{compare_code, ConsensusConfig, find_consensus};
+   |                        ^^^^^^^^^^^^
+
+warning: unused import: `CodeChange`
+  --> src\cli\orchestrator.rs:11:51
+   |
+11 |     AgentCapability, AgentMessage, AgentProtocol, CodeChange, TaskContext, TaskResult, TaskStatus,
+   |                                                   ^^^^^^^^^^
+
+warning: unused import: `Path`
+ --> src\cli\permissions.rs:7:17
+  |
+7 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `once_cell::sync::Lazy`
+   --> src\cli\persistence.rs:771:5
+    |
+771 | use once_cell::sync::Lazy;
+    |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\cli\pipeline.rs:7:5
+  |
+7 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `tokio::sync::RwLock`
+ --> src\cli\pipeline.rs:8:5
+  |
+8 | use tokio::sync::RwLock;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `AgentCapability`
+  --> src\cli\pipeline.rs:10:29
+   |
+10 | use super::agent_protocol::{AgentCapability, CodeChange, TaskContext, TaskResult, TaskStatus};
+   |                             ^^^^^^^^^^^^^^^
+
+warning: unused imports: `EnhancedResult` and `EnhancedTask`
+  --> src\cli\pipeline.rs:11:52
+   |
+11 | use super::enhanced_agents::{EnhancedAgentAdapter, EnhancedResult, EnhancedTask};
+   |                                                    ^^^^^^^^^^^^^^  ^^^^^^^^^^^^
+
+warning: unused import: `SubagentResult`
+  --> src\cli\pipeline.rs:12:41
+   |
+12 | use super::subagents::{SubagentManager, SubagentResult, SubagentType};
+   |                                         ^^^^^^^^^^^^^^
+
+warning: unused import: `tokio::sync::mpsc`
+  --> src\cli\repl.rs:11:5
+   |
+11 | use tokio::sync::mpsc;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `TaskResult` and `TaskStatus`
+ --> src\cli\subagents.rs:9:59
+  |
+9 | use super::agent_protocol::{AgentCapability, TaskContext, TaskResult, TaskStatus};
+  |                                                           ^^^^^^^^^^  ^^^^^^^^^^
+
+warning: unused import: `Arc`
+ --> src\cli\validation.rs:7:17
+  |
+7 | use std::sync::{Arc, RwLock};
+  |                 ^^^
+
+warning: unused imports: `CollaborationStrategy`, `SandboxMode`, `StreamEvent`, and `TribalKnowledge`
+  --> src\cli\code_intelligence_bridge.rs:12:55
+   |
+12 |     MetaAgentOrchestrator, MetaAgentConfig, TaskType, CollaborationStrategy,
+   |                                                       ^^^^^^^^^^^^^^^^^^^^^
+13 |     TribalKnowledgeExtractor, TribalKnowledge,
+   |                               ^^^^^^^^^^^^^^^
+...
+17 |     SandboxManager, SandboxConfig, SandboxMode, CommandAnalysis,
+   |                                    ^^^^^^^^^^^
+18 |     PromptEngineer, PromptType, BuiltPrompt,
+19 |     VoiceStreamManager, StreamConfig, StreamEvent,
+   |                                       ^^^^^^^^^^^
+
+warning: unused imports: `ChangeType` and `FileChange`
+  --> src\cli\code_intelligence_bridge.rs:23:54
+   |
+23 | use super::commands::{CommandContext, CommandResult, FileChange, ChangeType};
+   |                                                      ^^^^^^^^^^  ^^^^^^^^^^
+
+warning: unused import: `super::orchestrator::OrchestrationStrategy`
+  --> src\cli\code_intelligence_bridge.rs:24:5
+   |
+24 | use super::orchestrator::OrchestrationStrategy;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `AudioCaptureError` and `AudioCaptureService`
+ --> src\commands\audio.rs:9:25
+  |
+9 |     AudioCaptureConfig, AudioCaptureError, AudioCaptureService, AudioDeviceInfo,
+  |                         ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `error` and `warn`
+ --> src\commands\cache_commands.rs:8:21
+  |
+8 | use tracing::{info, warn, error};
+  |                     ^^^^  ^^^^^
+
+warning: unused imports: `EncryptionError`, `decrypt_global`, and `encrypt_global`
+ --> src\commands\encryption_commands.rs:5:39
+  |
+5 |     EncryptedData, EncryptionManager, EncryptionError,
+  |                                       ^^^^^^^^^^^^^^^
+6 |     encrypt_global, decrypt_global, get_global_encryption,
+  |     ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+
+warning: unused imports: `LogConfig` and `LogLevel`
+ --> src\commands\logging_commands.rs:4:22
+  |
+4 | use crate::logging::{LogConfig, LogLevel, LogStats, get_global_stats};
+  |                      ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AudioBufferPoolStats` and `get_resource_manager`
+ --> src\commands\memory_commands.rs:6:5
+  |
+6 |     get_resource_manager, AudioBufferPoolStats,
+  |     ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `tauri::State`
+ --> src\commands\memory_commands.rs:9:5
+  |
+9 | use tauri::State;
+  |     ^^^^^^^^^^^^
+
+warning: unused import: `warn`
+  --> src\commands\memory_commands.rs:10:21
+   |
+10 | use tracing::{info, warn};
+   |                     ^^^^
+
+warning: unused import: `serde_json::json`
+ --> src\integrations\ai_ml_api.rs:5:5
+  |
+5 | use serde_json::json;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src\integrations\ai_ml_core.rs:6:5
+  |
+6 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `AIMLService`
+ --> src\integrations\context_processor.rs:8:48
+  |
+8 | use super::ai_ml_core::{AIMLClient, AIMLError, AIMLService};
+  |                                                ^^^^^^^^^^^
+
+warning: unused import: `AIMLService`
+ --> src\integrations\text_enhancement.rs:8:61
+  |
+8 | use super::ai_ml_core::{AIMLClient, AIMLError, AIMLMessage, AIMLService};
+  |                                                             ^^^^^^^^^^^
+
+warning: unused import: `AIMLService`
+ --> src\integrations\translation_service.rs:8:48
+  |
+8 | use super::ai_ml_core::{AIMLClient, AIMLError, AIMLService};
+  |                                                ^^^^^^^^^^^
+
+warning: unused import: `uuid::Uuid`
+ --> src\integrations\voice_generation.rs:6:5
+  |
+6 | use uuid::Uuid;
+  |     ^^^^^^^^^^
+
+warning: unused import: `AIMLService`
+ --> src\integrations\voice_generation.rs:8:48
+  |
+8 | use super::ai_ml_core::{AIMLClient, AIMLError, AIMLService};
+  |                                                ^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src\integrations\voice_recognition.rs:5:5
+  |
+5 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\encryption.rs:170:20
+    |
+170 |         Ok(base64::encode(json))
+    |                    ^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\encryption.rs:175:28
+    |
+175 |         let json = base64::decode(base64_data)
+    |                            ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+  --> src\commands\encryption_commands.rs:34:36
+   |
+34 |                 data: Some(base64::encode(&key)),
+   |                                    ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+  --> src\commands\encryption_commands.rs:94:39
+   |
+94 |             let base64_data = base64::encode(json);
+   |                                       ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\commands\encryption_commands.rs:117:24
+    |
+117 |     let json = base64::decode(&encrypted_base64)
+    |                        ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\commands\encryption_commands.rs:150:30
+    |
+150 |     let audio_data = base64::decode(&audio_base64)
+    |                              ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\commands\encryption_commands.rs:162:39
+    |
+162 |             let base64_data = base64::encode(json);
+    |                                       ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\commands\encryption_commands.rs:187:24
+    |
+187 |     let json = base64::decode(&encrypted_base64)
+    |                        ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\commands\encryption_commands.rs:201:40
+    |
+201 |             let base64_audio = base64::encode(&audio_data);
+    |                                        ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\commands\encryption_commands.rs:257:16
+    |
+257 |     Ok(base64::encode(&key))
+    |                ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\commands\encryption_commands.rs:285:39
+    |
+285 |             let base64_data = base64::encode(json);
+    |                                       ^^^^^^
+
+warning: unused variable: `max_attempts`
+   --> src\error_boundary.rs:286:39
+    |
+286 |             RecoveryStrategy::Retry { max_attempts, delay_ms, exponential_backoff } => {
+    |                                       ^^^^^^^^^^^^ help: try ignoring the field: `max_attempts: _`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `name`
+   --> src\error_boundary.rs:444:14
+    |
+444 |         for (name, boundary) in boundaries.iter() {
+    |              ^^^^ help: if this is intentional, prefix it with an underscore: `_name`
+
+warning: variable does not need to be mutable
+   --> src\memory.rs:601:17
+    |
+601 |             let mut manager = resource_manager.lock().await;
+    |                 ----^^^^^^^
+    |                 |
+    |                 help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: unused variable: `lazy_init`
+   --> src\performance.rs:404:17
+    |
+404 |             let lazy_init = &self.lazy_init;
+    |                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_lazy_init`
+
+warning: unused variable: `max_chars`
+   --> src\screen_context.rs:602:42
+    |
+602 |     async fn capture_visible_text(&self, max_chars: usize) -> Result<String, String> {
+    |                                          ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_chars`
+
+warning: unused variable: `start`
+   --> src\streaming.rs:374:13
+    |
+374 |         let start = Instant::now();
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_start`
+
+warning: unused variable: `vocabulary`
+   --> src\stt\post_processor.rs:891:55
+    |
+891 |     pub async fn load_from_code_vocabulary(&mut self, vocabulary: &crate::code_vocabulary::CodeVocabulary) {
+    |                                                       ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: 
+`_vocabulary`
+
+error[E0382]: borrow of partially moved value: `undoable`
+   --> src\vision\file_agent.rs:486:38
+    |
+480 |         if let Some(backup) = undoable.backup {
+    |                     ------ value partially moved here
+...
+486 |         self.redo_stack.write().push(undoable.clone());
+    |                                      ^^^^^^^^ value borrowed here after partial move
+    |
+    = note: partial move occurs because value has type `BackupData`, which does not implement the `Copy` trait
+help: borrow this binding in the pattern to avoid moving the value
+    |
+480 |         if let Some(ref backup) = undoable.backup {
+    |                     +++
+
+warning: unused variable: `base64_image`
+   --> src\vision\ocr_engine.rs:380:13
+    |
+380 |         let base64_image = base64::Engine::encode(
+    |             ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_base64_image`
+
+warning: unused variable: `file_nodes`
+   --> src\code_intelligence\code_graph.rs:392:13
+    |
+392 |         let file_nodes: Vec<NodeIndex> = self.file_to_nodes
+    |             ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_nodes`
+
+warning: unused variable: `project_root`
+   --> src\code_intelligence\code_graph.rs:836:31
+    |
+836 | pub async fn build_code_graph(project_root: String) -> Result<GraphStats, String> {
+    |                               ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_root`
+
+error[E0308]: mismatched types
+   --> src\code_intelligence\context_integration.rs:380:39
+    |
+380 |                         input_schema: tool.input_schema.clone(),
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<Value>`, found `Value`
+    |
+    = note: expected enum `std::option::Option<serde_json::Value>`
+               found enum `serde_json::Value`
+help: try wrapping the expression in `Some`
+    |
+380 |                         input_schema: Some(tool.input_schema.clone()),
+    |                                       +++++                         +
+
+warning: unused variable: `input`
+   --> src\code_intelligence\context_integration.rs:529:34
+    |
+529 | pub async fn process_voice_input(input: String) -> Result<VoiceCommandResult, String> {
+    |                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: unused variable: `current_file`
+   --> src\code_intelligence\context_integration.rs:535:5
+    |
+535 |     current_file: Option<String>,
+    |     ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_current_file`
+
+warning: unused variable: `cursor_line`
+   --> src\code_intelligence\context_integration.rs:536:5
+    |
+536 |     cursor_line: Option<usize>,
+    |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cursor_line`
+
+warning: unused variable: `cursor_col`
+   --> src\code_intelligence\context_integration.rs:537:5
+    |
+537 |     cursor_col: Option<usize>,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cursor_col`
+
+warning: unused variable: `selection`
+   --> src\code_intelligence\context_integration.rs:538:5
+    |
+538 |     selection: Option<String>,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_selection`
+
+warning: unused variable: `query`
+   --> src\code_intelligence\context_integration.rs:539:5
+    |
+539 |     query: Option<String>,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_query`
+
+error[E0599]: no method named `embed` found for reference `&Arc<EmbeddingService>` in the current scope
+   --> src\code_intelligence\context_lineage.rs:468:58
+    |
+468 |                 if let Ok(embedding) = embedding_service.embed(&text).await {
+    |                                                          ^^^^^ method not found in `&Arc<EmbeddingService>`
+
+error[E0599]: no method named `embed` found for reference `&Arc<EmbeddingService>` in the current scope
+   --> src\code_intelligence\context_lineage.rs:572:49
+    |
+572 |         let query_embedding = embedding_service.embed(query).await?;
+    |                                                 ^^^^^ method not found in `&Arc<EmbeddingService>`
+
+error[E0277]: the size for values of type `[f32]` cannot be known at compilation time
+   --> src\code_intelligence\context_lineage.rs:572:13
+    |
+572 |         let query_embedding = embedding_service.embed(query).await?;
+    |             ^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[f32]`
+    = note: all local variables must have a statically known size
+
+error[E0277]: the size for values of type `[f32]` cannot be known at compilation time
+   --> src\code_intelligence\context_lineage.rs:572:31
+    |
+572 |         let query_embedding = embedding_service.embed(query).await?;
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[f32]`
+    = note: all local variables must have a statically known size
+
+error[E0277]: the size for values of type `[f32]` cannot be known at compilation time
+   --> src\code_intelligence\context_lineage.rs:572:67
+    |
+572 |         let query_embedding = embedding_service.embed(query).await?;
+    |                                                                   ^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[f32]`
+note: required by a bound in `std::ops::ControlFlow::Break`
+   --> C:\ProgramData\chocolatey\lib\rust\tools\lib/rustlib/src/rust\library\core\src\ops\control_flow.rs:87:25
+    |
+ 87 | pub enum ControlFlow<B, C = ()> {
+    |                         ^^^^^^ required by this bound in `ControlFlow::Break`
+...
+ 95 |     Break(B),
+    |     ----- required by a bound in this variant
+
+error[E0277]: the size for values of type `[f32]` cannot be known at compilation time
+   --> src\code_intelligence\context_lineage.rs:572:31
+    |
+572 |         let query_embedding = embedding_service.embed(query).await?;
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[f32]`
+note: required by a bound in `std::ops::ControlFlow::Continue`
+   --> C:\ProgramData\chocolatey\lib\rust\tools\lib/rustlib/src/rust\library\core\src\ops\control_flow.rs:87:25
+    |
+ 87 | pub enum ControlFlow<B, C = ()> {
+    |                         ^^^^^^ required by this bound in `ControlFlow::Continue`
+...
+ 91 |     Continue(C),
+    |     -------- required by a bound in this variant
+
+warning: variable `registered` is assigned to, but never used
+   --> src\code_intelligence\ide_bridge.rs:525:13
+    |
+525 |     let mut registered = false;
+    |             ^^^^^^^^^^
+    |
+    = note: consider using `_registered` instead
+
+warning: value assigned to `registered` is never read
+   --> src\code_intelligence\ide_bridge.rs:551:41
+    |
+551 | ...                   registered = true;
+    |                       ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` on by default
+
+warning: unused variable: `client_id`
+   --> src\code_intelligence\ide_bridge.rs:661:26
+    |
+661 | pub async fn send_to_ide(client_id: String, message_type: String, payload: String) -> Result<(), String> {
+    |                          ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_client_id`
+
+warning: unused variable: `message_type`
+   --> src\code_intelligence\ide_bridge.rs:661:45
+    |
+661 | pub async fn send_to_ide(client_id: String, message_type: String, payload: String) -> Result<(), String> {
+    |                                             ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_message_type`
+
+warning: unused variable: `payload`
+   --> src\code_intelligence\ide_bridge.rs:661:67
+    |
+661 | pub async fn send_to_ide(client_id: String, message_type: String, payload: String) -> Result<(), String> {
+    |                                                                   ^^^^^^^ help: if this is intentional, prefix it with an 
+underscore: `_payload`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:586:9
+    |
+586 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:587:9
+    |
+587 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:596:9
+    |
+596 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:597:9
+    |
+597 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `tx`
+   --> src\code_intelligence\llm_client.rs:598:9
+    |
+598 |         tx: mpsc::Sender<StreamEvent>,
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:606:9
+    |
+606 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:607:9
+    |
+607 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:616:9
+    |
+616 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:617:9
+    |
+617 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `tx`
+   --> src\code_intelligence\llm_client.rs:618:9
+    |
+618 |         tx: mpsc::Sender<StreamEvent>,
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:626:9
+    |
+626 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:627:9
+    |
+627 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:635:9
+    |
+635 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:636:9
+    |
+636 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `tx`
+   --> src\code_intelligence\llm_client.rs:637:9
+    |
+637 |         tx: mpsc::Sender<StreamEvent>,
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:645:9
+    |
+645 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:646:9
+    |
+646 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `request`
+   --> src\code_intelligence\llm_client.rs:654:9
+    |
+654 |         request: &LLMRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `model`
+   --> src\code_intelligence\llm_client.rs:655:9
+    |
+655 |         model: &ModelConfig,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_model`
+
+warning: unused variable: `tx`
+   --> src\code_intelligence\llm_client.rs:656:9
+    |
+656 |         tx: mpsc::Sender<StreamEvent>,
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `config`
+   --> src\code_intelligence\meta_agent.rs:520:25
+    |
+520 |             if let Some(config) = agents_lock.get(&agent_type).cloned() {
+    |                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_config`
+
+warning: unused variable: `min_agreement`
+   --> src\code_intelligence\meta_agent.rs:642:9
+    |
+642 |         min_agreement: f32,
+    |         ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_min_agreement`
+
+warning: unused variable: `agent`
+   --> src\code_intelligence\meta_agent.rs:946:5
+    |
+946 |     agent: String,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_agent`
+
+warning: unused variable: `task_description`
+   --> src\code_intelligence\meta_agent.rs:947:5
+    |
+947 |     task_description: String,
+    |     ^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_task_description`
+
+warning: unused variable: `current_file`
+   --> src\code_intelligence\meta_agent.rs:948:5
+    |
+948 |     current_file: Option<String>,
+    |     ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_current_file`
+
+warning: unused variable: `name`
+   --> src\code_intelligence\multi_repo.rs:389:14
+    |
+389 |         for (name, repo) in &repos {
+    |              ^^^^ help: if this is intentional, prefix it with an underscore: `_name`
+
+warning: unused variable: `event`
+   --> src\code_intelligence\plugin_system.rs:381:59
+    |
+381 |     async fn execute_plugin(&self, plugin: &LoadedPlugin, event: &PluginEvent) -> PluginResult {
+    |                                                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_event`
+
+warning: unused variable: `file_path`
+   --> src\code_intelligence\self_verification.rs:112:60
+    |
+112 |     pub async fn verify(&self, code: &str, language: &str, file_path: Option<&Path>) -> VerificationResult {
+    |                                                            ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: 
+`_file_path`
+
+warning: unused variable: `sync_url`
+   --> src\code_intelligence\team_knowledge.rs:233:13
+    |
+233 |         let sync_url = self.config.sync_url.as_ref()
+    |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_sync_url`
+
+warning: unused variable: `project_root`
+   --> src\code_intelligence\context_builder.rs:925:5
+    |
+925 |     project_root: String,
+    |     ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_root`
+
+warning: unused variable: `current_file`
+   --> src\code_intelligence\context_builder.rs:926:5
+    |
+926 |     current_file: Option<String>,
+    |     ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_current_file`
+
+warning: unused variable: `cursor_line`
+   --> src\code_intelligence\context_builder.rs:927:5
+    |
+927 |     cursor_line: Option<usize>,
+    |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cursor_line`
+
+warning: unused variable: `cursor_col`
+   --> src\code_intelligence\context_builder.rs:928:5
+    |
+928 |     cursor_col: Option<usize>,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cursor_col`
+
+warning: unused variable: `selection`
+   --> src\code_intelligence\context_builder.rs:929:5
+    |
+929 |     selection: Option<String>,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_selection`
+
+warning: unused variable: `query`
+   --> src\code_intelligence\context_builder.rs:930:5
+    |
+930 |     query: Option<String>,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_query`
+
+warning: unused variable: `file_path`
+   --> src\code_intelligence\project_indexer.rs:713:27
+    |
+713 | pub async fn reindex_file(file_path: String) -> Result<usize, String> {
+    |                           ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_path`
+
+warning: unused variable: `indexer`
+   --> src\code_intelligence\project_indexer.rs:715:21
+    |
+715 |     if let Some(ref indexer) = *guard {
+    |                     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_indexer`
+
+warning: unused variable: `texts`
+   --> src\code_intelligence\semantic_search.rs:268:45
+    |
+268 |     async fn generate_api_embeddings(&self, texts: &[String]) -> Result<Vec<Vec<f32>>, String> {
+    |                                             ^^^^^ help: if this is intentional, prefix it with an underscore: `_texts`
+
+warning: unused variable: `query`
+   --> src\code_intelligence\semantic_search.rs:659:5
+    |
+659 |     query: String,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_query`
+
+warning: unused variable: `top_k`
+   --> src\code_intelligence\semantic_search.rs:660:5
+    |
+660 |     top_k: usize,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_top_k`
+
+warning: unused variable: `chunk_types`
+   --> src\code_intelligence\semantic_search.rs:661:5
+    |
+661 |     chunk_types: Option<Vec<String>>,
+    |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_chunk_types`
+
+warning: unused variable: `languages`
+   --> src\code_intelligence\semantic_search.rs:662:5
+    |
+662 |     languages: Option<Vec<String>>,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_languages`
+
+warning: unused variable: `response`
+   --> src\code_intelligence\task_planner.rs:545:13
+    |
+545 |         let response = llm.complete(request).await?;
+    |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_response`
+
+warning: variable does not need to be mutable
+   --> src\code_intelligence\task_planner.rs:549:13
+    |
+549 |         let mut plan = self.create_plan(intent, Some(context.clone()))?;
+    |             ----^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `target`
+   --> src\code_intelligence\task_planner.rs:812:41
+    |
+812 |     async fn execute_modify_code(&self, target: &StepTarget, context: Option<&ProjectContext>) -> Result<String, String> {
+    |                                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_target`
+
+warning: unused variable: `context`
+   --> src\code_intelligence\task_planner.rs:812:62
+    |
+812 |     async fn execute_modify_code(&self, target: &StepTarget, context: Option<&ProjectContext>) -> Result<String, String> {
+    |                                                              ^^^^^^^ help: if this is intentional, prefix it with an underscore: 
+`_context`
+
+warning: unused variable: `target`
+   --> src\code_intelligence\task_planner.rs:843:36
+    |
+843 |     async fn execute_search(&self, target: &StepTarget) -> Result<String, String> {
+    |                                    ^^^^^^ help: if this is intentional, prefix it with an underscore: `_target`
+
+warning: unused variable: `context`
+   --> src\code_intelligence\task_planner.rs:847:64
+    |
+847 |     async fn execute_generate_code(&self, target: &StepTarget, context: Option<&ProjectContext>) -> Result<String, String> {
+    |                                                                ^^^^^^^ help: if this is intentional, prefix it with an underscore: 
+`_context`
+
+warning: unused variable: `target`
+   --> src\code_intelligence\task_planner.rs:863:36
+    |
+863 |     async fn execute_verify(&self, target: &StepTarget) -> Result<String, String> {
+    |                                    ^^^^^^ help: if this is intentional, prefix it with an underscore: `_target`
+
+warning: unused variable: `target`
+   --> src\code_intelligence\task_planner.rs:868:37
+    |
+868 |     async fn execute_analyze(&self, target: &StepTarget) -> Result<String, String> {
+    |                                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_target`
+
+warning: unused variable: `target`
+   --> src\code_intelligence\task_planner.rs:882:39
+    |
+882 |     async fn execute_move_file(&self, target: &StepTarget) -> Result<String, String> {
+    |                                       ^^^^^^ help: if this is intentional, prefix it with an underscore: `_target`
+
+warning: unused variable: `target`
+   --> src\code_intelligence\task_planner.rs:886:41
+    |
+886 |     async fn execute_install_dep(&self, target: &StepTarget) -> Result<String, String> {
+    |                                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_target`
+
+warning: unused variable: `file_path`
+   --> src\code_intelligence\unified_context.rs:514:9
+    |
+514 |         file_path: &Path,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_path`
+
+warning: unused variable: `budget`
+   --> src\code_intelligence\unified_context.rs:515:9
+    |
+515 |         budget: &mut TokenBudget,
+    |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_budget`
+
+warning: unused variable: `dependencies`
+   --> src\code_intelligence\unified_context.rs:520:13
+    |
+520 |         let dependencies = self.code_graph.stats();
+    |             ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_dependencies`
+
+warning: variable does not need to be mutable
+   --> src\code_intelligence\unified_context.rs:517:13
+    |
+517 |         let mut items = Vec::new();
+    |             ----^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `embedding_service`
+   --> src\code_intelligence\unified_context.rs:645:25
+    |
+645 |         if let Some(ref embedding_service) = self.embedding_service {
+    |                         ^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_embedding_service`
+
+error[E0599]: no method named `update_file` found for struct `Arc<ProjectIndexer>` in the current scope
+   --> src\code_intelligence\unified_context.rs:753:30
+    |
+753 |         self.project_indexer.update_file(file_path).await?;
+    |                              ^^^^^^^^^^^ method not found in `Arc<ProjectIndexer>`
+
+warning: unused variable: `current_file`
+   --> src\code_intelligence\unified_context.rs:855:5
+    |
+855 |     current_file: Option<String>,
+    |     ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_current_file`
+
+warning: unused variable: `query`
+   --> src\code_intelligence\unified_context.rs:856:5
+    |
+856 |     query: Option<String>,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_query`
+
+warning: unused variable: `include_history`
+   --> src\code_intelligence\unified_context.rs:857:5
+    |
+857 |     include_history: bool,
+    |     ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_include_history`
+
+warning: unused variable: `event_rx`
+   --> src\cli\mcp.rs:669:28
+    |
+669 |         let (event_tx, mut event_rx) = mpsc::channel::<SseEvent>(100);
+    |                            ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_event_rx`
+
+warning: unused variable: `reconnect_delay`
+   --> src\cli\mcp.rs:675:13
+    |
+675 |         let reconnect_delay = self.config.reconnect_delay_ms.unwrap_or(1000);
+    |             ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_reconnect_delay`
+
+warning: variable `current_id` is assigned to, but never used
+   --> src\cli\mcp.rs:682:21
+    |
+682 |             let mut current_id: Option<String> = None;
+    |                     ^^^^^^^^^^
+    |
+    = note: consider using `_current_id` instead
+
+warning: value assigned to `current_id` is never read
+   --> src\cli\mcp.rs:705:37
+    |
+705 | ...                   current_id = Some(value.trim().to_string());
+    |                       ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: value assigned to `current_id` is never read
+   --> src\cli\mcp.rs:730:29
+    |
+730 | ...                   current_id = None;
+    |                       ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: variable does not need to be mutable
+   --> src\cli\mcp.rs:669:24
+    |
+669 |         let (event_tx, mut event_rx) = mpsc::channel::<SseEvent>(100);
+    |                        ----^^^^^^^^
+    |                        |
+    |                        help: remove this `mut`
+
+warning: unused variable: `token`
+    --> src\cli\mcp.rs:1198:17
+     |
+1198 |             let token = oauth.get_access_token().await?;
+     |                 ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+error[E0061]: this method takes 1 argument but 0 arguments were supplied
+   --> src\cli\memory.rs:807:14
+    |
+807 |         self.save_auto_memories().await
+    |              ^^^^^^^^^^^^^^^^^^-- argument #1 of type `&std::path::Path` is missing
+    |
+note: method defined here
+   --> src\cli\memory.rs:731:18
+    |
+731 |     pub async fn save_auto_memories(&self, working_dir: &Path) -> Result<(), String> {
+    |                  ^^^^^^^^^^^^^^^^^^        ------------------
+help: provide the argument
+    |
+807 |         self.save_auto_memories(/* &std::path::Path */).await
+    |                                 ++++++++++++++++++++++
+
+warning: unused variable: `task_id`
+   --> src\cli\multi_agent.rs:884:13
+    |
+884 |         let task_id = task.id.clone();
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_task_id`
+
+warning: unused variable: `context`
+   --> src\cli\orchestrator.rs:579:9
+    |
+579 |         context: TaskContext,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_context`
+
+warning: unused variable: `stream`
+   --> src\cli\code_intelligence_bridge.rs:143:13
+    |
+143 |         let stream = voice_stream.as_ref().ok_or("Voice stream not initialized")?;
+    |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_stream`
+
+warning: unused variable: `context`
+   --> src\cli\code_intelligence_bridge.rs:186:71
+    |
+186 |     pub async fn execute_voice_command(&self, command: &VoiceCommand, context: &CommandContext) -> Result<CommandResult, String> {
+    |                                                                       ^^^^^^^ help: if this is intentional, prefix it with an 
+underscore: `_context`
+
+warning: unused variable: `task_type`
+   --> src\cli\code_intelligence_bridge.rs:235:42
+    |
+235 |     pub async fn calculate_budget(&self, task_type: &str, content_sizes: HashMap<String, usize>) -> Result<BudgetPlan, String> {
+    |                                          ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_task_type`
+
+warning: variable does not need to be mutable
+   --> src\integrations\ai_ml_api.rs:330:13
+    |
+330 |         let mut translation_result = None;
+    |             ----^^^^^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `bitrate`
+   --> src\integrations\ai_ml_api.rs:441:46
+    |
+441 |                     VoiceOutputFormat::MP3 { bitrate } => AudioFormat::MP3,
+    |                                              ^^^^^^^ help: try ignoring the field: `bitrate: _`
+
+warning: unused variable: `sample_rate`
+   --> src\integrations\ai_ml_api.rs:442:46
+    |
+442 |                     VoiceOutputFormat::WAV { sample_rate } => AudioFormat::WAV,
+    |                                              ^^^^^^^^^^^ help: try ignoring the field: `sample_rate: _`
+
+warning: unused variable: `quality`
+   --> src\integrations\ai_ml_api.rs:443:46
+    |
+443 |                     VoiceOutputFormat::OGG { quality } => AudioFormat::OGG,
+    |                                              ^^^^^^^ help: try ignoring the field: `quality: _`
+
+warning: unused variable: `compression_level`
+   --> src\integrations\ai_ml_api.rs:444:47
+    |
+444 |                     VoiceOutputFormat::FLAC { compression_level } => AudioFormat::FLAC,
+    |                                               ^^^^^^^^^^^^^^^^^ help: try ignoring the field: `compression_level: _`
+
+warning: unused variable: `analysis`
+   --> src\integrations\context_processor.rs:578:17
+    |
+578 |             let analysis = &choice.message.content;
+    |                 ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_analysis`
+
+warning: unused variable: `processing_time`
+   --> src\integrations\text_enhancement.rs:384:13
+    |
+384 |         let processing_time = start_time.elapsed().as_millis();
+    |             ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_processing_time`
+
+warning: unused variable: `voice_config`
+   --> src\integrations\voice_generation.rs:203:13
+    |
+203 |         let voice_config = self.prepare_voice_config(&request.voice_config, &request.audio_settings);
+    |             ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_voice_config`
+
+warning: variable does not need to be mutable
+   --> src\integrations\voice_generation.rs:491:13
+    |
+491 |         let mut processed_data = audio_data.to_vec();
+    |             ----^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\integrations\voice_recognition.rs:141:29
+    |
+141 |     async fn listening_loop(mut event_sender: mpsc::UnboundedSender<VoiceEvent>) {
+    |                             ----^^^^^^^^^^^^
+    |                             |
+    |                             help: remove this `mut`
+
+error[E0614]: type `bool` cannot be dereferenced
+   --> src\vision\visual_explainer.rs:338:19
+    |
+338 |         } else if *self.recording_path.read() .is_some() {
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ can't be dereferenced
+
+error[E0689]: can't call method `min` on ambiguous numeric type `{float}`
+   --> src\code_intelligence\voice_grammar.rs:821:20
+    |
+821 |         confidence.min(1.0_f32)
+    |                    ^^^
+    |
+help: you must specify a type for this binding, like `f32`
+    |
+793 |         let mut confidence: f32 = 0.0;
+    |                           +++++
+
+error[E0689]: can't call method `min` on ambiguous numeric type `{float}`
+   --> src\code_intelligence\agent_skills.rs:262:39
+    |
+262 |                     confidence: score.min(1.0_f32),
+    |                                       ^^^
+    |
+help: you must specify a type for this binding, like `f32`
+    |
+240 |             let mut score: f32 = 0.0;
+    |                          +++++
+
+warning: unused import: `Read`
+ --> src\vision\file_agent.rs:6:15
+  |
+6 | use std::io::{Read, Write};
+  |               ^^^^
+
+warning: unused import: `Write`
+ --> src\vision\file_agent.rs:6:21
+  |
+6 | use std::io::{Read, Write};
+  |                     ^^^^^
+
+warning: unused import: `EnhancedAgentAdapter`
+  --> src\cli\pipeline.rs:11:30
+   |
+11 | use super::enhanced_agents::{EnhancedAgentAdapter, EnhancedResult, EnhancedTask};
+   |                              ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `valid_modifiers`
+   --> src\validation.rs:158:9
+    |
+158 |     let valid_modifiers = ["Ctrl", "Alt", "Shift", "Cmd", "CmdOrCtrl"];
+    |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_valid_modifiers`
+
+warning: unused variable: `i`
+   --> src\validation.rs:230:10
+    |
+230 |     for (i, ch) in input.char_indices() {
+    |          ^ help: if this is intentional, prefix it with an underscore: `_i`
+
+warning: unused variable: `region`
+   --> src\computer_vision.rs:704:32
+    |
+704 |     fn classify_element(&self, region: &DynamicImage, bounds: &BoundingBox) -> UIElementType {
+    |                                ^^^^^^ help: if this is intentional, prefix it with an underscore: `_region`
+
+warning: unused variable: `text_blocks`
+    --> src\computer_vision.rs:1040:9
+     |
+1040 |         text_blocks: &[TextBlock],
+     |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_text_blocks`
+
+warning: unused variable: `config`
+    --> src\computer_vision.rs:1118:58
+     |
+1118 |     fn summarize_elements(&self, elements: &[UIElement], config: &VerbalizationConfig) -> String {
+     |                                                          ^^^^^^ help: if this is intentional, prefix it with an underscore: 
+`_config`
+
+error: lifetime may not live long enough
+   --> src\vision\file_agent.rs:557:51
+    |
+540 |     fn get_operation_paths(&self, operation: &FileOperation) -> Vec<&PathBuf> {
+    |                            -                 - let's call the lifetime of this reference `'1`
+    |                            |
+    |                            let's call the lifetime of this reference `'2`
+...
+557 |             FileOperation::Search { root, .. } => vec![root],
+    |                                                   ^^^^^^^^^^ method was supposed to return data with lifetime `'2` but it is 
+returning data with lifetime `'1`
+    |
+    = note: this error originates in the macro `vec` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider introducing a named lifetime parameter and update trait if needed
+    |
+540 |     fn get_operation_paths<'a>(&self, operation: &'a FileOperation) -> Vec<&'a PathBuf> {
+    |                           ++++                    ++                        ++
+
+error: lifetime may not live long enough
+   --> src\vision\omniparser.rs:457:9
+    |
+455 |       pub fn find_element_at(&self, screen: &ParsedScreen, x: i32, y: i32) -> Option<&ParsedElement> {
+    |                              -              - let's call the lifetime of this reference `'1`
+    |                              |
+    |                              let's call the lifetime of this reference `'2`
+456 |           // Find smallest element containing the point
+457 | /         screen.elements.iter()
+458 | |             .filter(|e| e.bounds.contains(x, y))
+459 | |             .min_by_key(|e| e.bounds.width * e.bounds.height)
+    | |_____________________________________________________________^ method was supposed to return data with lifetime `'2` but it is 
+returning data with lifetime `'1`
+    |
+help: consider introducing a named lifetime parameter and update trait if needed
+    |
+455 |     pub fn find_element_at<'a>(&self, screen: &'a ParsedScreen, x: i32, y: i32) -> Option<&'a ParsedElement> {
+    |                           ++++                 ++                                          ++
+help: consider adding 'move' keyword before the nested closure
+    |
+459 |             .min_by_key(move |e| e.bounds.width * e.bounds.height)
+    |                         ++++
+
+error: lifetime may not live long enough
+   --> src\vision\omniparser.rs:470:20
+    |
+463 |     pub fn find_element_by_description(&self, screen: &ParsedScreen, description: &str) -> Option<&ParsedElement> {
+    |                                        -              - let's call the lifetime of this reference `'1`
+    |                                        |
+    |                                        let's call the lifetime of this reference `'2`
+...
+470 |             return Some(elem);
+    |                    ^^^^^^^^^^ method was supposed to return data with lifetime `'2` but it is returning data with lifetime `'1`
+    |
+help: consider introducing a named lifetime parameter and update trait if needed
+    |
+463 |     pub fn find_element_by_description<'a>(&self, screen: &'a ParsedScreen, description: &str) -> Option<&'a ParsedElement> {
+    |                                       ++++                 ++                                             ++
+
+warning: unreachable pattern
+   --> src\code_intelligence\ast_engine.rs:712:17
+    |
+700 |                 "export_statement" => {
+    |                 ------------------ matches all the relevant values
+...
+712 |                 "export_statement" => {
+    |                 ^^^^^^^^^^^^^^^^^^ no value can reach this
+    |
+    = note: `#[warn(unreachable_patterns)]` on by default
+
+warning: variable does not need to be mutable
+    --> src\code_intelligence\ast_engine.rs:1606:13
+     |
+1606 |         let mut properties = Vec::new();
+     |             ----^^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: unused variable: `col`
+    --> src\code_intelligence\ast_engine.rs:2574:78
+     |
+2574 |     pub fn get_function_at_position(&self, parsed: &ParsedFile, line: usize, col: usize) -> Option<FunctionDefinition> {
+     |                                                                              ^^^ help: if this is intentional, prefix it with an 
+underscore: `_col`
+
+warning: unused variable: `start`
+   --> src\code_intelligence\chunker.rs:686:9
+    |
+686 |         start: usize,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_start`
+
+warning: unused variable: `query`
+   --> src\code_intelligence\code_graph.rs:842:26
+    |
+842 | pub fn search_code_graph(query: String, limit: usize) -> Result<Vec<GraphNode>, String> {
+    |                          ^^^^^ help: if this is intentional, prefix it with an underscore: `_query`
+
+warning: unused variable: `limit`
+   --> src\code_intelligence\code_graph.rs:842:41
+    |
+842 | pub fn search_code_graph(query: String, limit: usize) -> Result<Vec<GraphNode>, String> {
+    |                                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_limit`
+
+warning: unused variable: `symbol`
+   --> src\code_intelligence\code_graph.rs:847:27
+    |
+847 | pub fn get_symbol_context(symbol: String, depth: usize) -> Result<SymbolContext, String> {
+    |                           ^^^^^^ help: if this is intentional, prefix it with an underscore: `_symbol`
+
+warning: unused variable: `depth`
+   --> src\code_intelligence\code_graph.rs:847:43
+    |
+847 | pub fn get_symbol_context(symbol: String, depth: usize) -> Result<SymbolContext, String> {
+    |                                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_depth`
+
+warning: unused variable: `query`
+   --> src\code_intelligence\context_lineage.rs:802:27
+    |
+802 | pub fn search_git_history(query: String, limit: usize) -> Result<Vec<CommitSearchResult>, String> {
+    |                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_query`
+
+warning: unused variable: `limit`
+   --> src\code_intelligence\context_lineage.rs:802:42
+    |
+802 | pub fn search_git_history(query: String, limit: usize) -> Result<Vec<CommitSearchResult>, String> {
+    |                                          ^^^^^ help: if this is intentional, prefix it with an underscore: `_limit`
+
+warning: unused variable: `file_path`
+   --> src\code_intelligence\context_lineage.rs:807:29
+    |
+807 | pub fn explain_file_changes(file_path: String) -> Result<ChangeExplanation, String> {
+    |                             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_path`
+
+warning: variable `total_min` is assigned to, but never used
+   --> src\code_intelligence\dynamic_budget.rs:288:17
+    |
+288 |         let mut total_min = 0;
+    |                 ^^^^^^^^^
+    |
+    = note: consider using `_total_min` instead
+
+warning: unused variable: `reductions`
+   --> src\code_intelligence\dynamic_budget.rs:315:17
+    |
+315 |         let mut reductions: Vec<(ContextCategory, usize, u8)> = Vec::new();
+    |                 ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_reductions`
+
+warning: variable does not need to be mutable
+   --> src\code_intelligence\dynamic_budget.rs:315:13
+    |
+315 |         let mut reductions: Vec<(ContextCategory, usize, u8)> = Vec::new();
+    |             ----^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\code_intelligence\prompt_engineering.rs:132:13
+    |
+132 |         let mut system = format!("{}\n\n{}", self.system_prompt_base, template.system_prompt);
+    |             ----^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\code_intelligence\recitation.rs:127:13
+    |
+127 |         let mut missing = Vec::new();
+    |             ----^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `context_file`
+   --> src\code_intelligence\recitation.rs:193:9
+    |
+193 |         context_file: Option<&Path>,
+    |         ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_context_file`
+
+warning: unused variable: `project_root`
+   --> src\code_intelligence\context_builder.rs:667:9
+    |
+667 |         project_root: &Path,
+    |         ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_root`
+
+warning: unused variable: `context`
+   --> src\cli\external_agents.rs:526:53
+    |
+526 |     fn task_to_message(&self, task_type: &TaskType, context: &TaskContext) -> String {
+    |                                                     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_context`
+
+warning: unused variable: `on_output`
+   --> src\cli\external_agents.rs:613:9
+    |
+613 |         on_output: Box<dyn Fn(String) + Send>,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_on_output`
+
+warning: unused variable: `end`
+   --> src\cli\validation.rs:693:17
+    |
+693 |             let end = node.end_position();
+    |                 ^^^ help: if this is intentional, prefix it with an underscore: `_end`
+
+warning: unused variable: `response`
+   --> src\integrations\context_processor.rs:804:38
+    |
+804 |     fn parse_context_analysis(&self, response: &str, request: &ContextAwareRequest) -> Result<ContextAwareResult, AIMLError> {
+    |                                      ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_response`
+
+warning: unused variable: `json_value`
+   --> src\integrations\text_enhancement.rs:648:16
+    |
+648 |             Ok(json_value) => {
+    |                ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_json_value`
+
+warning: unused variable: `processing_time_ms`
+   --> src\integrations\text_enhancement.rs:660:49
+    |
+660 |     fn basic_text_analysis(&self, text: String, processing_time_ms: u64) -> TextAnalysis {
+    |                                                 ^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: 
+`_processing_time_ms`
+
+warning: unused variable: `source`
+   --> src\integrations\translation_service.rs:542:77
+    |
+542 |     fn analyze_translation_quality(&self, original: &str, translated: &str, source: &str, target: &str) -> TranslationQuality {
+    |                                                                             ^^^^^^ help: if this is intentional, prefix it with an 
+underscore: `_source`
+
+warning: unused variable: `target`
+   --> src\integrations\translation_service.rs:542:91
+    |
+542 |     fn analyze_translation_quality(&self, original: &str, translated: &str, source: &str, target: &str) -> TranslationQuality {
+    |                                                                                           ^^^^^^ help: if this is intentional, 
+prefix it with an underscore: `_target`
+
+warning: unused variable: `translated`
+   --> src\integrations\translation_service.rs:566:74
+    |
+566 |     fn extract_cultural_adaptations(&self, request: &TranslationRequest, translated: &str) -> Vec<CulturalAdaptation> {
+    |                                                                          ^^^^^^^^^^ help: if this is intentional, prefix it with an 
+underscore: `_translated`
+
+warning: unused variable: `translated`
+   --> src\integrations\translation_service.rs:583:69
+    |
+583 |     fn extract_technical_terms(&self, request: &TranslationRequest, translated: &str) -> Vec<TechnicalTerm> {
+    |                                                                     ^^^^^^^^^^ help: if this is intentional, prefix it with an 
+underscore: `_translated`
+
+Some errors have detailed explanations: E0061, E0277, E0308, E0382, E0599, E0614, E0689.
+For more information about an error, try `rustc --explain E0061`.
+warning: `voicecode-desktop` (lib) generated 263 warnings
+error: could not compile `voicecode-desktop` (lib) due to 16 previous errors; 263 warnings emitted

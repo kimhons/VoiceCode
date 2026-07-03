@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Audio Enhancement Studio Screen
+ * VoiceCode Mobile - Audio Enhancement Studio Screen
  * 
  * Comprehensive audio enhancement and editing screen for Phase 2: Advanced Features
  * Week 5 Day 33-34 Implementation

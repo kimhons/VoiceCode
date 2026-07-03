@@ -1,5 +1,5 @@
 /**
- * Push Notification Service for VoiceFlow PRO Web App
+ * Push Notification Service for VoiceCode Web App
  * Handles web push notifications using VAPID and service workers
  */
 import { SupabaseService } from './supabase.service';

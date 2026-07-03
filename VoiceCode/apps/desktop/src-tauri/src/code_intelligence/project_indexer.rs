@@ -1,7 +1,7 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 1.3: Project Indexer with File Watching
 // Provides full project indexing with incremental updates
 
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -10,7 +10,7 @@ use tokio::sync::{mpsc, RwLock, broadcast};
 use dashmap::DashMap;
 use ignore::WalkBuilder;
 
-use super::ast_engine::{ASTEngine, CodeStructure, Language};
+use super::ast_engine::{ASTEngine, Language};
 use super::symbol_table::SymbolTable;
 
 /// Project type detection
@@ -299,7 +299,7 @@ impl ProjectIndexer {
             last_updated: Some(
                 std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
+                    .unwrap_or_default()
                     .as_secs()
             ),
         };
@@ -669,23 +669,21 @@ pub async fn init_project_indexer(root_path: String) -> Result<IndexStats, Strin
 /// Get index status
 #[tauri::command]
 pub async fn get_index_status() -> Result<IndexStatus, String> {
-    let guard = INDEXER.lock();
-    if let Some(ref indexer) = *guard {
-        Ok(indexer.index().status().await)
-    } else {
-        Err("Indexer not initialized".to_string())
-    }
+    let indexer = {
+        let guard = INDEXER.lock();
+        guard.clone().ok_or("Indexer not initialized")?
+    };
+    Ok(indexer.index().status().await)
 }
 
 /// Get index stats
 #[tauri::command]
 pub async fn get_index_stats() -> Result<Option<IndexStats>, String> {
-    let guard = INDEXER.lock();
-    if let Some(ref indexer) = *guard {
-        Ok(indexer.index().stats().await)
-    } else {
-        Err("Indexer not initialized".to_string())
-    }
+    let indexer = {
+        let guard = INDEXER.lock();
+        guard.clone().ok_or("Indexer not initialized")?
+    };
+    Ok(indexer.index().stats().await)
 }
 
 /// Search symbols

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - App Navigator
+// VoiceCode Pro Mobile - App Navigator
 
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -15,7 +15,7 @@ import { MainNavigator } from './MainNavigator';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const ONBOARDING_KEY = '@voiceflow_onboarding_complete';
+const ONBOARDING_KEY = '@VoiceCode_onboarding_complete';
 
 export const AppNavigator: React.FC = () => {
   const { theme, isDark } = useTheme();

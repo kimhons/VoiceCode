@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Home Screen
+// VoiceCode Pro Mobile - Home Screen
 
 import React, { useState, useEffect } from 'react';
 import {

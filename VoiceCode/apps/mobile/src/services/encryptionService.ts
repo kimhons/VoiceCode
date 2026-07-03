@@ -34,7 +34,7 @@ export interface EncryptedData {
 // ============================================================================
 
 class EncryptionService {
-  private readonly STORAGE_KEY_PREFIX = '@voiceflow_encryption_key_';
+  private readonly STORAGE_KEY_PREFIX = '@VoiceCode_encryption_key_';
 
   /**
    * Generate a new encryption key for a workspace

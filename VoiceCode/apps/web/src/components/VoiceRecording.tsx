@@ -1,4 +1,4 @@
-// Voice Recording Component for VoiceFlow Pro - Enhanced with Loading States & Mobile Optimization
+// Voice Recording Component for VoiceCode - Enhanced with Loading States & Mobile Optimization
 // OPTIMIZED VERSION - Phase 1.1.3: UI Rendering Optimization
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';

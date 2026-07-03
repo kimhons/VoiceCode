@@ -197,6 +197,100 @@ describe('MCPIntegrationService', () => {
 
       expect(gitTool).toBeDefined();
     });
+
+    it('should have all 26 built-in tools registered', () => {
+      const tools = service.listTools();
+      const expectedTools = [
+        'execute_voice_command',
+        'file_operations',
+        'analyze_code',
+        'search_codebase',
+        'run_terminal_command',
+        'git_operations',
+        'editor_navigate',
+        'refactor_code',
+        'debug_operations',
+        'run_tests',
+        'snippets',
+        'workspace_manage',
+        'documentation',
+        'format_code',
+        'diagnostics',
+        'selection',
+        'comments',
+        'clipboard',
+        'window_manage',
+        'extensions',
+        'project_generate',
+        'folding',
+        'multi_cursor',
+        'language_server',
+        'tasks',
+        'diff_merge',
+      ];
+
+      expect(tools.length).toBe(26);
+
+      for (const toolName of expectedTools) {
+        const tool = tools.find(t => t.name === toolName);
+        expect(tool).toBeDefined();
+      }
+    });
+
+    it('should have built-in editor_navigate tool', () => {
+      const tools = service.listTools();
+      const tool = tools.find(t => t.name === 'editor_navigate');
+      expect(tool).toBeDefined();
+      expect(tool?.inputSchema.properties.action).toBeDefined();
+    });
+
+    it('should have built-in debug_operations tool', () => {
+      const tools = service.listTools();
+      const tool = tools.find(t => t.name === 'debug_operations');
+      expect(tool).toBeDefined();
+      expect(tool?.inputSchema.properties.action.enum).toContain('start');
+      expect(tool?.inputSchema.properties.action.enum).toContain('toggle_breakpoint');
+    });
+
+    it('should have built-in run_tests tool', () => {
+      const tools = service.listTools();
+      const tool = tools.find(t => t.name === 'run_tests');
+      expect(tool).toBeDefined();
+      expect(tool?.inputSchema.properties.scope.enum).toContain('all');
+      expect(tool?.inputSchema.properties.scope.enum).toContain('coverage');
+    });
+
+    it('should have built-in format_code tool', () => {
+      const tools = service.listTools();
+      const tool = tools.find(t => t.name === 'format_code');
+      expect(tool).toBeDefined();
+      expect(tool?.inputSchema.properties.scope.enum).toContain('document');
+      expect(tool?.inputSchema.properties.scope.enum).toContain('organize_imports');
+    });
+
+    it('should have built-in window_manage tool', () => {
+      const tools = service.listTools();
+      const tool = tools.find(t => t.name === 'window_manage');
+      expect(tool).toBeDefined();
+      expect(tool?.inputSchema.properties.action.enum).toContain('split_editor');
+      expect(tool?.inputSchema.properties.action.enum).toContain('toggle_terminal');
+    });
+
+    it('should have built-in project_generate tool', () => {
+      const tools = service.listTools();
+      const tool = tools.find(t => t.name === 'project_generate');
+      expect(tool).toBeDefined();
+      expect(tool?.inputSchema.properties.template.enum).toContain('react');
+      expect(tool?.inputSchema.properties.template.enum).toContain('typescript');
+    });
+
+    it('should have built-in diff_merge tool', () => {
+      const tools = service.listTools();
+      const tool = tools.find(t => t.name === 'diff_merge');
+      expect(tool).toBeDefined();
+      expect(tool?.inputSchema.properties.action.enum).toContain('diff_files');
+      expect(tool?.inputSchema.properties.action.enum).toContain('accept_incoming');
+    });
   });
 
   // ============================================================
@@ -342,6 +436,111 @@ describe('MCPIntegrationService', () => {
         });
 
         expect(result.success).toBe(true);
+      });
+
+      it('should execute format_code tool', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('format_code', {
+          scope: 'document',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.action.formatDocument');
+      });
+
+      it('should execute debug_operations start', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('debug_operations', {
+          action: 'start',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('workbench.action.debug.start');
+      });
+
+      it('should execute window_manage toggle_terminal', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('window_manage', {
+          action: 'toggle_terminal',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('workbench.action.terminal.toggleTerminal');
+      });
+
+      it('should execute clipboard copy', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('clipboard', {
+          action: 'copy',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.action.clipboardCopyAction');
+      });
+
+      it('should execute folding fold_all', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('folding', {
+          action: 'fold_all',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.foldAll');
+      });
+
+      it('should execute multi_cursor add_cursor_below', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('multi_cursor', {
+          action: 'add_cursor_below',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.action.insertCursorBelow');
+      });
+
+      it('should execute tasks run_build', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('tasks', {
+          action: 'run_build',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('workbench.action.tasks.build');
+      });
+
+      it('should execute project_generate with react template', async () => {
+        const mockTerminal = {
+          show: vi.fn(),
+          sendText: vi.fn(),
+          dispose: vi.fn(),
+        };
+        (vscode.window.createTerminal as Mock).mockReturnValue(mockTerminal);
+
+        const result = await service.executeTool('project_generate', {
+          template: 'react',
+          name: 'my-app',
+        });
+
+        expect(result.success).toBe(true);
+        expect(mockTerminal.sendText).toHaveBeenCalledWith('npx create-react-app my-app');
+      });
+
+      it('should execute run_tests with coverage', async () => {
+        (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
+
+        const result = await service.executeTool('run_tests', {
+          scope: 'coverage',
+        });
+
+        expect(result.success).toBe(true);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith('testing.coverageAll');
       });
     });
   });

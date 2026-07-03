@@ -1,9 +1,18 @@
 /**
  * VoiceCode VS Code Extension
- * Phase 3: IDE Integration
+ * Phase 3: IDE Integration with AI Agent System
  *
  * Provides voice-controlled coding capabilities directly in VS Code,
- * including dictation, voice commands, and code generation.
+ * including dictation, voice commands, code generation, and a comprehensive
+ * AI agent system with 9 specialized internal agents plus external agent integration.
+ *
+ * Extended capabilities:
+ * - Agent-to-Agent Communication Protocol
+ * - VS Code Voice Control System
+ * - Computer Vision Module
+ * - Web Browsing Agent
+ * - Developer Tools Integration
+ * - Multi-Modal Context Provider
  */
 
 import * as vscode from 'vscode';
@@ -14,10 +23,58 @@ import { CommandProcessor } from './commands';
 import { HistoryProvider } from './historyProvider';
 import { CommandsProvider } from './commandsProvider';
 
+// Agent system imports
+import { InternalAgentBridge } from './agents/internalAgentBridge';
+import { registerInternalAgentCommands } from './agents/internalAgentCommands';
+import { registerInternalAgentsTreeView, InternalAgentsProvider } from './agents/internalAgentsProvider';
+import { VoiceAgentRouter, registerVoiceAgentRouterCommands } from './agents/voiceAgentRouter';
+import { registerChatParticipant, VoiceCodeChatParticipant } from './agents/chatParticipant';
+import { registerLanguageModelTools, LanguageModelToolsProvider } from './agents/languageModelTools';
+import { registerMCPServerCommands, VoiceCodeMCPServer } from './agents/mcpServer';
+import { registerExternalAgentOrchestratorCommands, ExternalAgentOrchestrator } from './agents/externalAgentOrchestrator';
+
+// Extended capabilities imports
+import { getAgentCommunicationHub, disposeAgentCommunicationHub, AgentCommunicationHub } from './agents/agentCommunication';
+import { registerVoiceControlCommands, VSCodeVoiceControl } from './agents/vscodeVoiceControl';
+import { registerComputerVisionCommands, ComputerVisionProvider } from './agents/computerVision';
+import { registerWebBrowsingCommands, WebBrowsingAgent } from './agents/webBrowsingAgent';
+import { registerDevToolsCommands, DevToolsIntegration } from './agents/devToolsIntegration';
+import { registerMultiModalContextCommands, MultiModalContextProvider } from './agents/multiModalContext';
+
+// Roadmap features imports (Human-in-the-Loop, Checkpoints, Browser)
+import { getApprovalManager, registerApprovalCommands, ApprovalManager } from './agents/approvalManager';
+import { getCheckpointManager, registerCheckpointCommands, CheckpointManager } from './agents/checkpointManager';
+import { registerCheckpointTreeView, CheckpointTreeProvider } from './agents/checkpointProvider';
+import { registerBrowserPreviewCommands, BrowserPreviewProvider } from './agents/browserPreview';
+
+// Core components
 let client: VoiceCodeClient;
 let statusBar: StatusBarManager;
 let dictation: DictationManager;
 let commandProcessor: CommandProcessor;
+
+// Agent system components
+let agentBridge: InternalAgentBridge;
+let agentRouter: VoiceAgentRouter;
+let agentsProvider: InternalAgentsProvider;
+let chatParticipant: VoiceCodeChatParticipant;
+let lmToolsProvider: LanguageModelToolsProvider;
+let mcpServer: VoiceCodeMCPServer;
+let orchestrator: ExternalAgentOrchestrator;
+
+// Extended capability components
+let communicationHub: AgentCommunicationHub;
+let voiceControl: VSCodeVoiceControl;
+let computerVision: ComputerVisionProvider;
+let webBrowser: WebBrowsingAgent;
+let devTools: DevToolsIntegration;
+let multiModalContext: MultiModalContextProvider;
+
+// Roadmap feature components (Human-in-the-Loop, Checkpoints, Browser)
+let approvalManager: ApprovalManager;
+let checkpointManager: CheckpointManager;
+let checkpointProvider: CheckpointTreeProvider;
+let browserPreview: BrowserPreviewProvider;
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log('VoiceCode extension is now active');
@@ -39,7 +96,95 @@ export async function activate(context: vscode.ExtensionContext) {
     // Initialize command processor
     commandProcessor = new CommandProcessor(client);
 
-    // Register commands
+    // ========================================
+    // Initialize Agent System
+    // ========================================
+
+    // Initialize internal agent bridge
+    agentBridge = new InternalAgentBridge(client);
+    context.subscriptions.push(agentBridge);
+
+    // Initialize voice agent router
+    agentRouter = new VoiceAgentRouter(agentBridge);
+
+    // Register internal agent commands
+    registerInternalAgentCommands(context, agentBridge);
+
+    // Register internal agents tree view
+    agentsProvider = registerInternalAgentsTreeView(context, agentBridge);
+
+    // Register voice agent router commands
+    registerVoiceAgentRouterCommands(context, agentRouter);
+
+    // Register chat participant (@voicecode)
+    chatParticipant = registerChatParticipant(context, agentBridge, agentRouter);
+
+    // Register Language Model Tools
+    lmToolsProvider = registerLanguageModelTools(context, agentBridge);
+
+    // Register MCP Server
+    mcpServer = registerMCPServerCommands(context, agentBridge);
+
+    // Register External Agent Orchestrator
+    orchestrator = registerExternalAgentOrchestratorCommands(context, agentBridge, agentRouter);
+
+    // ========================================
+    // Initialize Extended Capabilities
+    // ========================================
+
+    // Initialize Agent Communication Hub
+    communicationHub = getAgentCommunicationHub();
+    context.subscriptions.push(communicationHub);
+
+    // Register internal agents with communication hub
+    const internalAgentTypes = ['planner', 'explorer', 'coder', 'reviewer', 'tester', 'debugger', 'documenter', 'refactorer', 'security'];
+    for (const agentType of internalAgentTypes) {
+        communicationHub.registerAgent(agentType, async (message) => {
+            console.log(`[${agentType}] Received message:`, message.type);
+            // Handle inter-agent communication
+        });
+    }
+
+    // Register VS Code Voice Control
+    voiceControl = registerVoiceControlCommands(context, agentBridge);
+
+    // Register Computer Vision
+    computerVision = registerComputerVisionCommands(context, agentBridge);
+
+    // Register Web Browsing Agent
+    webBrowser = registerWebBrowsingCommands(context, agentBridge);
+
+    // Register Developer Tools Integration
+    devTools = registerDevToolsCommands(context, agentBridge);
+
+    // Register Multi-Modal Context Provider
+    multiModalContext = registerMultiModalContextCommands(context, agentBridge);
+
+    // ========================================
+    // Initialize Roadmap Features
+    // (Human-in-the-Loop, Checkpoints, Browser)
+    // ========================================
+
+    // Initialize Approval Manager for human-in-the-loop workflow
+    approvalManager = getApprovalManager(context);
+    registerApprovalCommands(context, approvalManager);
+    agentBridge.setApprovalManager(approvalManager);
+
+    // Initialize Checkpoint Manager for file state snapshots
+    checkpointManager = getCheckpointManager(context);
+    registerCheckpointCommands(context, checkpointManager);
+    agentBridge.setCheckpointManager(checkpointManager);
+
+    // Register Checkpoint Tree View in sidebar
+    checkpointProvider = registerCheckpointTreeView(context);
+
+    // Register Browser Preview for in-editor web browsing
+    browserPreview = registerBrowserPreviewCommands(context);
+
+    // ========================================
+    // Register Core Voice Commands
+    // ========================================
+
     const commands = [
         vscode.commands.registerCommand('voicecode.startDictation', () => {
             dictation.start();
@@ -60,6 +205,21 @@ export async function activate(context: vscode.ExtensionContext) {
             });
 
             if (input) {
+                // Check if this should be routed to an agent
+                const agentConfig = config.get<boolean>('agents.autoRoute', true);
+
+                if (agentConfig) {
+                    // Use the agent router for intelligent routing
+                    const route = await agentRouter.route(input);
+
+                    if (route.confidence >= 0.7) {
+                        // High confidence - use agent
+                        await agentRouter.execute(route);
+                        return;
+                    }
+                }
+
+                // Fall back to legacy command processor
                 await commandProcessor.execute(input);
             }
         }),
@@ -70,10 +230,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
         vscode.commands.registerCommand('voicecode.showStatus', async () => {
             const status = await client.getStatus();
+            const externalAgents = await agentRouter.getAvailableAgents();
+
             vscode.window.showInformationMessage(
                 `VoiceCode Status: ${status.connected ? 'Connected' : 'Disconnected'} | ` +
                 `Dictation: ${status.isDictating ? 'Active' : 'Inactive'} | ` +
-                `Mode: ${status.streamingMode}`
+                `Mode: ${status.streamingMode} | ` +
+                `Internal Agents: 9 | ` +
+                `External Agents: ${externalAgents.external.length}`
             );
         }),
 
@@ -84,7 +248,27 @@ export async function activate(context: vscode.ExtensionContext) {
             });
 
             if (input) {
-                await commandProcessor.generateCode(input);
+                // Use the Coder agent for code generation
+                const context = await getCodeContext();
+                const result = await agentBridge.code(input, context);
+
+                if (result.success && result.content) {
+                    // Show result in output channel
+                    const outputChannel = vscode.window.createOutputChannel('VoiceCode Generated Code');
+                    outputChannel.clear();
+                    outputChannel.appendLine(result.content);
+
+                    if (result.code_blocks) {
+                        for (const block of result.code_blocks) {
+                            outputChannel.appendLine(`\n--- ${block.language} ---\n`);
+                            outputChannel.appendLine(block.code);
+                        }
+                    }
+
+                    outputChannel.show();
+                } else {
+                    vscode.window.showErrorMessage(`Code generation failed: ${result.error || 'Unknown error'}`);
+                }
             }
         }),
 
@@ -96,7 +280,24 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             const selectedText = editor.document.getText(editor.selection);
-            await commandProcessor.explainCode(selectedText);
+
+            // Use the Documenter agent for explanation
+            const context = await getCodeContext();
+            context.selected_text = selectedText;
+
+            const result = await agentBridge.document(`explain this code: ${selectedText}`, context);
+
+            if (result.success && result.content) {
+                // Show in hover or output channel
+                const outputChannel = vscode.window.createOutputChannel('VoiceCode Explanation');
+                outputChannel.clear();
+                outputChannel.appendLine('=== Code Explanation ===\n');
+                outputChannel.appendLine(result.content);
+                outputChannel.show();
+            } else {
+                // Fall back to legacy explanation
+                await commandProcessor.explainCode(selectedText);
+            }
         }),
 
         vscode.commands.registerCommand('voicecode.refactorCode', async () => {
@@ -113,7 +314,29 @@ export async function activate(context: vscode.ExtensionContext) {
             });
 
             if (instructions) {
-                await commandProcessor.refactorCode(selectedText, instructions, editor);
+                // Use the Refactorer agent
+                const context = await getCodeContext();
+                context.selected_text = selectedText;
+
+                const result = await agentBridge.refactor(`${instructions}: ${selectedText}`, context);
+
+                if (result.success && result.code_blocks && result.code_blocks.length > 0) {
+                    // Apply the refactored code
+                    const refactoredCode = result.code_blocks[0].code;
+                    await editor.edit(editBuilder => {
+                        editBuilder.replace(editor.selection, refactoredCode);
+                    });
+                    vscode.window.showInformationMessage('Code refactored successfully');
+                } else if (result.success && result.content) {
+                    // Show suggestion if no code block
+                    const outputChannel = vscode.window.createOutputChannel('VoiceCode Refactoring');
+                    outputChannel.clear();
+                    outputChannel.appendLine(result.content);
+                    outputChannel.show();
+                } else {
+                    // Fall back to legacy refactoring
+                    await commandProcessor.refactorCode(selectedText, instructions, editor);
+                }
             }
         }),
 
@@ -152,45 +375,208 @@ export async function activate(context: vscode.ExtensionContext) {
     // Add all commands to subscriptions
     context.subscriptions.push(...commands);
 
+    // ========================================
+    // Connect to VoiceCode Desktop App
+    // ========================================
+
+    try {
+        await client.connect();
+        statusBar.setConnected(true);
+
+        // Initialize agent bridge with connected client
+        await agentBridge.initialize();
+
+        // Detect external agents
+        await agentRouter.detectExternalAgents();
+
+        const extendedCapabilities = [
+            voiceControl ? 'Voice Control' : null,
+            computerVision ? 'Vision' : null,
+            webBrowser ? 'Web' : null,
+            devTools ? 'DevTools' : null,
+            multiModalContext ? 'Context' : null
+        ].filter(Boolean);
+
+        vscode.window.showInformationMessage(
+            `VoiceCode connected - 9 AI agents ready + ${extendedCapabilities.length} extended capabilities`
+        );
+    } catch (error) {
+        statusBar.setConnected(false);
+        vscode.window.showWarningMessage(
+            'Could not connect to VoiceCode desktop app. Please ensure it is running. ' +
+            'Agent features will work in limited mode.'
+        );
+    }
+
+    // ========================================
+    // Auto-Start Features
+    // ========================================
+
     // Auto-start dictation if configured
     if (config.get<boolean>('autoStart')) {
         dictation.start();
     }
 
-    // Connect to VoiceCode desktop app
-    try {
-        await client.connect();
-        statusBar.setConnected(true);
-        vscode.window.showInformationMessage('VoiceCode connected successfully');
-    } catch (error) {
-        statusBar.setConnected(false);
-        vscode.window.showWarningMessage(
-            'Could not connect to VoiceCode desktop app. Please ensure it is running.'
-        );
+    // Auto-start MCP server if configured
+    if (config.get<boolean>('mcp.autoStart')) {
+        await mcpServer.start();
     }
 
-    // Listen for configuration changes
+    // ========================================
+    // Configuration Change Listener
+    // ========================================
+
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration('voicecode')) {
                 // Reload configuration
                 const newConfig = vscode.workspace.getConfiguration('voicecode');
+
+                // Update client config
                 client.updateConfig({
                     streamingMode: newConfig.get('streamingMode'),
                     codeVocabulary: newConfig.get('codeVocabulary'),
                     naturalLanguageCommands: newConfig.get('naturalLanguageCommands'),
                     punctuationMode: newConfig.get('punctuationMode')
                 });
+
+                // Update agent collaboration mode
+                if (e.affectsConfiguration('voicecode.agents.collaborationMode')) {
+                    const mode = newConfig.get<string>('agents.collaborationMode', 'best_match');
+                    orchestrator.setCollaborationMode(mode as 'internal_only' | 'external_only' | 'internal_first' | 'external_first' | 'parallel' | 'consensus' | 'best_match');
+                }
+
+                // Update model info display
+                if (e.affectsConfiguration('voicecode.agents.showModelInfo')) {
+                    agentsProvider.refresh();
+                }
+
+                // Restart MCP server if port changed
+                if (e.affectsConfiguration('voicecode.mcp.port') || e.affectsConfiguration('voicecode.mcp.host')) {
+                    mcpServer.restart();
+                }
             }
         })
     );
+
+    // ========================================
+    // Show Welcome Message for New Users
+    // ========================================
+
+    const hasShownWelcome = context.globalState.get('voicecode.hasShownWelcome', false);
+    if (!hasShownWelcome) {
+        const action = await vscode.window.showInformationMessage(
+            'Welcome to VoiceCode! You now have access to 9 specialized AI agents for coding tasks.',
+            'Show Agents',
+            'Learn More',
+            'Dismiss'
+        );
+
+        if (action === 'Show Agents') {
+            await vscode.commands.executeCommand('voicecode.selectInternalAgent');
+        } else if (action === 'Learn More') {
+            await vscode.commands.executeCommand('voicecode.showAvailableAgents');
+        }
+
+        await context.globalState.update('voicecode.hasShownWelcome', true);
+    }
+}
+
+/**
+ * Get current code context from the active editor
+ */
+async function getCodeContext() {
+    const editor = vscode.window.activeTextEditor;
+
+    if (!editor) {
+        return {
+            file_path: '',
+            language: '',
+            cursor_position: { line: 0, character: 0 },
+            visible_range: { start: 0, end: 0 }
+        };
+    }
+
+    const document = editor.document;
+    const selection = editor.selection;
+
+    return {
+        file_path: document.uri.fsPath,
+        language: document.languageId,
+        selected_text: selection.isEmpty ? undefined : document.getText(selection),
+        cursor_position: {
+            line: selection.active.line,
+            character: selection.active.character
+        },
+        visible_range: {
+            start: editor.visibleRanges[0]?.start.line || 0,
+            end: editor.visibleRanges[0]?.end.line || 0
+        }
+    };
 }
 
 export function deactivate() {
+    // Stop dictation
     if (dictation) {
         dictation.stop();
     }
+
+    // Stop MCP server
+    if (mcpServer) {
+        mcpServer.stop();
+    }
+
+    // Disconnect client
     if (client) {
         client.disconnect();
     }
+
+    // Dispose agent bridge
+    if (agentBridge) {
+        agentBridge.dispose();
+    }
+
+    // Dispose extended capability components
+    if (communicationHub) {
+        disposeAgentCommunicationHub();
+    }
+
+    if (voiceControl) {
+        voiceControl.dispose();
+    }
+
+    if (computerVision) {
+        computerVision.dispose();
+    }
+
+    if (webBrowser) {
+        webBrowser.dispose();
+    }
+
+    if (devTools) {
+        devTools.dispose();
+    }
+
+    if (multiModalContext) {
+        multiModalContext.dispose();
+    }
+
+    // Dispose roadmap feature components
+    if (approvalManager) {
+        approvalManager.dispose();
+    }
+
+    if (checkpointManager) {
+        checkpointManager.dispose();
+    }
+
+    if (checkpointProvider) {
+        checkpointProvider.dispose();
+    }
+
+    if (browserPreview) {
+        browserPreview.dispose();
+    }
+
+    console.log('VoiceCode extension deactivated');
 }

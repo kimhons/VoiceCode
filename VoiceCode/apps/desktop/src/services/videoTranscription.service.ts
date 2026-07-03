@@ -99,9 +99,10 @@ class VideoTranscriptionService {
         .single();
 
       if (createError) throw createError;
+      const record = videoRecord as Record<string, unknown>;
 
       // Upload video file to storage
-      const filePath = `videos/${userId}/${videoRecord.id}/${file.name}`;
+      const filePath = `videos/${userId}/${record.id}/${file.name}`;
       
       const { error: uploadError } = await client.storage
         .from('videos')
@@ -133,16 +134,17 @@ class VideoTranscriptionService {
           status: 'processing',
           updated_at: new Date().toISOString(),
         })
-        .eq('id', videoRecord.id)
+        .eq('id', record.id as string)
         .select()
         .single();
 
       if (updateError) throw updateError;
+      const updated = updatedRecord as Record<string, unknown>;
 
       // Start processing
-      this.processVideo(updatedRecord.id);
+      this.processVideo(updated.id as string);
 
-      return updatedRecord as VideoTranscription;
+      return updatedRecord as unknown as VideoTranscription;
     } catch (error) {
       console.error('Failed to upload video:', error);
       throw error;
@@ -192,15 +194,16 @@ class VideoTranscriptionService {
         .single();
 
       if (!video) throw new Error('Video not found');
+      const videoRec = video as Record<string, unknown>;
 
       // In production, this would use FFmpeg or a video processing service
       // For now, we'll simulate the process
-      
+
       // Simulate audio extraction delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Create audio URL (in production, this would be the extracted audio file)
-      const audioUrl = video.video_url; // Placeholder
+      const audioUrl = videoRec.video_url as string; // Placeholder
 
       // Update video record
       await client
@@ -232,13 +235,14 @@ class VideoTranscriptionService {
         .single();
 
       if (!video) throw new Error('Video not found');
+      const videoRec = video as Record<string, unknown>;
 
       // Create transcript record
       const { data: transcript, error: transcriptError } = await client
         .from('transcripts')
         .insert({
-          user_id: video.user_id,
-          title: `${video.title} (Video)`,
+          user_id: videoRec.user_id as string,
+          title: `${videoRec.title} (Video)`,
           status: 'processing',
           mode: 'general',
           language: 'en',
@@ -249,6 +253,7 @@ class VideoTranscriptionService {
         .single();
 
       if (transcriptError) throw transcriptError;
+      const transcriptRec = transcript as Record<string, unknown>;
 
       // In production, this would call the transcription API
       // For now, we'll simulate the process
@@ -265,18 +270,18 @@ class VideoTranscriptionService {
           confidence: 0.95,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', transcript.id);
+        .eq('id', transcriptRec.id as string);
 
       // Update video record
       await client
         .from('video_transcriptions')
         .update({
-          transcript_id: transcript.id,
+          transcript_id: transcriptRec.id as string,
           updated_at: new Date().toISOString(),
         })
         .eq('id', videoId);
 
-      return transcript.id;
+      return transcriptRec.id as string;
     } catch (error) {
       console.error('Failed to transcribe audio:', error);
       throw error;
@@ -301,9 +306,10 @@ class VideoTranscriptionService {
         .single();
 
       if (!transcript) throw new Error('Transcript not found');
+      const transcriptRec = transcript as Record<string, unknown>;
 
       // Parse transcript into subtitle entries
-      const entries = this.parseTranscriptToEntries(transcript.text, transcript.duration);
+      const entries = this.parseTranscriptToEntries(transcriptRec.text as string, transcriptRec.duration as number);
 
       // Generate subtitles in multiple formats
       const formats: Array<'srt' | 'vtt' | 'ass' | 'sbv'> = ['srt', 'vtt', 'ass', 'sbv'];
@@ -311,13 +317,13 @@ class VideoTranscriptionService {
 
       for (const format of formats) {
         const content = this.generateSubtitleContent(entries, format);
-        
+
         const { data: subtitleTrack, error } = await client
           .from('subtitle_tracks')
           .insert({
             video_id: videoId,
             format,
-            language: transcript.language,
+            language: transcriptRec.language as string,
             content,
             created_at: new Date().toISOString(),
           })
@@ -325,7 +331,7 @@ class VideoTranscriptionService {
           .single();
 
         if (error) throw error;
-        subtitleTracks.push(subtitleTrack as SubtitleTrack);
+        subtitleTracks.push(subtitleTrack as unknown as SubtitleTrack);
       }
 
       return subtitleTracks;
@@ -392,7 +398,7 @@ class VideoTranscriptionService {
 
   private generateASS(entries: SubtitleEntry[]): string {
     const header = `[Script Info]
-Title: VoiceFlow Pro Subtitles
+Title: VoiceCode Subtitles
 ScriptType: v4.00+
 
 [V4+ Styles]
@@ -540,9 +546,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         .eq('id', videoId)
         .single();
 
-      if (video?.video_url) {
+      const videoRec = video as Record<string, unknown> | null;
+      if (videoRec?.video_url) {
         // Extract file path from URL
-        const url = new URL(video.video_url);
+        const url = new URL(videoRec.video_url as string);
         const filePath = url.pathname.split('/storage/v1/object/public/videos/')[1];
         
         if (filePath) {

@@ -1,4 +1,4 @@
-// Voice Command Definitions for VoiceFlow Pro
+// Voice Command Definitions for VoiceCode
 // Profession-specific voice commands for hands-free operation
 
 import { VoiceCommandDefinition, ProfessionalMode } from '@/types';

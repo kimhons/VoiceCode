@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Navigation Barrel Export
+// VoiceCode Pro Mobile - Navigation Barrel Export
 
 export { AppNavigator } from './AppNavigator';
 export { AuthNavigator } from './AuthNavigator';

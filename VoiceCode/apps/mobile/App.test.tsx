@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🎉 VoiceFlow Pro</Text>
+      <Text style={styles.title}>🎉 VoiceCode Pro</Text>
       <Text style={styles.subtitle}>App is loading successfully!</Text>
       <Text style={styles.info}>If you see this, the setup works!</Text>
       <StatusBar style="auto" />

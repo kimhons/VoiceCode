@@ -26,7 +26,7 @@
  * - Haptics: Impact feedback (Light, Medium) and Notification feedback
  * - Touch Targets: Minimum 44pt for iOS compliance
  * 
- * @author VoiceFlow Pro Team
+ * @author VoiceCode Team
  * @version 1.0.0
  */
 
@@ -63,9 +63,9 @@ const analyticsService = getAnalyticsService();
 const BASE_UNIT = 4;
 
 const STORAGE_KEYS = {
-  WIDGET_ORDER: '@voiceflow_dashboard_widget_order',
-  HIDDEN_WIDGETS: '@voiceflow_dashboard_hidden_widgets',
-  LAST_REFRESH: '@voiceflow_dashboard_last_refresh',
+  WIDGET_ORDER: '@VoiceCode_dashboard_widget_order',
+  HIDDEN_WIDGETS: '@VoiceCode_dashboard_hidden_widgets',
+  LAST_REFRESH: '@VoiceCode_dashboard_last_refresh',
 };
 
 // =====================================================
@@ -700,7 +700,7 @@ export default function DashboardScreen() {
             Dashboard
           </Text>
           <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-            Your VoiceFlow Pro overview
+            Your VoiceCode overview
           </Text>
         </Animated.View>
 

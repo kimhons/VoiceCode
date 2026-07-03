@@ -59,6 +59,17 @@ vitest_1.vi.mock('vscode', () => {
             this.listeners = [];
         }
     }
+    // Mock CancellationTokenSource
+    class MockCancellationTokenSource {
+        token = { isCancellationRequested: false, onCancellationRequested: vitest_1.vi.fn() };
+        cancel() { }
+        dispose() { }
+    }
+    // Mock Language Model Chat Message
+    const LanguageModelChatMessage = {
+        User: (content) => ({ role: 'user', content }),
+        Assistant: (content) => ({ role: 'assistant', content }),
+    };
     return {
         extensions: {
             getExtension: vitest_1.vi.fn(),
@@ -67,11 +78,23 @@ vitest_1.vi.mock('vscode', () => {
             getConfiguration: vitest_1.vi.fn(() => ({
                 get: vitest_1.vi.fn(),
             })),
+            workspaceFolders: [{ uri: { fsPath: '/test/workspace' } }],
         },
         commands: {
             executeCommand: vitest_1.vi.fn(),
         },
+        window: {
+            createTerminal: vitest_1.vi.fn(() => ({
+                show: vitest_1.vi.fn(),
+                sendText: vitest_1.vi.fn(),
+            })),
+        },
         EventEmitter: MockEventEmitter,
+        CancellationTokenSource: MockCancellationTokenSource,
+        LanguageModelChatMessage,
+        lm: {
+            selectChatModels: vitest_1.vi.fn().mockResolvedValue([]),
+        },
     };
 });
 // Create mock MCP service instance with proper mock methods
@@ -498,7 +521,40 @@ const waitForInit = () => new Promise(resolve => setTimeout(resolve, 10));
     // ============================================================
     (0, vitest_1.describe)('Extension-Based Providers', () => {
         (0, vitest_1.describe)('Copilot Integration', () => {
-            (0, vitest_1.it)('should trigger Copilot suggestion when available', async () => {
+            (0, vitest_1.it)('should use Language Model API when models are available', async () => {
+                // Mock Language Model API with available model
+                const mockModel = {
+                    id: 'gpt-4',
+                    sendRequest: vitest_1.vi.fn().mockResolvedValue({
+                        text: (async function* () { yield 'Generated code response'; })(),
+                    }),
+                };
+                vscode.lm.selectChatModels.mockResolvedValue([mockModel]);
+                const response = await service.sendRequest({
+                    type: 'completion',
+                    prompt: 'Generate code',
+                    options: { provider: 'copilot' },
+                });
+                (0, vitest_1.expect)(vscode.lm.selectChatModels).toHaveBeenCalled();
+                (0, vitest_1.expect)(response.provider).toBe('copilot');
+                (0, vitest_1.expect)(response.success).toBe(true);
+                (0, vitest_1.expect)(response.content).toBe('Generated code response');
+            });
+            (0, vitest_1.it)('should fallback to command when no Language Models available', async () => {
+                // Mock no Language Models available
+                vscode.lm.selectChatModels.mockResolvedValue([]);
+                const response = await service.sendRequest({
+                    type: 'completion',
+                    prompt: 'Generate code',
+                    options: { provider: 'copilot' },
+                });
+                (0, vitest_1.expect)(response.success).toBe(false);
+                (0, vitest_1.expect)(response.error).toContain('No language models available');
+                (0, vitest_1.expect)(response.provider).toBe('copilot');
+            });
+            (0, vitest_1.it)('should fallback to command-based approach on Language Model API error', async () => {
+                // Mock Language Model API error with "not available" message
+                vscode.lm.selectChatModels.mockRejectedValue(new Error('not available'));
                 vscode.extensions.getExtension.mockReturnValue({ id: 'github.copilot' });
                 vscode.commands.executeCommand.mockResolvedValue(undefined);
                 const response = await service.sendRequest({
@@ -508,8 +564,12 @@ const waitForInit = () => new Promise(resolve => setTimeout(resolve, 10));
                 });
                 (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('github.copilot.generate');
                 (0, vitest_1.expect)(response.provider).toBe('copilot');
+                (0, vitest_1.expect)(response.success).toBe(true);
             });
-            (0, vitest_1.it)('should return error when Copilot not installed', async () => {
+            (0, vitest_1.it)('should return error when Copilot not installed and fallback fails', async () => {
+                // Mock Language Model API error
+                vscode.lm.selectChatModels.mockRejectedValue(new Error('not available'));
+                // Mock Copilot not installed
                 vscode.extensions.getExtension.mockReturnValue(undefined);
                 const response = await service.sendRequest({
                     type: 'completion',

@@ -3,11 +3,9 @@
 
 use crate::memory::{
     get_audio_buffer_pool, get_audio_pool_stats, clear_audio_pool,
-    get_resource_manager, AudioBufferPoolStats,
 };
 use serde::{Deserialize, Serialize};
-use tauri::State;
-use tracing::{info, warn};
+use tracing::info;
 
 /// Memory statistics response
 #[derive(Debug, Clone, Serialize, Deserialize)]

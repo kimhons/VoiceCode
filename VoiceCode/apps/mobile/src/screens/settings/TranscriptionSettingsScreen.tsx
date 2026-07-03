@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Transcription Settings Screen
+// VoiceCode Mobile - Transcription Settings Screen
 // Phase 0: Stub Screen
 
 import React from 'react';

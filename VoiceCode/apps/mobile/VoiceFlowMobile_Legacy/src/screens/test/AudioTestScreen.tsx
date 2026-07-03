@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Audio Services Test Screen
+// VoiceCode Pro Mobile - Audio Services Test Screen
 
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';

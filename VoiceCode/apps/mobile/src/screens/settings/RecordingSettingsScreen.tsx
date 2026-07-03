@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Recording Settings Screen
+// VoiceCode Mobile - Recording Settings Screen
 // Phase 0: Stub Screen
 
 import React from 'react';

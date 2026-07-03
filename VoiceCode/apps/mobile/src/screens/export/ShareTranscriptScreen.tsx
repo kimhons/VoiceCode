@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Enhanced Share Transcript Screen
+// VoiceCode Mobile - Enhanced Share Transcript Screen
 // Social sharing, email, cloud storage, collaboration, analytics with Apple-caliber design
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -237,7 +237,7 @@ export function ShareTranscriptScreen({ route, navigation }: Props) {
 
     // Generate share text with platform-specific formatting
     const shareText = generateSocialShareText(platform);
-    const shareUrl = `https://voiceflow.app/share/${transcriptId}`;
+    const shareUrl = `https://VoiceCode.app/share/${transcriptId}`;
 
     let url = '';
     switch (platform) {
@@ -291,9 +291,9 @@ export function ShareTranscriptScreen({ route, navigation }: Props) {
 
     switch (platform) {
       case 'twitter':
-        return `${baseText} #VoiceFlow #Transcription #AI`;
+        return `${baseText} #VoiceCode #Transcription #AI`;
       case 'linkedin':
-        return `${baseText}\n\nTranscribed with VoiceFlow Pro - AI-powered transcription`;
+        return `${baseText}\n\nTranscribed with VoiceCode - AI-powered transcription`;
       case 'facebook':
         return baseText;
       case 'whatsapp':
@@ -315,7 +315,7 @@ export function ShareTranscriptScreen({ route, navigation }: Props) {
     }
 
     try {
-      const body = emailBody || `I wanted to share this transcript with you:\n\n"${transcriptTitle}"\n\nView it here: https://voiceflow.app/share/${transcriptId}`;
+      const body = emailBody || `I wanted to share this transcript with you:\n\n"${transcriptTitle}"\n\nView it here: https://VoiceCode.app/share/${transcriptId}`;
       const mailtoUrl = `mailto:${emailRecipients.join(',')}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(body)}`;
 
       const supported = await Linking.canOpenURL(mailtoUrl);

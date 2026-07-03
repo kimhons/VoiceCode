@@ -1,7 +1,7 @@
 // PHASE 1.3: Structured Logging Commands
 // Tauri commands for logging management
 
-use crate::logging::{LogConfig, LogLevel, LogStats, get_global_stats};
+use crate::logging::{LogStats, get_global_stats};
 use serde::{Deserialize, Serialize};
 use tauri::command;
 

@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // PHASE 1.4: Data Encryption Implementation
 // AES-256-GCM encryption for audio and transcription data
 
@@ -9,6 +10,7 @@ use argon2::{
     password_hash::{PasswordHasher, SaltString},
     Argon2,
 };
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -167,12 +169,12 @@ impl EncryptionManager {
         let encrypted = self.encrypt(plaintext)?;
         let json = serde_json::to_string(&encrypted)
             .map_err(|e| EncryptionError::EncryptionFailed(e.to_string()))?;
-        Ok(base64::encode(json))
+        Ok(STANDARD.encode(json))
     }
 
     /// Decrypt from base64
     pub fn decrypt_from_base64(&self, base64_data: &str) -> Result<Vec<u8>, EncryptionError> {
-        let json = base64::decode(base64_data)
+        let json = STANDARD.decode(base64_data)
             .map_err(|e| EncryptionError::DecryptionFailed(e.to_string()))?;
         let encrypted: EncryptedData = serde_json::from_slice(&json)
             .map_err(|e| EncryptionError::DecryptionFailed(e.to_string()))?;

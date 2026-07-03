@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Card Component
+// VoiceCode Pro Mobile - Card Component
 
 import React from 'react';
 import {

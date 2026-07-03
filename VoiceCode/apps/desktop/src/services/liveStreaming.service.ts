@@ -118,7 +118,7 @@ class LiveStreamingService {
       const client = supabaseService.getClient();
       if (!client) throw new Error('Supabase client not available');
 
-      const updates: any = {
+      const updates: { status: LiveStream['status']; updated_at: string; ended_at?: string } = {
         status,
         updated_at: new Date().toISOString(),
       };
@@ -471,7 +471,7 @@ class LiveStreamingService {
 
       // Update viewer count
       if (viewer) {
-        await this.updateViewerCount(viewer.stream_id);
+        await this.updateViewerCount((viewer as Record<string, unknown>).stream_id as string);
       }
     } catch (error) {
       console.error('Failed to remove viewer:', error);

@@ -1,4 +1,4 @@
-// Platform detection and cross-platform utilities for VoiceFlow Pro
+// Platform detection and cross-platform utilities for VoiceCode
 
 import { PlatformType } from '@/types';
 
@@ -93,13 +93,13 @@ export const getDefaultHotkey = (platform: PlatformType): string => {
 export const getConfigPath = (platform: PlatformType): string => {
   switch (platform) {
     case 'mac':
-      return '~/Library/Application Support/VoiceFlow Pro';
+      return '~/Library/Application Support/VoiceCode';
     case 'windows':
-      return '%APPDATA%\\VoiceFlow Pro';
+      return '%APPDATA%\\VoiceCode';
     case 'linux':
-      return '~/.config/voiceflow-pro';
+      return '~/.config/voicecode';
     default:
-      return './voiceflow-pro';
+      return './voicecode';
   }
 };
 

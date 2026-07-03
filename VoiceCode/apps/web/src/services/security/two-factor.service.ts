@@ -18,7 +18,7 @@ class TwoFactorService {
       const backupCodes = encryptionService.generateBackupCodes(10);
 
       const qrCode = method === '2fa_totp'
-        ? `otpauth://totp/VoiceFlowPro:${userId}?secret=${secret}&issuer=VoiceFlowPro`
+        ? `otpauth://totp/VoiceCode:${userId}?secret=${secret}&issuer=VoiceCode`
         : '';
 
       const supabaseService = getSupabaseService();

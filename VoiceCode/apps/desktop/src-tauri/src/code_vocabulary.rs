@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 1.3: Code-Optimized Vocabulary
 // Specialized vocabulary for developer workflows - matching AquaVoice Avalon's 97.3% accuracy
 

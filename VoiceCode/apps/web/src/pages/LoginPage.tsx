@@ -1,4 +1,4 @@
-// VoiceFlow Pro - Login Page
+// VoiceCode - Login Page
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -113,7 +113,7 @@ const LoginPage: React.FC = () => {
             WebkitTextFillColor: 'transparent',
             marginBottom: '8px',
           }}>
-            VoiceFlow Pro
+            VoiceCode
           </h1>
           <p style={{
             color: theme === 'dark' ? '#a0a0a0' : '#666',

@@ -135,14 +135,14 @@ impl NaturalLanguageCommandProcessor {
     fn register_default_patterns(&mut self) {
         // Replace/Change commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:change|replace)\s+(.+?)\s+(?:to|with)\s+(.+)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:change|replace)\s+(.+?)\s+(?:to|with)\s+(.+)$").expect("valid regex: change/replace command"),
             command_type: CommandType::Replace,
             param_names: vec!["from", "to"],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:swap|switch)\s+(.+?)\s+(?:and|with)\s+(.+)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:swap|switch)\s+(.+?)\s+(?:and|with)\s+(.+)$").expect("valid regex: swap/switch command"),
             command_type: CommandType::Replace,
             param_names: vec!["from", "to"],
             base_confidence: 0.90,
@@ -150,21 +150,21 @@ impl NaturalLanguageCommandProcessor {
 
         // Delete commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:delete|remove|erase)\s+(?:the\s+)?(?:last\s+)?(sentence|word|paragraph|line|character)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:delete|remove|erase)\s+(?:the\s+)?(?:last\s+)?(sentence|word|paragraph|line|character)$").expect("valid regex: delete-unit command"),
             command_type: CommandType::Delete,
             param_names: vec!["unit"],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:delete|remove|erase)\s+(?:that|this)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:delete|remove|erase)\s+(?:that|this)$").expect("valid regex: delete-this command"),
             command_type: CommandType::Delete,
             param_names: vec![],
             base_confidence: 0.90,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:delete|remove)\s+(?:the\s+)?last\s+(\d+)\s+(words?|sentences?|lines?|characters?)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:delete|remove)\s+(?:the\s+)?last\s+(\d+)\s+(words?|sentences?|lines?|characters?)$").expect("valid regex: delete-count command"),
             command_type: CommandType::Delete,
             param_names: vec!["count", "unit"],
             base_confidence: 0.95,
@@ -172,42 +172,42 @@ impl NaturalLanguageCommandProcessor {
 
         // Format commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:make|convert|turn)\s+(?:that|this|it)\s+(?:into\s+)?(?:a\s+)?(heading|title|h1|h2|h3|header)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:make|convert|turn)\s+(?:that|this|it)\s+(?:into\s+)?(?:a\s+)?(heading|title|h1|h2|h3|header)$").expect("valid regex: heading format command"),
             command_type: CommandType::Format,
             param_names: vec!["format"],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:put|convert|turn|format)\s+(?:that|this|it)\s+(?:into|as)\s+(?:a\s+)?(?:bulleted?\s+)?(?:list|bullet\s*points?|bullets?)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:put|convert|turn|format)\s+(?:that|this|it)\s+(?:into|as)\s+(?:a\s+)?(?:bulleted?\s+)?(?:list|bullet\s*points?|bullets?)$").expect("valid regex: bullet-list format command"),
             command_type: CommandType::Format,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:put|convert|turn|format)\s+(?:that|this|it)\s+(?:into|as)\s+(?:a\s+)?(?:numbered?\s+)?list$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:put|convert|turn|format)\s+(?:that|this|it)\s+(?:into|as)\s+(?:a\s+)?(?:numbered?\s+)?list$").expect("valid regex: numbered-list format command"),
             command_type: CommandType::Format,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:make|add)\s+(?:that|this|it)\s+bold$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:make|add)\s+(?:that|this|it)\s+bold$").expect("valid regex: bold format command"),
             command_type: CommandType::Format,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:make|add)\s+(?:that|this|it)\s+italic$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:make|add)\s+(?:that|this|it)\s+italic$").expect("valid regex: italic format command"),
             command_type: CommandType::Format,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:make|format)\s+(?:that|this|it)\s+(?:as\s+)?(?:a\s+)?code(?:\s+block)?$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:make|format)\s+(?:that|this|it)\s+(?:as\s+)?(?:a\s+)?code(?:\s+block)?$").expect("valid regex: code format command"),
             command_type: CommandType::Format,
             param_names: vec![],
             base_confidence: 0.95,
@@ -215,28 +215,28 @@ impl NaturalLanguageCommandProcessor {
 
         // Case transformation commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:capitalize|capitalise)\s+(?:that|this|it)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:capitalize|capitalise)\s+(?:that|this|it)$").expect("valid regex: capitalize command"),
             command_type: CommandType::CaseTransform,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:make|convert)\s+(?:that|this|it)\s+(?:all\s+)?(?:upper\s*case|uppercase|caps)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:make|convert)\s+(?:that|this|it)\s+(?:all\s+)?(?:upper\s*case|uppercase|caps)$").expect("valid regex: uppercase command"),
             command_type: CommandType::CaseTransform,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:make|convert)\s+(?:that|this|it)\s+(?:all\s+)?(?:lower\s*case|lowercase)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:make|convert)\s+(?:that|this|it)\s+(?:all\s+)?(?:lower\s*case|lowercase)$").expect("valid regex: lowercase command"),
             command_type: CommandType::CaseTransform,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:make|convert)\s+(?:that|this|it)\s+(?:title\s*case)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:make|convert)\s+(?:that|this|it)\s+(?:title\s*case)$").expect("valid regex: title-case command"),
             command_type: CommandType::CaseTransform,
             param_names: vec![],
             base_confidence: 0.95,
@@ -244,14 +244,14 @@ impl NaturalLanguageCommandProcessor {
 
         // Undo/Redo commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:undo)(?:\s+that)?$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:undo)(?:\s+that)?$").expect("valid regex: undo command"),
             command_type: CommandType::UndoRedo,
             param_names: vec![],
             base_confidence: 0.99,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:redo)(?:\s+that)?$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:redo)(?:\s+that)?$").expect("valid regex: redo command"),
             command_type: CommandType::UndoRedo,
             param_names: vec![],
             base_confidence: 0.99,
@@ -259,14 +259,14 @@ impl NaturalLanguageCommandProcessor {
 
         // Selection commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:select)\s+all$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:select)\s+all$").expect("valid regex: select-all command"),
             command_type: CommandType::Selection,
             param_names: vec![],
             base_confidence: 0.99,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:select)\s+(?:the\s+)?(?:last\s+)?(sentence|word|paragraph|line)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:select)\s+(?:the\s+)?(?:last\s+)?(sentence|word|paragraph|line)$").expect("valid regex: select-unit command"),
             command_type: CommandType::Selection,
             param_names: vec!["unit"],
             base_confidence: 0.95,
@@ -274,14 +274,14 @@ impl NaturalLanguageCommandProcessor {
 
         // Navigation commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:go\s+to|move\s+to)\s+(?:line\s+)?(\d+)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:go\s+to|move\s+to)\s+(?:line\s+)?(\d+)$").expect("valid regex: go-to-line command"),
             command_type: CommandType::Navigation,
             param_names: vec!["line"],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:go\s+to|move\s+to)\s+(?:the\s+)?(beginning|start|end|top|bottom)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:go\s+to|move\s+to)\s+(?:the\s+)?(beginning|start|end|top|bottom)$").expect("valid regex: go-to-position command"),
             command_type: CommandType::Navigation,
             param_names: vec!["position"],
             base_confidence: 0.95,
@@ -289,21 +289,21 @@ impl NaturalLanguageCommandProcessor {
 
         // Insert commands
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:insert|add)\s+(?:a\s+)?(?:new\s+)?line$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:insert|add)\s+(?:a\s+)?(?:new\s+)?line$").expect("valid regex: insert-line command"),
             command_type: CommandType::Insert,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:insert|add)\s+(?:a\s+)?paragraph\s*break$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:insert|add)\s+(?:a\s+)?paragraph\s*break$").expect("valid regex: paragraph-break command"),
             command_type: CommandType::Insert,
             param_names: vec![],
             base_confidence: 0.95,
         });
 
         self.patterns.push(CommandPattern {
-            pattern: Regex::new(r"(?i)^(?:new\s+)?(?:paragraph|para)$").unwrap(),
+            pattern: Regex::new(r"(?i)^(?:new\s+)?(?:paragraph|para)$").expect("valid regex: new-paragraph command"),
             command_type: CommandType::Insert,
             param_names: vec![],
             base_confidence: 0.85,
@@ -438,7 +438,18 @@ impl NaturalLanguageCommandProcessor {
         }
 
         // Case-insensitive replacement
-        let pattern = Regex::new(&format!("(?i){}", regex::escape(from))).unwrap();
+        let pattern = match Regex::new(&format!("(?i){}", regex::escape(from))) {
+            Ok(re) => re,
+            Err(_) => {
+                return CommandResult {
+                    success: false,
+                    result_text: current_text.to_string(),
+                    changes_made: vec![],
+                    error: Some(format!("Invalid pattern for replacement: '{}'", from)),
+                    undoable: false,
+                };
+            }
+        };
         let count = pattern.find_iter(current_text).count();
 
         if count == 0 {
@@ -697,7 +708,7 @@ impl NaturalLanguageCommandProcessor {
     }
 
     fn delete_last_sentences(&self, text: &str, count: usize) -> String {
-        let sentence_pattern = Regex::new(r"[.!?]+\s*").unwrap();
+        let sentence_pattern = Regex::new(r"[.!?]+\s*").expect("valid regex: sentence delimiter pattern");
         let sentences: Vec<&str> = sentence_pattern.split(text).filter(|s| !s.is_empty()).collect();
         if count >= sentences.len() {
             return String::new();

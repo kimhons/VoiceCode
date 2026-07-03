@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - SpeakerIdentificationScreen Tests
+// VoiceCode Mobile - SpeakerIdentificationScreen Tests
 
 import { configureStore } from '@reduxjs/toolkit';
 import aiReducer, { identifySpeakers, updateSpeaker } from '@/store/slices/aiSlice';

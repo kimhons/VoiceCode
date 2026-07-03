@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Enhanced Tag Management Screen
+// VoiceCode Mobile - Enhanced Tag Management Screen
 // Tag analytics, bulk operations, smart suggestions, and Apple-caliber design
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';

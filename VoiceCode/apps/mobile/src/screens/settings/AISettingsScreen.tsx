@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AI Settings Screen
+// VoiceCode Mobile - AI Settings Screen
 // Phase 0: Stub Screen
 
 import React from 'react';
@@ -63,7 +63,7 @@ export const AISettingsScreen: React.FC = () => {
               <View style={{ flex: 1 }}>
                 <Text variant="body">Remove Fillers</Text>
                 <Text variant="caption" color={theme.colors.textSecondary}>
-                  Remove "um", "uh", and other filler words
+                  Remove &quot;um&quot;, &quot;uh&quot;, and other filler words
                 </Text>
               </View>
               <Switch

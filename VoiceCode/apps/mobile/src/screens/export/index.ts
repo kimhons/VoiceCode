@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Export Screens Index
+// VoiceCode Mobile - Export Screens Index
 
 export { ExportOptionsScreen } from './ExportOptionsScreen';
 export { ShareTranscriptScreen } from './ShareTranscriptScreen';

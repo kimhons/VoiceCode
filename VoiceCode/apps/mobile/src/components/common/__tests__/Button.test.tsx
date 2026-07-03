@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Button Component Tests
+// VoiceCode Mobile - Button Component Tests
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';

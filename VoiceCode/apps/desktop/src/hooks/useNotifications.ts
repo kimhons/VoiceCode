@@ -28,7 +28,7 @@ export interface UseNotificationsReturn {
   isLoadingNotifications: boolean;
 
   // Actions
-  createNotification: (type: NotificationType, data?: Record<string, any>, channels?: NotificationChannel[]) => Promise<Notification>;
+  createNotification: (type: NotificationType, data?: Record<string, unknown>, channels?: NotificationChannel[]) => Promise<Notification>;
   markAsRead: (notificationId: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   deleteNotification: (notificationId: string) => Promise<void>;
@@ -101,7 +101,7 @@ export function useNotifications(
   // Create notification
   const createNotification = useCallback(async (
     type: NotificationType,
-    data?: Record<string, any>,
+    data?: Record<string, unknown>,
     channels?: NotificationChannel[]
   ) => {
     setError(null);

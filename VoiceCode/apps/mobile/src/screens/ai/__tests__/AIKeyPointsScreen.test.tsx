@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AIKeyPointsScreen Tests
+// VoiceCode Mobile - AIKeyPointsScreen Tests
 
 import { configureStore } from '@reduxjs/toolkit';
 import aiReducer, { extractKeyPoints } from '@/store/slices/aiSlice';

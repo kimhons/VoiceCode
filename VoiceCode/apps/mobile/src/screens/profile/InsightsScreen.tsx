@@ -221,9 +221,9 @@ export default function InsightsScreen() {
   // =====================================================
 
   const STORAGE_KEYS = {
-    GOALS: '@voiceflow_goals',
-    ACHIEVEMENTS: '@voiceflow_achievements',
-    INSIGHTS_CACHE: '@voiceflow_insights_cache',
+    GOALS: '@VoiceCode_goals',
+    ACHIEVEMENTS: '@VoiceCode_achievements',
+    INSIGHTS_CACHE: '@VoiceCode_insights_cache',
   };
 
   // =====================================================
@@ -1387,7 +1387,7 @@ export default function InsightsScreen() {
                 {peakProductivityHour}:00 - {peakProductivityHour + 1}:00
               </Text>
               <Text style={[styles.peakDescription, { color: theme.colors.textSecondary }]}>
-                You're most productive during this hour. Schedule important recordings here.
+                You&apos;re most productive during this hour. Schedule important recordings here.
               </Text>
             </View>
           </View>

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Record Button Component
+// VoiceCode Mobile - Record Button Component
 
 import React, { useEffect, useRef } from 'react';
 import {

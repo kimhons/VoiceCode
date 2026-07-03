@@ -11,6 +11,8 @@ import {
   Integration,
   IntegrationProvider,
   IntegrationAction,
+  SlackAttachment,
+  TeamsSection,
 } from '../services/integrations.service';
 
 export interface UseIntegrationsOptions {
@@ -25,7 +27,7 @@ export interface UseIntegrationsReturn {
   createIntegration: (
     provider: IntegrationProvider,
     name: string,
-    config: Record<string, any>,
+    config: Record<string, unknown>,
     accessToken?: string,
     refreshToken?: string,
     expiresAt?: Date
@@ -35,7 +37,7 @@ export interface UseIntegrationsReturn {
   toggleIntegration: (integrationId: string, enabled: boolean) => Promise<Integration>;
 
   // Slack
-  sendToSlack: (integrationId: string, message: string, attachments?: any[]) => Promise<void>;
+  sendToSlack: (integrationId: string, message: string, attachments?: SlackAttachment[]) => Promise<void>;
   shareTranscriptToSlack: (
     integrationId: string,
     transcriptId: string,
@@ -44,7 +46,7 @@ export interface UseIntegrationsReturn {
   ) => Promise<void>;
 
   // Microsoft Teams
-  sendToTeams: (integrationId: string, title: string, text: string, sections?: any[]) => Promise<void>;
+  sendToTeams: (integrationId: string, title: string, text: string, sections?: TeamsSection[]) => Promise<void>;
   shareTranscriptToTeams: (
     integrationId: string,
     transcriptId: string,
@@ -53,7 +55,7 @@ export interface UseIntegrationsReturn {
   ) => Promise<void>;
 
   // Zapier
-  triggerZapierWebhook: (integrationId: string, event: string, data: Record<string, any>) => Promise<void>;
+  triggerZapierWebhook: (integrationId: string, event: string, data: Record<string, unknown>) => Promise<void>;
 
   // Actions
   getIntegrationActions: (integrationId: string, limit?: number) => Promise<IntegrationAction[]>;
@@ -128,7 +130,7 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
     async (
       provider: IntegrationProvider,
       name: string,
-      config: Record<string, any>,
+      config: Record<string, unknown>,
       accessToken?: string,
       refreshToken?: string,
       expiresAt?: Date
@@ -212,7 +214,7 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
 
   // Send to Slack
   const sendToSlack = useCallback(
-    async (integrationId: string, message: string, attachments?: any[]): Promise<void> => {
+    async (integrationId: string, message: string, attachments?: SlackAttachment[]): Promise<void> => {
       setError(null);
       setIsLoading(true);
       try {
@@ -253,7 +255,7 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
 
   // Send to Teams
   const sendToTeams = useCallback(
-    async (integrationId: string, title: string, text: string, sections?: any[]): Promise<void> => {
+    async (integrationId: string, title: string, text: string, sections?: TeamsSection[]): Promise<void> => {
       setError(null);
       setIsLoading(true);
       try {
@@ -294,7 +296,7 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
 
   // Trigger Zapier Webhook
   const triggerZapierWebhook = useCallback(
-    async (integrationId: string, event: string, data: Record<string, any>): Promise<void> => {
+    async (integrationId: string, event: string, data: Record<string, unknown>): Promise<void> => {
       setError(null);
       setIsLoading(true);
       try {

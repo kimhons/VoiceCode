@@ -74,7 +74,7 @@ class AlertNotificationService {
         enabled: import.meta.env.VITE_ALERT_SLACK_ENABLED === 'true',
         webhookUrl: import.meta.env.VITE_SLACK_WEBHOOK_URL || '',
         channel: import.meta.env.VITE_SLACK_CHANNEL,
-        username: import.meta.env.VITE_SLACK_USERNAME || 'VoiceFlow Pro',
+        username: import.meta.env.VITE_SLACK_USERNAME || 'VoiceCode',
       },
       webhook: {
         enabled: import.meta.env.VITE_ALERT_WEBHOOK_ENABLED === 'true',
@@ -195,7 +195,7 @@ class AlertNotificationService {
                   }))
                 : []),
             ],
-            footer: 'VoiceFlow Pro Monitoring',
+            footer: 'VoiceCode Monitoring',
             ts: Math.floor(alert.timestamp.getTime() / 1000),
           },
         ],
@@ -354,7 +354,7 @@ class AlertNotificationService {
               <p style="margin-top: 15px;"><strong>Time:</strong> ${alert.timestamp.toLocaleString()}</p>
             </div>
             <div class="footer">
-              <p>VoiceFlow Pro Monitoring System</p>
+              <p>VoiceCode Monitoring System</p>
             </div>
           </div>
         </body>

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AIML Service
+// VoiceCode Mobile - AIML Service
 // Handles AI/ML API calls for summaries, key points, action items, and speaker identification
 
 import { supabase } from './supabaseService';

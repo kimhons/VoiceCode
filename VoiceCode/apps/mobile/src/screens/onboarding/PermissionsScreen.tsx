@@ -1,14 +1,10 @@
-// VoiceFlow Pro Mobile - Permissions Screen
+// VoiceCode Mobile - Permissions Screen
 
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/types';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import { Text, Button, Card } from '../../components/common';
-
-type PermissionsNavigationProp = StackNavigationProp<RootStackParamList, 'Permissions'>;
 
 interface Permission {
   id: string;
@@ -21,7 +17,7 @@ interface Permission {
 
 export const PermissionsScreen: React.FC = () => {
   const { theme } = useTheme();
-  const navigation = useNavigation<PermissionsNavigationProp>();
+  const { completeOnboarding } = useOnboarding();
   const [permissions, setPermissions] = useState<Permission[]>([
     {
       id: 'microphone',
@@ -83,7 +79,7 @@ export const PermissionsScreen: React.FC = () => {
     setIsRequesting(false);
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const allRequiredGranted = permissions
       .filter(p => p.required)
       .every(p => p.granted);
@@ -94,13 +90,13 @@ export const PermissionsScreen: React.FC = () => {
       return;
     }
 
-    // Navigate to auth screen
-    navigation.navigate('Auth');
+    // Complete onboarding - navigation happens automatically via conditional rendering
+    await completeOnboarding();
   };
 
-  const handleSkip = () => {
-    // Navigate to auth screen (with limited functionality)
-    navigation.navigate('Auth');
+  const handleSkip = async () => {
+    // Complete onboarding even with limited permissions
+    await completeOnboarding();
   };
 
   const allRequiredGranted = permissions
@@ -124,7 +120,7 @@ export const PermissionsScreen: React.FC = () => {
             color={theme.colors.textSecondary}
             style={styles.subtitle}
           >
-            VoiceFlow Pro needs a few permissions to work properly
+            VoiceCode needs a few permissions to work properly
           </Text>
         </View>
 

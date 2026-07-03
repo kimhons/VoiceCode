@@ -68,7 +68,7 @@ export async function activate(context: vscode.ExtensionContext) {
     getWhisperModelManager()
       .then(async (manager) => {
         // Get model preference from settings
-        const config = vscode.workspace.getConfiguration('voiceflow');
+        const config = vscode.workspace.getConfiguration('voicecode');
         const modelSize = config.get<string>('sttEngine', 'whisper-base');
 
         // Preload model (non-blocking)
@@ -126,8 +126,8 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     // Set context for when clauses
-    vscode.commands.executeCommand('setContext', 'voiceflow.enabled', true);
-    vscode.commands.executeCommand('setContext', 'voiceflow.isListening', false);
+    vscode.commands.executeCommand('setContext', 'voicecode.enabled', true);
+    vscode.commands.executeCommand('setContext', 'voicecode.isListening', false);
 
   } catch (error) {
     console.error('[VoiceFlow] Activation failed:', error);
@@ -154,12 +154,12 @@ export async function activate(context: vscode.ExtensionContext) {
 function registerCoreCommands(context: vscode.ExtensionContext) {
   // Toggle listening
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.toggleListening', async () => {
+    vscode.commands.registerCommand('voicecode.toggleListening', async () => {
       const voice = await getVoiceRecognitionService();
       await voice.toggleListening();
 
       const isListening = voice.getIsListening();
-      vscode.commands.executeCommand('setContext', 'voiceflow.isListening', isListening);
+      vscode.commands.executeCommand('setContext', 'voicecode.isListening', isListening);
 
       vscode.window.showInformationMessage(
         isListening ? 'VoiceFlow: Listening...' : 'VoiceFlow: Stopped listening'
@@ -169,25 +169,25 @@ function registerCoreCommands(context: vscode.ExtensionContext) {
 
   // Start listening
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.startListening', async () => {
+    vscode.commands.registerCommand('voicecode.startListening', async () => {
       const voice = await getVoiceRecognitionService();
       await voice.startListening();
-      vscode.commands.executeCommand('setContext', 'voiceflow.isListening', true);
+      vscode.commands.executeCommand('setContext', 'voicecode.isListening', true);
     })
   );
 
   // Stop listening
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.stopListening', async () => {
+    vscode.commands.registerCommand('voicecode.stopListening', async () => {
       const voice = await getVoiceRecognitionService();
       await voice.stopListening();
-      vscode.commands.executeCommand('setContext', 'voiceflow.isListening', false);
+      vscode.commands.executeCommand('setContext', 'voicecode.isListening', false);
     })
   );
 
   // Open dashboard
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.openDashboard', async () => {
+    vscode.commands.registerCommand('voicecode.openDashboard', async () => {
       // Dashboard provider is lightweight, load on-demand
       const { VoiceFlowDashboardProvider } = await import('./providers/VoiceFlowDashboardProvider');
       const telemetry = await getTelemetryService();
@@ -208,7 +208,7 @@ function registerCoreCommands(context: vscode.ExtensionContext) {
 
   // Show commands
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.showCommands', async () => {
+    vscode.commands.registerCommand('voicecode.showCommands', async () => {
       const suggestions = await getCommandSuggestionsService();
       await suggestions.showCommandPalette();
     })
@@ -216,21 +216,21 @@ function registerCoreCommands(context: vscode.ExtensionContext) {
 
   // Open settings
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.openSettings', () => {
-      vscode.commands.executeCommand('workbench.action.openSettings', 'voiceflow');
+    vscode.commands.registerCommand('voicecode.openSettings', () => {
+      vscode.commands.executeCommand('workbench.action.openSettings', 'voicecode');
     })
   );
 
   // Show chatbox (open chat participant)
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.showChatbox', async () => {
-      await vscode.commands.executeCommand('workbench.action.chat.open', '@voiceflow');
+    vscode.commands.registerCommand('voicecode.showChatbox', async () => {
+      await vscode.commands.executeCommand('workbench.action.chat.open', '@voicecode');
     })
   );
 
   // Sign in
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.signIn', async () => {
+    vscode.commands.registerCommand('voicecode.signIn', async () => {
       const auth = await getAuthenticationService();
       await auth.signIn();
     })
@@ -238,7 +238,7 @@ function registerCoreCommands(context: vscode.ExtensionContext) {
 
   // Sign out
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.signOut', async () => {
+    vscode.commands.registerCommand('voicecode.signOut', async () => {
       const auth = await getAuthenticationService();
       await auth.signOut();
     })
@@ -253,7 +253,7 @@ function registerCoreCommands(context: vscode.ExtensionContext) {
 function registerProCommands(context: vscode.ExtensionContext) {
   // Cloud sync
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.syncToCloud', async () => {
+    vscode.commands.registerCommand('voicecode.syncToCloud', async () => {
       const sync = await getCloudSyncService();
       await sync.syncNow();
       vscode.window.showInformationMessage('Cloud sync completed');
@@ -262,7 +262,7 @@ function registerProCommands(context: vscode.ExtensionContext) {
 
   // Voice training
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.trainVoiceModel', async () => {
+    vscode.commands.registerCommand('voicecode.trainVoiceModel', async () => {
       const training = await getVoiceTrainingService();
       await training.startTrainingSession();
     })
@@ -270,7 +270,7 @@ function registerProCommands(context: vscode.ExtensionContext) {
 
   // Billing dashboard
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.showBilling', async () => {
+    vscode.commands.registerCommand('voicecode.showBilling', async () => {
       const billing = await getBillingService();
       await billing.showDashboard();
     })
@@ -285,7 +285,7 @@ function registerProCommands(context: vscode.ExtensionContext) {
 function registerEnterpriseCommands(context: vscode.ExtensionContext) {
   // Team collaboration
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.shareWithTeam', async () => {
+    vscode.commands.registerCommand('voicecode.shareWithTeam', async () => {
       const team = await getTeamCollaborationService();
       await team.shareCurrentFile();
     })
@@ -293,7 +293,7 @@ function registerEnterpriseCommands(context: vscode.ExtensionContext) {
 
   // Invite team member
   context.subscriptions.push(
-    vscode.commands.registerCommand('voiceflow.inviteTeamMember', async () => {
+    vscode.commands.registerCommand('voicecode.inviteTeamMember', async () => {
       const team = await getTeamCollaborationService();
       await team.inviteMember();
     })
@@ -342,9 +342,9 @@ function showWelcomeMessage(context: vscode.ExtensionContext, tier: ServiceTier)
     .showInformationMessage(message, 'Open Dashboard', 'View Commands')
     .then((selection) => {
       if (selection === 'Open Dashboard') {
-        vscode.commands.executeCommand('voiceflow.openDashboard');
+        vscode.commands.executeCommand('voicecode.openDashboard');
       } else if (selection === 'View Commands') {
-        vscode.commands.executeCommand('voiceflow.showCommands');
+        vscode.commands.executeCommand('voicecode.showCommands');
       }
     });
 }

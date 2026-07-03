@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - TagManagementScreen Tests
+// VoiceCode Mobile - TagManagementScreen Tests
 
 import searchReducer, {
   getTags,

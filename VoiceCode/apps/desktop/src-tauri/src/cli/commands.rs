@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // CLI Command Handler - Processes user commands and delegates to agents
 // Supports both slash commands and natural language input
 
@@ -8,8 +9,8 @@ use std::process::Stdio;
 use std::sync::Arc;
 use tokio::process::Command;
 
-use super::agent_protocol::{TaskContext, TaskStatus, TaskType};
-use super::agent_registry::{AgentInfo, AgentRegistry};
+use super::agent_protocol::{TaskContext, TaskType};
+use super::agent_registry::AgentRegistry;
 use super::orchestrator::{AgentOrchestrator, OrchestrationStrategy};
 
 /// Result of a command execution
@@ -96,9 +97,9 @@ impl CommandContext {
             code_content,
             cursor_position: None,
             selection: None,
-            related_files: None,
             project_root: Some(self.working_dir.to_string_lossy().to_string()),
             additional_context: self.variables.clone(),
+            ..Default::default()
         }
     }
 }
@@ -159,7 +160,7 @@ impl CommandHandler {
                     super::agent_protocol::ChangeType::Delete => ChangeType::Deleted,
                     _ => ChangeType::Modified,
                 },
-                preview: Some(c.new_content.chars().take(200).collect()),
+                preview: c.new_content.as_ref().map(|s| s.chars().take(200).collect()),
                 applied: false,
             })
             .collect();
@@ -261,7 +262,7 @@ impl CommandHandler {
     fn intent_to_task_type(&self, intent: &Intent, input: &str) -> TaskType {
         match intent {
             Intent::Generate => TaskType::CodeGeneration {
-                language: self.detect_language(input).unwrap_or("auto".to_string()),
+                language: self.detect_language(input),
                 description: input.to_string(),
             },
             Intent::Fix => TaskType::BugFix {
@@ -273,22 +274,22 @@ impl CommandHandler {
             },
             Intent::Refactor => TaskType::Refactoring {
                 refactor_type: self.extract_refactor_type(input),
-                scope: "file".to_string(),
+                scope: Some("file".to_string()),
             },
             Intent::Test => TaskType::TestGeneration {
                 test_type: self.extract_test_type(input),
-                coverage_target: 80,
+                coverage_target: Some(80.0),
             },
             Intent::Explain => TaskType::Explanation {
                 detail_level: "detailed".to_string(),
             },
             Intent::Search => TaskType::Search {
                 query: input.to_string(),
-                scope: "project".to_string(),
+                scope: Some("project".to_string()),
             },
             Intent::Document => TaskType::Documentation {
                 doc_type: "inline".to_string(),
-                format: "markdown".to_string(),
+                format: Some("markdown".to_string()),
             },
             Intent::Chat => TaskType::Custom {
                 name: "chat".to_string(),
@@ -500,7 +501,7 @@ impl CommandHandler {
             return Ok(CommandResult::success("No file currently open."));
         }
 
-        let file = context.current_file.take().unwrap();
+        let file = context.current_file.take().unwrap_or_default();
         Ok(CommandResult::success(format!("Closed: {}", file)))
     }
 
@@ -511,9 +512,7 @@ impl CommandHandler {
         context: &mut CommandContext,
     ) -> Result<CommandResult, String> {
         let task_type = TaskType::CodeGeneration {
-            language: self
-                .detect_language(description)
-                .unwrap_or("auto".to_string()),
+            language: self.detect_language(description),
             description: description.to_string(),
         };
 
@@ -591,7 +590,7 @@ impl CommandHandler {
     ) -> Result<CommandResult, String> {
         let task_type = TaskType::Refactoring {
             refactor_type: refactor_type.to_string(),
-            scope: "file".to_string(),
+            scope: Some("file".to_string()),
         };
 
         let task_context = context.to_task_context();
@@ -621,7 +620,7 @@ impl CommandHandler {
 
         let task_type = TaskType::TestGeneration {
             test_type: test_type.to_string(),
-            coverage_target: 80,
+            coverage_target: Some(80.0),
         };
 
         let task_context = context.to_task_context();
@@ -675,7 +674,7 @@ impl CommandHandler {
     ) -> Result<CommandResult, String> {
         let task_type = TaskType::Search {
             query: query.to_string(),
-            scope: "project".to_string(),
+            scope: Some("project".to_string()),
         };
 
         let task_context = context.to_task_context();

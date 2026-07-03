@@ -378,31 +378,111 @@ impl ScreenContextManager {
 
     /// Get active window information
     async fn get_active_window(&self) -> Result<(String, String), String> {
-        // Platform-specific implementation would go here
-        // For now, return simulated values
+        #[cfg(target_os = "windows")]
+        {
+            self.get_active_window_windows()
+        }
 
         #[cfg(target_os = "macos")]
         {
-            // Would use CGWindowListCopyWindowInfo and NSWorkspace
-            Ok(("Visual Studio Code".to_string(), "main.rs - VoiceCode".to_string()))
-        }
-
-        #[cfg(target_os = "windows")]
-        {
-            // Would use GetForegroundWindow and GetWindowText
-            Ok(("Visual Studio Code".to_string(), "main.rs - VoiceCode".to_string()))
+            // macOS: would use CGWindowListCopyWindowInfo and NSWorkspace
+            // Stubbed until macOS build target is needed
+            Ok(("Unknown".to_string(), "".to_string()))
         }
 
         #[cfg(target_os = "linux")]
         {
-            // Would use X11/Wayland APIs
-            Ok(("Visual Studio Code".to_string(), "main.rs - VoiceCode".to_string()))
+            // Linux: would use X11 (XGetInputFocus + XGetWMName) or Wayland protocols
+            // Stubbed until Linux build target is needed
+            Ok(("Unknown".to_string(), "".to_string()))
         }
 
         #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
         {
             Ok(("Unknown".to_string(), "".to_string()))
         }
+    }
+
+    /// Windows implementation: real GetForegroundWindow + GetWindowTextW
+    #[cfg(target_os = "windows")]
+    fn get_active_window_windows(&self) -> Result<(String, String), String> {
+        use windows::Win32::UI::WindowsAndMessaging::{
+            GetForegroundWindow, GetWindowTextW, GetWindowThreadProcessId,
+        };
+        use windows::Win32::System::Threading::{
+            OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_FORMAT,
+            PROCESS_QUERY_LIMITED_INFORMATION,
+        };
+        use windows::Win32::Foundation::CloseHandle;
+
+        unsafe {
+            let hwnd = GetForegroundWindow();
+            if hwnd.0 == std::ptr::null_mut() {
+                return Ok(("Unknown".to_string(), "".to_string()));
+            }
+
+            // Get window title
+            let mut title_buf = [0u16; 512];
+            let title_len = GetWindowTextW(hwnd, &mut title_buf);
+            let window_title = if title_len > 0 {
+                String::from_utf16_lossy(&title_buf[..title_len as usize])
+            } else {
+                String::new()
+            };
+
+            // Get process name from PID
+            let mut pid: u32 = 0;
+            GetWindowThreadProcessId(hwnd, Some(&mut pid));
+
+            let app_name = if pid != 0 {
+                match OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) {
+                    Ok(process_handle) => {
+                        let mut name_buf = [0u16; 512];
+                        let mut name_len = name_buf.len() as u32;
+                        let name = if QueryFullProcessImageNameW(
+                            process_handle,
+                            PROCESS_NAME_FORMAT(0),
+                            windows::core::PWSTR(name_buf.as_mut_ptr()),
+                            &mut name_len,
+                        )
+                        .is_ok()
+                        {
+                            let full_path =
+                                String::from_utf16_lossy(&name_buf[..name_len as usize]);
+                            // Extract just the filename without extension
+                            full_path
+                                .rsplit('\\')
+                                .next()
+                                .unwrap_or(&full_path)
+                                .trim_end_matches(".exe")
+                                .to_string()
+                        } else {
+                            self.extract_app_name_from_title(&window_title)
+                        };
+                        let _ = CloseHandle(process_handle);
+                        name
+                    }
+                    Err(_) => self.extract_app_name_from_title(&window_title),
+                }
+            } else {
+                self.extract_app_name_from_title(&window_title)
+            };
+
+            Ok((app_name, window_title))
+        }
+    }
+
+    /// Fallback: extract a likely app name from the window title
+    fn extract_app_name_from_title(&self, title: &str) -> String {
+        // Many apps put their name after the last " - " in the title
+        // e.g. "main.rs - VoiceCode - Visual Studio Code"
+        if let Some(last_segment) = title.rsplit(" - ").next() {
+            let trimmed = last_segment.trim();
+            if !trimmed.is_empty() {
+                return trimmed.to_string();
+            }
+        }
+        title.to_string()
     }
 
     /// Detect application type from app name
@@ -600,13 +680,40 @@ impl ScreenContextManager {
 
     /// Capture visible text using OCR (resource-intensive)
     async fn capture_visible_text(&self, max_chars: usize) -> Result<String, String> {
-        // In production, this would:
-        // 1. Capture screenshot of active window
-        // 2. Run OCR (using tesseract or similar)
-        // 3. Extract and return text
+        use crate::vision::ocr_engine::{MultiTierOcr, OcrConfig, OcrTier};
 
-        // For now, return empty - OCR integration would go here
-        Ok(String::new())
+        // Capture screen via computer vision service
+        let cv_service = crate::computer_vision::get_cv_service();
+        let (image, _capture_info) = cv_service
+            .capture_screen()
+            .await
+            .map_err(|e| format!("Screen capture failed: {}", e))?;
+
+        // Run OCR using Fast tier (Tesseract) for low latency
+        let ocr_config = OcrConfig {
+            default_tier: OcrTier::Fast,
+            ..OcrConfig::default()
+        };
+        let ocr = MultiTierOcr::new(ocr_config);
+        let ocr_result = ocr
+            .extract_with_tier(&image, OcrTier::Fast)
+            .await
+            .map_err(|e| format!("OCR failed: {}", e))?;
+
+        // Concatenate text regions, separated by newlines
+        let full_text: String = ocr_result
+            .regions
+            .iter()
+            .map(|r| r.text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        // Truncate to max_chars
+        if full_text.len() > max_chars {
+            Ok(full_text[..max_chars].to_string())
+        } else {
+            Ok(full_text)
+        }
     }
 
     fn get_timestamp(&self) -> u64 {

@@ -1,6 +1,6 @@
 /**
  * Interactive Savings Calculator Component
- * Allows users to calculate how much they'll save by switching to VoiceFlow Pro
+ * Allows users to calculate how much they'll save by switching to VoiceCode
  */
 
 import React, { useState, useEffect } from 'react';

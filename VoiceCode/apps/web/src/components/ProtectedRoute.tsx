@@ -15,14 +15,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   // E2E bypass: if flag is set, allow access immediately
-  try {
-    const win: any = typeof window !== 'undefined' ? window : {};
-    const e2eBypass = win.__E2E_FAKE_AUTH === '1' || (typeof localStorage !== 'undefined' && localStorage.getItem('__E2E_FAKE_AUTH') === '1');
-    if (e2eBypass) {
-      return <>{children}</>;
+  // SECURITY: Guarded by import.meta.env.DEV so Vite dead-code-eliminates
+  // this entire block in production builds.
+  if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_E2E_AUTH_BYPASS === 'true') {
+    try {
+      const win: any = typeof window !== 'undefined' ? window : {};
+      const e2eBypass = win.__E2E_FAKE_AUTH === '1' || (typeof localStorage !== 'undefined' && localStorage.getItem('__E2E_FAKE_AUTH') === '1');
+      if (e2eBypass) {
+        return <>{children}</>;
+      }
+    } catch {
+      // Ignore errors accessing window/localStorage (e.g., SSR, restricted contexts)
     }
-  } catch {
-    // Ignore errors accessing window/localStorage (e.g., SSR, restricted contexts)
   }
 
   // Show loading state while checking authentication

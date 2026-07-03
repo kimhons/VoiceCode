@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Agent Protocol - Standard communication protocol for multi-agent collaboration
 // Compatible with Claude Code, Codex, Gemini, and other CLI agents
 
@@ -128,6 +129,24 @@ pub enum AgentMessage {
         recoverable: bool,
     },
 
+    /// Task failed (alias for TaskError for compatibility)
+    #[serde(rename = "task.failed")]
+    TaskFailed {
+        task_id: String,
+        agent_id: String,
+        error: String,
+        recoverable: bool,
+    },
+
+    /// Progress update (alias for TaskProgress for compatibility)
+    #[serde(rename = "task.progress_update")]
+    Progress {
+        task_id: String,
+        agent_id: String,
+        progress: f32,
+        message: String,
+    },
+
     // Collaboration
     #[serde(rename = "collab.share_context")]
     ShareContext {
@@ -229,9 +248,74 @@ pub enum AgentMessage {
     },
 }
 
-/// Task types
+/// Task types with associated data
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind")]
 pub enum TaskType {
+    /// Code generation task
+    CodeGeneration {
+        language: Option<String>,
+        description: String,
+    },
+    /// Code review task
+    CodeReview {
+        focus_areas: Vec<String>,
+    },
+    /// Bug fix task
+    BugFix {
+        error_message: Option<String>,
+        stack_trace: Option<String>,
+    },
+    /// Refactoring task
+    Refactoring {
+        refactor_type: String,
+        scope: Option<String>,
+    },
+    /// Test generation task
+    TestGeneration {
+        test_type: String,
+        coverage_target: Option<f32>,
+    },
+    /// Documentation task
+    Documentation {
+        doc_type: String,
+        format: Option<String>,
+    },
+    /// Code explanation task
+    Explanation {
+        detail_level: String,
+    },
+    /// Code search task
+    Search {
+        query: String,
+        scope: Option<String>,
+    },
+    /// Code completion task
+    Completion {
+        prefix: String,
+        suffix: Option<String>,
+    },
+    /// File operation task
+    FileOperation {
+        operation: String,
+        path: String,
+    },
+    /// Terminal command task
+    Terminal {
+        command: String,
+        args: Vec<String>,
+    },
+    /// Git operation task
+    Git {
+        operation: String,
+        args: Vec<String>,
+    },
+    /// Custom task type
+    Custom {
+        name: String,
+        params: HashMap<String, String>,
+    },
+    // Legacy unit variants for backward compatibility
     GenerateCode,
     ModifyCode,
     ReviewCode,
@@ -248,7 +332,6 @@ pub enum TaskType {
     RenameFile,
     AnalyzeProject,
     PlanImplementation,
-    Custom(String),
 }
 
 /// Task priority
@@ -261,31 +344,39 @@ pub enum TaskPriority {
 }
 
 /// Context for a task
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct TaskContext {
+    #[serde(default)]
     pub project_root: Option<String>,
+    #[serde(default)]
     pub current_file: Option<String>,
+    #[serde(default)]
     pub cursor_position: Option<(usize, usize)>,
+    #[serde(default)]
     pub selection: Option<String>,
+    #[serde(default)]
     pub related_files: Vec<String>,
+    #[serde(default)]
     pub symbols: Vec<String>,
+    #[serde(default)]
     pub conversation_history: Vec<ConversationTurn>,
+    #[serde(default)]
     pub metadata: HashMap<String, String>,
-}
-
-impl Default for TaskContext {
-    fn default() -> Self {
-        Self {
-            project_root: None,
-            current_file: None,
-            cursor_position: None,
-            selection: None,
-            related_files: Vec::new(),
-            symbols: Vec::new(),
-            conversation_history: Vec::new(),
-            metadata: HashMap::new(),
-        }
-    }
+    // Additional fields for compatibility
+    #[serde(default)]
+    pub file_path: Option<String>,
+    #[serde(default)]
+    pub files: Vec<String>,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub constraints: Vec<String>,
+    #[serde(default)]
+    pub language: Option<String>,
+    #[serde(default)]
+    pub code_content: Option<String>,
+    #[serde(default)]
+    pub additional_context: HashMap<String, String>,
 }
 
 /// Conversation turn
@@ -294,6 +385,23 @@ pub struct ConversationTurn {
     pub role: String,
     pub content: String,
     pub timestamp: u64,
+}
+
+/// Task status for tracking task progress
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TaskStatus {
+    Pending,
+    InProgress,
+    Completed,
+    PartiallyCompleted,
+    Failed,
+    Cancelled,
+}
+
+impl Default for TaskStatus {
+    fn default() -> Self {
+        TaskStatus::Pending
+    }
 }
 
 /// Task result
@@ -308,6 +416,11 @@ pub struct TaskResult {
     pub commands_executed: Vec<String>,
     pub suggestions: Vec<String>,
     pub duration_ms: u64,
+    // Additional fields for compatibility
+    pub status: TaskStatus,
+    pub error: Option<String>,
+    pub changes: Vec<CodeChange>,
+    pub metadata: HashMap<String, String>,
 }
 
 impl Default for TaskResult {
@@ -322,6 +435,10 @@ impl Default for TaskResult {
             commands_executed: Vec::new(),
             suggestions: Vec::new(),
             duration_ms: 0,
+            status: TaskStatus::Pending,
+            error: None,
+            changes: Vec::new(),
+            metadata: HashMap::new(),
         }
     }
 }
@@ -334,15 +451,21 @@ pub struct CodeChange {
     pub before: Option<String>,
     pub after: Option<String>,
     pub line_range: Option<(usize, usize)>,
+    // Additional fields for compatibility
+    pub old_content: Option<String>,
+    pub new_content: Option<String>,
+    pub line_start: Option<usize>,
+    pub line_end: Option<usize>,
 }
 
 /// Change type
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChangeType {
     Insert,
     Delete,
     Replace,
     Create,
+    Modify,
 }
 
 /// Text edit
@@ -458,6 +581,34 @@ impl AgentProtocol {
     /// Check if agent has capability
     pub fn has_capability(&self, capability: &AgentCapability) -> bool {
         self.capabilities.contains(capability)
+    }
+
+    /// Connect to an endpoint (stub - actual implementation depends on transport)
+    pub async fn connect(&mut self, _endpoint: &str) -> Result<(), String> {
+        // In a real implementation, this would establish a connection
+        // For now, just a stub that always succeeds
+        Ok(())
+    }
+
+    /// Send a task request to a connected agent
+    pub async fn send_task_request(
+        &mut self,
+        task_id: String,
+        task_type: TaskType,
+        context: TaskContext,
+    ) -> Result<(), String> {
+        let _message = self.create_task_request(task_type, "", context, None);
+        // In a real implementation, send the message over the transport
+        // For now, we just store the task_id for reference
+        let _ = task_id; // suppress unused warning
+        Ok(())
+    }
+
+    /// Receive a message from the connection (stub)
+    pub async fn receive(&mut self) -> Result<Option<AgentMessage>, String> {
+        // In a real implementation, this would receive from the transport
+        // For now, return None to indicate no messages pending
+        Ok(None)
     }
 }
 

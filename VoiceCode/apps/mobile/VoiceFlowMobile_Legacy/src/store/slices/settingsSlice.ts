@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Settings Slice
+// VoiceCode Pro Mobile - Settings Slice
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppSettings } from '../../types';

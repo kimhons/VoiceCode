@@ -9,6 +9,8 @@ import * as vscode from 'vscode';
 import { MCPIntegrationService } from './MCPIntegrationService';
 import { EnhancedAIBridgeService } from './EnhancedAIBridgeService';
 import { TelemetryService } from './TelemetryService';
+import { ConversationMemoryService } from './ConversationMemoryService';
+import { CodebaseIndexService } from './CodebaseIndexService';
 /**
  * VoiceFlow Chat Participant Service
  * Provides @voiceflow chat participant for VS Code chat integration
@@ -21,7 +23,9 @@ export declare class VoiceFlowChatParticipant implements vscode.Disposable {
     private aiBridge;
     private telemetry;
     private disposables;
-    constructor(context: vscode.ExtensionContext, mcpService: MCPIntegrationService, aiBridge: EnhancedAIBridgeService, telemetry: TelemetryService);
+    private memory?;
+    private agentFactory?;
+    constructor(context: vscode.ExtensionContext, mcpService: MCPIntegrationService, aiBridge: EnhancedAIBridgeService, telemetry: TelemetryService, memory?: ConversationMemoryService, codebaseIndex?: CodebaseIndexService);
     /**
      * Register the chat participant with VS Code
      */

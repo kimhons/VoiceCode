@@ -1,7 +1,7 @@
 {
   "name": "voicecode-vscode",
   "displayName": "VoiceCode - Voice Coding Assistant",
-  "description": "Voice-controlled coding assistant with natural language commands, code generation, and voice dictation for VS Code",
+  "description": "Voice-controlled coding assistant with AI agents, natural language commands, code generation, and voice dictation for VS Code",
   "version": "1.0.0",
   "publisher": "voicecode",
   "engines": {
@@ -10,7 +10,9 @@
   "categories": [
     "Other",
     "Programming Languages",
-    "Snippets"
+    "Snippets",
+    "Machine Learning",
+    "Chat"
   ],
   "keywords": [
     "voice",
@@ -19,7 +21,11 @@
     "ai",
     "speech-to-text",
     "voice commands",
-    "accessibility"
+    "accessibility",
+    "agents",
+    "claude",
+    "copilot",
+    "mcp"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -70,6 +76,343 @@
       {
         "command": "voicecode.addToCustomDictionary",
         "title": "VoiceCode: Add Word to Custom Dictionary"
+      },
+      {
+        "command": "voicecode.planTask",
+        "title": "VoiceCode: Plan Task (Planner Agent)",
+        "icon": "$(checklist)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.exploreCode",
+        "title": "VoiceCode: Explore Codebase (Explorer Agent)",
+        "icon": "$(search)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.generateWithCoder",
+        "title": "VoiceCode: Generate Code (Coder Agent)",
+        "icon": "$(code)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.reviewCode",
+        "title": "VoiceCode: Review Code (Reviewer Agent)",
+        "icon": "$(eye)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.generateTests",
+        "title": "VoiceCode: Generate Tests (Tester Agent)",
+        "icon": "$(beaker)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.debugIssue",
+        "title": "VoiceCode: Debug Issue (Debugger Agent)",
+        "icon": "$(bug)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.addDocumentation",
+        "title": "VoiceCode: Add Documentation (Documenter Agent)",
+        "icon": "$(book)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.refactorWithAgent",
+        "title": "VoiceCode: Refactor Code (Refactorer Agent)",
+        "icon": "$(wrench)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.securityAudit",
+        "title": "VoiceCode: Security Audit (Security Agent)",
+        "icon": "$(shield)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.selectInternalAgent",
+        "title": "VoiceCode: Select Internal Agent",
+        "icon": "$(robot)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.useInternalAgent",
+        "title": "VoiceCode: Use Internal Agent",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.autoSelectAgent",
+        "title": "VoiceCode: Auto-Select Agent for Task",
+        "icon": "$(zap)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.showAgentStatus",
+        "title": "VoiceCode: Show Agent Status",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.executeWithStrategy",
+        "title": "VoiceCode: Execute with Strategy",
+        "icon": "$(symbol-misc)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.runPipeline",
+        "title": "VoiceCode: Run Agent Pipeline",
+        "icon": "$(git-merge)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.refreshAgents",
+        "title": "VoiceCode: Refresh Agents",
+        "icon": "$(refresh)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.toggleModelInfo",
+        "title": "VoiceCode: Toggle Model Info",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.runPipelineFromTree",
+        "title": "Run Pipeline",
+        "icon": "$(play)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.cancelSession",
+        "title": "Cancel Session",
+        "icon": "$(close)",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.routeVoiceCommand",
+        "title": "VoiceCode: Route Voice Command",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.suggestAgents",
+        "title": "VoiceCode: Suggest Agents for Task",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.detectExternalAgents",
+        "title": "VoiceCode: Detect External Agents",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.showRoutingHistory",
+        "title": "VoiceCode: Show Routing History",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.showRoutingStats",
+        "title": "VoiceCode: Show Routing Statistics",
+        "category": "VoiceCode Agents"
+      },
+      {
+        "command": "voicecode.startMCPServer",
+        "title": "VoiceCode: Start MCP Server",
+        "icon": "$(radio-tower)",
+        "category": "VoiceCode MCP"
+      },
+      {
+        "command": "voicecode.stopMCPServer",
+        "title": "VoiceCode: Stop MCP Server",
+        "icon": "$(debug-stop)",
+        "category": "VoiceCode MCP"
+      },
+      {
+        "command": "voicecode.restartMCPServer",
+        "title": "VoiceCode: Restart MCP Server",
+        "icon": "$(debug-restart)",
+        "category": "VoiceCode MCP"
+      },
+      {
+        "command": "voicecode.showMCPConfig",
+        "title": "VoiceCode: Show MCP Configuration",
+        "category": "VoiceCode MCP"
+      },
+      {
+        "command": "voicecode.executeWithOrchestrator",
+        "title": "VoiceCode: Execute with Orchestrator",
+        "icon": "$(hubot)",
+        "category": "VoiceCode Orchestrator"
+      },
+      {
+        "command": "voicecode.selectCollaborationMode",
+        "title": "VoiceCode: Select Collaboration Mode",
+        "category": "VoiceCode Orchestrator"
+      },
+      {
+        "command": "voicecode.showAvailableAgents",
+        "title": "VoiceCode: Show All Available Agents",
+        "icon": "$(list-tree)",
+        "category": "VoiceCode Orchestrator"
+      },
+      {
+        "command": "voicecode.suggestAgentForTask",
+        "title": "VoiceCode: Suggest Agent for Task",
+        "category": "VoiceCode Orchestrator"
+      },
+      {
+        "command": "voicecode.showOrchestratorStats",
+        "title": "VoiceCode: Show Orchestrator Statistics",
+        "category": "VoiceCode Orchestrator"
+      },
+      {
+        "command": "voicecode.executeHybrid",
+        "title": "VoiceCode: Execute Hybrid (Internal + External)",
+        "category": "VoiceCode Orchestrator"
+      },
+      {
+        "command": "voicecode.chat.plan",
+        "title": "VoiceCode Chat: Plan",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.explore",
+        "title": "VoiceCode Chat: Explore",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.code",
+        "title": "VoiceCode Chat: Code",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.review",
+        "title": "VoiceCode Chat: Review",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.test",
+        "title": "VoiceCode Chat: Test",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.debug",
+        "title": "VoiceCode Chat: Debug",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.document",
+        "title": "VoiceCode Chat: Document",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.refactor",
+        "title": "VoiceCode Chat: Refactor",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.chat.security",
+        "title": "VoiceCode Chat: Security",
+        "category": "VoiceCode Chat"
+      },
+      {
+        "command": "voicecode.checkpoint.create",
+        "title": "VoiceCode: Create Checkpoint",
+        "icon": "$(bookmark)",
+        "category": "VoiceCode Checkpoints"
+      },
+      {
+        "command": "voicecode.checkpoint.revert",
+        "title": "VoiceCode: Revert to Checkpoint",
+        "icon": "$(debug-step-back)",
+        "category": "VoiceCode Checkpoints"
+      },
+      {
+        "command": "voicecode.checkpoint.compare",
+        "title": "VoiceCode: Compare Checkpoints",
+        "icon": "$(diff)",
+        "category": "VoiceCode Checkpoints"
+      },
+      {
+        "command": "voicecode.checkpoint.delete",
+        "title": "VoiceCode: Delete Checkpoint",
+        "icon": "$(trash)",
+        "category": "VoiceCode Checkpoints"
+      },
+      {
+        "command": "voicecode.checkpoint.clearAll",
+        "title": "VoiceCode: Clear All Checkpoints",
+        "category": "VoiceCode Checkpoints"
+      },
+      {
+        "command": "voicecode.checkpoint.showTree",
+        "title": "VoiceCode: Show Checkpoint Tree",
+        "icon": "$(history)",
+        "category": "VoiceCode Checkpoints"
+      },
+      {
+        "command": "voicecode.checkpoints.refresh",
+        "title": "Refresh Checkpoints",
+        "icon": "$(refresh)",
+        "category": "VoiceCode Checkpoints"
+      },
+      {
+        "command": "voicecode.approval.toggle",
+        "title": "VoiceCode: Toggle Approval Mode",
+        "icon": "$(shield)",
+        "category": "VoiceCode Approval"
+      },
+      {
+        "command": "voicecode.approval.showPending",
+        "title": "VoiceCode: Show Pending Approvals",
+        "icon": "$(list-unordered)",
+        "category": "VoiceCode Approval"
+      },
+      {
+        "command": "voicecode.approval.approveAll",
+        "title": "VoiceCode: Approve All Pending",
+        "icon": "$(check-all)",
+        "category": "VoiceCode Approval"
+      },
+      {
+        "command": "voicecode.approval.rejectAll",
+        "title": "VoiceCode: Reject All Pending",
+        "icon": "$(close-all)",
+        "category": "VoiceCode Approval"
+      },
+      {
+        "command": "voicecode.approval.configure",
+        "title": "VoiceCode: Configure Approval Settings",
+        "icon": "$(gear)",
+        "category": "VoiceCode Approval"
+      },
+      {
+        "command": "voicecode.browser.open",
+        "title": "VoiceCode: Open Browser",
+        "icon": "$(globe)",
+        "category": "VoiceCode Browser"
+      },
+      {
+        "command": "voicecode.browser.openUrl",
+        "title": "VoiceCode: Open URL in Browser",
+        "icon": "$(link)",
+        "category": "VoiceCode Browser"
+      },
+      {
+        "command": "voicecode.browser.search",
+        "title": "VoiceCode: Search in Browser",
+        "icon": "$(search)",
+        "category": "VoiceCode Browser"
+      },
+      {
+        "command": "voicecode.browser.docs",
+        "title": "VoiceCode: Open Documentation",
+        "icon": "$(book)",
+        "category": "VoiceCode Browser"
+      },
+      {
+        "command": "voicecode.browser.close",
+        "title": "VoiceCode: Close Browser",
+        "icon": "$(close)",
+        "category": "VoiceCode Browser"
       }
     ],
     "keybindings": [
@@ -83,6 +426,21 @@
         "command": "voicecode.executeVoiceCommand",
         "key": "ctrl+shift+c",
         "mac": "cmd+shift+c"
+      },
+      {
+        "command": "voicecode.selectInternalAgent",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a"
+      },
+      {
+        "command": "voicecode.autoSelectAgent",
+        "key": "ctrl+shift+i",
+        "mac": "cmd+shift+i"
+      },
+      {
+        "command": "voicecode.runPipeline",
+        "key": "ctrl+shift+p ctrl+shift+r",
+        "mac": "cmd+shift+p cmd+shift+r"
       }
     ],
     "menus": {
@@ -101,9 +459,135 @@
           "command": "voicecode.addToCustomDictionary",
           "group": "voicecode@3",
           "when": "editorHasSelection"
+        },
+        {
+          "submenu": "voicecode.agents",
+          "group": "voicecode@4",
+          "when": "editorHasSelection"
+        }
+      ],
+      "voicecode.agents": [
+        {
+          "command": "voicecode.reviewCode",
+          "group": "agents@1"
+        },
+        {
+          "command": "voicecode.generateTests",
+          "group": "agents@2"
+        },
+        {
+          "command": "voicecode.addDocumentation",
+          "group": "agents@3"
+        },
+        {
+          "command": "voicecode.securityAudit",
+          "group": "agents@4"
+        },
+        {
+          "command": "voicecode.refactorWithAgent",
+          "group": "agents@5"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "voicecode.refreshAgents",
+          "when": "view == voicecode.agents",
+          "group": "navigation"
+        },
+        {
+          "command": "voicecode.toggleModelInfo",
+          "when": "view == voicecode.agents",
+          "group": "navigation"
+        },
+        {
+          "command": "voicecode.checkpoints.refresh",
+          "when": "view == voicecode.checkpoints",
+          "group": "navigation"
+        },
+        {
+          "command": "voicecode.checkpoint.create",
+          "when": "view == voicecode.checkpoints",
+          "group": "navigation"
+        },
+        {
+          "command": "voicecode.checkpoint.clearAll",
+          "when": "view == voicecode.checkpoints",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "voicecode.runPipelineFromTree",
+          "when": "view == voicecode.agents && viewItem =~ /^pipeline-/",
+          "group": "inline"
+        },
+        {
+          "command": "voicecode.cancelSession",
+          "when": "view == voicecode.agents && viewItem == active-session",
+          "group": "inline"
+        },
+        {
+          "command": "voicecode.checkpoint.revertFromTree",
+          "when": "view == voicecode.checkpoints && viewItem == checkpoint",
+          "group": "checkpoint@1"
+        },
+        {
+          "command": "voicecode.checkpoint.compareWithCurrent",
+          "when": "view == voicecode.checkpoints && viewItem == checkpoint",
+          "group": "checkpoint@2"
+        },
+        {
+          "command": "voicecode.checkpoint.deleteFromTree",
+          "when": "view == voicecode.checkpoints && viewItem == checkpoint",
+          "group": "checkpoint@3"
+        },
+        {
+          "command": "voicecode.checkpoint.compareWithCurrent",
+          "when": "view == voicecode.checkpoints && viewItem == checkpoint-current",
+          "group": "checkpoint@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "voicecode.runPipelineFromTree",
+          "when": "false"
+        },
+        {
+          "command": "voicecode.cancelSession",
+          "when": "false"
+        },
+        {
+          "command": "voicecode.useInternalAgent",
+          "when": "false"
+        },
+        {
+          "command": "voicecode.checkpoint.revertFromTree",
+          "when": "false"
+        },
+        {
+          "command": "voicecode.checkpoint.deleteFromTree",
+          "when": "false"
+        },
+        {
+          "command": "voicecode.checkpoint.compareWithCurrent",
+          "when": "false"
+        },
+        {
+          "command": "voicecode.checkpoint.showDetails",
+          "when": "false"
+        },
+        {
+          "command": "voicecode.checkpoints.refresh",
+          "when": "false"
         }
       ]
     },
+    "submenus": [
+      {
+        "id": "voicecode.agents",
+        "label": "VoiceCode Agents"
+      }
+    ],
     "configuration": {
       "title": "VoiceCode",
       "properties": {
@@ -153,6 +637,144 @@
           "default": "smart",
           "enum": ["none", "basic", "smart"],
           "description": "Punctuation insertion mode"
+        },
+        "voicecode.agents.defaultModel": {
+          "type": "string",
+          "default": "balanced",
+          "enum": ["fast", "balanced", "advanced"],
+          "enumDescriptions": [
+            "Fast (Haiku) - Quick responses, lower cost",
+            "Balanced (Sonnet) - Good balance of speed and quality",
+            "Advanced (Opus) - Highest quality, slower"
+          ],
+          "description": "Default model tier for internal agents"
+        },
+        "voicecode.agents.showModelInfo": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show model information in agent tree view"
+        },
+        "voicecode.agents.autoRoute": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically route tasks to the best agent"
+        },
+        "voicecode.agents.collaborationMode": {
+          "type": "string",
+          "default": "best_match",
+          "enum": ["internal_only", "external_only", "internal_first", "external_first", "parallel", "consensus", "best_match"],
+          "enumDescriptions": [
+            "Use only VoiceCode internal agents",
+            "Use only external agents (Claude Code, Copilot, etc.)",
+            "Try internal first, fallback to external",
+            "Try external first, fallback to internal",
+            "Run both in parallel",
+            "Run both and merge results",
+            "Auto-route to best agent"
+          ],
+          "description": "How to coordinate between internal and external agents"
+        },
+        "voicecode.mcp.port": {
+          "type": "number",
+          "default": 8765,
+          "description": "Port for the MCP server"
+        },
+        "voicecode.mcp.host": {
+          "type": "string",
+          "default": "localhost",
+          "description": "Host for the MCP server"
+        },
+        "voicecode.mcp.autoStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically start MCP server on extension activation"
+        },
+        "voicecode.mcp.authToken": {
+          "type": "string",
+          "default": "",
+          "description": "Authentication token for MCP server (leave empty for no auth)"
+        },
+        "voicecode.mcp.allowedOrigins": {
+          "type": "array",
+          "default": ["*"],
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed origins for MCP server CORS"
+        },
+        "voicecode.mcp.enableSSL": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable SSL for MCP server"
+        },
+        "voicecode.approval.requireFor": {
+          "type": "array",
+          "default": ["coder", "refactorer", "security"],
+          "items": {
+            "type": "string",
+            "enum": ["planner", "explorer", "coder", "reviewer", "tester", "debugger", "documenter", "refactorer", "security"]
+          },
+          "description": "Agent types that require human approval before applying changes"
+        },
+        "voicecode.approval.autoApproveThreshold": {
+          "type": "number",
+          "default": 0.9,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence threshold above which changes are auto-approved (0-1)"
+        },
+        "voicecode.approval.allowEdit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow editing proposed changes in approval dialog"
+        },
+        "voicecode.approval.timeoutMs": {
+          "type": "number",
+          "default": 300000,
+          "minimum": 0,
+          "description": "Timeout for approval in milliseconds (0 for no timeout)"
+        },
+        "voicecode.checkpoint.maxCheckpoints": {
+          "type": "number",
+          "default": 50,
+          "minimum": 5,
+          "maximum": 200,
+          "description": "Maximum number of checkpoints to keep in history"
+        },
+        "voicecode.checkpoint.autoCheckpoint": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically create checkpoints before and after agent operations"
+        },
+        "voicecode.checkpoint.storageLocation": {
+          "type": "string",
+          "enum": ["memory", "workspace", "global"],
+          "default": "workspace",
+          "description": "Where to store checkpoint data"
+        },
+        "voicecode.checkpoint.includeGlob": {
+          "type": "array",
+          "default": ["**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx", "**/*.json", "**/*.css", "**/*.html", "**/*.md"],
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns for files to include in checkpoints"
+        },
+        "voicecode.browser.homeUrl": {
+          "type": "string",
+          "default": "https://www.google.com",
+          "description": "Home page URL for the browser preview"
+        },
+        "voicecode.browser.enableCache": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable page caching in browser preview"
+        },
+        "voicecode.browser.cacheDurationMs": {
+          "type": "number",
+          "default": 300000,
+          "minimum": 0,
+          "description": "Cache duration in milliseconds"
         }
       }
     },
@@ -172,15 +794,227 @@
           "name": "Status"
         },
         {
+          "id": "voicecode.agents",
+          "name": "AI Agents",
+          "icon": "$(robot)",
+          "contextualTitle": "VoiceCode Agents"
+        },
+        {
           "id": "voicecode.history",
           "name": "Dictation History"
         },
         {
           "id": "voicecode.commands",
           "name": "Voice Commands"
+        },
+        {
+          "id": "voicecode.checkpoints",
+          "name": "Checkpoints",
+          "icon": "$(history)",
+          "contextualTitle": "VoiceCode Checkpoints"
         }
       ]
-    }
+    },
+    "viewsWelcome": [
+      {
+        "view": "voicecode.agents",
+        "contents": "VoiceCode provides 9 specialized AI agents for coding tasks.\n\n[Select Agent](command:voicecode.selectInternalAgent)\n\n[Run Pipeline](command:voicecode.runPipeline)\n\nAgents: Planner, Explorer, Coder, Reviewer, Tester, Debugger, Documenter, Refactorer, Security"
+      },
+      {
+        "view": "voicecode.checkpoints",
+        "contents": "No checkpoints yet.\n\nCheckpoints are created automatically before and after agent operations.\n\n[Create Checkpoint](command:voicecode.checkpoint.create)"
+      }
+    ],
+    "chatParticipants": [
+      {
+        "id": "voicecode",
+        "fullName": "VoiceCode",
+        "name": "voicecode",
+        "description": "VoiceCode AI Agents - 9 specialized agents for planning, coding, reviewing, testing, debugging, documenting, refactoring, and security",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "plan",
+            "description": "Create an implementation plan for a task"
+          },
+          {
+            "name": "explore",
+            "description": "Search and explore the codebase"
+          },
+          {
+            "name": "code",
+            "description": "Generate code for a task"
+          },
+          {
+            "name": "review",
+            "description": "Review code for issues"
+          },
+          {
+            "name": "test",
+            "description": "Generate tests for code"
+          },
+          {
+            "name": "debug",
+            "description": "Debug issues and find root causes"
+          },
+          {
+            "name": "document",
+            "description": "Generate documentation"
+          },
+          {
+            "name": "refactor",
+            "description": "Refactor and improve code"
+          },
+          {
+            "name": "security",
+            "description": "Perform security audit"
+          },
+          {
+            "name": "pipeline",
+            "description": "Execute a multi-agent pipeline"
+          },
+          {
+            "name": "strategy",
+            "description": "Execute with orchestration strategy"
+          }
+        ]
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "voicecode_plan",
+        "displayName": "VoiceCode Plan",
+        "description": "Create an implementation plan using the Planner agent",
+        "toolReferenceName": "voicecode_plan",
+        "modelDescription": "Use this tool to create detailed implementation plans for coding tasks. Returns step-by-step plans with architectural considerations.",
+        "icon": "$(checklist)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "type": "string",
+              "description": "The task to plan"
+            }
+          },
+          "required": ["task"]
+        }
+      },
+      {
+        "name": "voicecode_explore",
+        "displayName": "VoiceCode Explore",
+        "description": "Search and explore the codebase using the Explorer agent",
+        "toolReferenceName": "voicecode_explore",
+        "modelDescription": "Use this tool to search for code, find implementations, locate files, and explore the codebase structure.",
+        "icon": "$(search)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "What to search for"
+            }
+          },
+          "required": ["query"]
+        }
+      },
+      {
+        "name": "voicecode_code",
+        "displayName": "VoiceCode Code",
+        "description": "Generate code using the Coder agent",
+        "toolReferenceName": "voicecode_code",
+        "modelDescription": "Use this tool to generate code, implement features, create functions, classes, or components.",
+        "icon": "$(code)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "type": "string",
+              "description": "What code to generate"
+            },
+            "language": {
+              "type": "string",
+              "description": "Programming language"
+            }
+          },
+          "required": ["task"]
+        }
+      },
+      {
+        "name": "voicecode_review",
+        "displayName": "VoiceCode Review",
+        "description": "Review code quality using the Reviewer agent",
+        "toolReferenceName": "voicecode_review",
+        "modelDescription": "Use this tool to review code for issues, best practices, and improvements.",
+        "icon": "$(eye)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Code to review"
+            }
+          }
+        }
+      },
+      {
+        "name": "voicecode_test",
+        "displayName": "VoiceCode Test",
+        "description": "Generate tests using the Tester agent",
+        "toolReferenceName": "voicecode_test",
+        "modelDescription": "Use this tool to generate unit tests, integration tests, or test suites for code.",
+        "icon": "$(beaker)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string",
+              "description": "What to test"
+            },
+            "framework": {
+              "type": "string",
+              "description": "Test framework"
+            }
+          },
+          "required": ["target"]
+        }
+      },
+      {
+        "name": "voicecode_debug",
+        "displayName": "VoiceCode Debug",
+        "description": "Debug issues using the Debugger agent",
+        "toolReferenceName": "voicecode_debug",
+        "modelDescription": "Use this tool to debug issues, find root causes, and diagnose problems in code.",
+        "icon": "$(bug)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "issue": {
+              "type": "string",
+              "description": "Issue to debug"
+            }
+          },
+          "required": ["issue"]
+        }
+      },
+      {
+        "name": "voicecode_security",
+        "displayName": "VoiceCode Security",
+        "description": "Perform security audit using the Security agent",
+        "toolReferenceName": "voicecode_security",
+        "modelDescription": "Use this tool to find security vulnerabilities, perform OWASP checks, and audit code for security issues.",
+        "icon": "$(shield)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string",
+              "description": "Code to audit"
+            }
+          },
+          "required": ["target"]
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

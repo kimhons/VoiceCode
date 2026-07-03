@@ -5,7 +5,7 @@
 
 use serde::{Deserialize, Serialize};
 use tauri::command;
-use tracing::{info, warn, error};
+use tracing::info;
 
 /// Cache statistics structure
 #[derive(Debug, Clone, Serialize, Deserialize)]

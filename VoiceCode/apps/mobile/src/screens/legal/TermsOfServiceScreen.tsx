@@ -20,7 +20,7 @@ const TermsOfServiceScreen: React.FC = () => {
 
         <Text style={styles.sectionTitle}>3. Disclaimer</Text>
         <Text style={styles.text}>
-          The materials on VoiceCode are provided on an 'as is' basis. VoiceCode makes no warranties, expressed or implied.
+          The materials on VoiceCode are provided on an &apos;as is&apos; basis. VoiceCode makes no warranties, expressed or implied.
         </Text>
 
         <Text style={styles.sectionTitle}>4. Limitations</Text>

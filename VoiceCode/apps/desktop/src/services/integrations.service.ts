@@ -17,7 +17,7 @@ export interface Integration {
   accessToken?: string;
   refreshToken?: string;
   expiresAt?: Date;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -86,12 +86,30 @@ export interface ZapierConfig {
   events: string[];
 }
 
+export interface SlackAttachment {
+  color?: string;
+  title?: string;
+  title_link?: string;
+  text?: string;
+  footer?: string;
+  ts?: number;
+  [key: string]: unknown;
+}
+
+export interface TeamsSection {
+  activityTitle?: string;
+  activitySubtitle?: string;
+  activityText?: string;
+  facts?: Array<{ name: string; value: string }>;
+  [key: string]: unknown;
+}
+
 export interface IntegrationAction {
   id: string;
   integrationId: string;
   action: string;
   status: 'pending' | 'success' | 'failed';
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   error?: string;
   createdAt: Date;
 }
@@ -146,7 +164,7 @@ class IntegrationsService {
     userId: string,
     provider: IntegrationProvider,
     name: string,
-    config: Record<string, any>,
+    config: Record<string, unknown>,
     accessToken?: string,
     refreshToken?: string,
     expiresAt?: Date
@@ -237,7 +255,7 @@ class IntegrationsService {
   async sendToSlack(
     integrationId: string,
     message: string,
-    attachments?: any[]
+    attachments?: SlackAttachment[]
   ): Promise<void> {
     try {
       const integration = await this.getIntegration(integrationId);
@@ -245,7 +263,7 @@ class IntegrationsService {
         throw new Error('Integration not found or disabled');
       }
 
-      const config = integration.config as SlackConfig;
+      const config = integration.config as unknown as SlackConfig;
       const webhookUrl = config.webhookUrl;
 
       if (!webhookUrl) {
@@ -285,7 +303,7 @@ class IntegrationsService {
         title: transcriptTitle,
         title_link: transcriptUrl,
         text: 'Click to view the full transcript',
-        footer: 'VoiceFlow Pro',
+        footer: 'VoiceCode',
         ts: Math.floor(Date.now() / 1000),
       },
     ];
@@ -301,7 +319,7 @@ class IntegrationsService {
     integrationId: string,
     title: string,
     text: string,
-    sections?: any[]
+    sections?: TeamsSection[]
   ): Promise<void> {
     try {
       const integration = await this.getIntegration(integrationId);
@@ -309,7 +327,7 @@ class IntegrationsService {
         throw new Error('Integration not found or disabled');
       }
 
-      const config = integration.config as TeamsConfig;
+      const config = integration.config as unknown as TeamsConfig;
       const webhookUrl = config.webhookUrl;
 
       if (!webhookUrl) {
@@ -351,7 +369,7 @@ class IntegrationsService {
     const text = transcriptTitle;
     const sections = [
       {
-        activityTitle: 'VoiceFlow Pro',
+        activityTitle: 'VoiceCode',
         activitySubtitle: new Date().toLocaleString(),
         facts: [
           { name: 'Transcript:', value: transcriptTitle },
@@ -400,7 +418,7 @@ class IntegrationsService {
   async triggerZapierWebhook(
     integrationId: string,
     event: string,
-    data: Record<string, any>
+    data: Record<string, unknown>
   ): Promise<void> {
     try {
       const integration = await this.getIntegration(integrationId);
@@ -408,7 +426,7 @@ class IntegrationsService {
         throw new Error('Integration not found or disabled');
       }
 
-      const config = integration.config as ZapierConfig;
+      const config = integration.config as unknown as ZapierConfig;
       const webhookUrl = config.webhookUrl;
 
       if (!webhookUrl) {
@@ -448,7 +466,7 @@ class IntegrationsService {
   private async logAction(
     integrationId: string,
     action: string,
-    metadata: Record<string, any>,
+    metadata: Record<string, unknown>,
     status: 'success' | 'failed',
     error?: string
   ): Promise<void> {

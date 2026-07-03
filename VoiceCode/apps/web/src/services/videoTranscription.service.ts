@@ -391,7 +391,7 @@ class VideoTranscriptionService {
 
   private generateASS(entries: SubtitleEntry[]): string {
     const header = `[Script Info]
-Title: VoiceFlow Pro Subtitles
+Title: VoiceCode Subtitles
 ScriptType: v4.00+
 
 [V4+ Styles]

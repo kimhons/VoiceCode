@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Processing Queue & History Screen
+ * VoiceCode Mobile - Processing Queue & History Screen
  * 
  * Comprehensive processing queue management and history screen for Phase 2: Advanced Features
  * Week 5 Day 35 Implementation
@@ -152,7 +152,7 @@ export type TabType = 'queue' | 'history';
 // ============================================================================
 
 const BASE_UNIT = 4;
-const STORAGE_KEY = '@voiceflow_processing_jobs';
+const STORAGE_KEY = '@VoiceCode_processing_jobs';
 
 /**
  * Processing type icons and colors

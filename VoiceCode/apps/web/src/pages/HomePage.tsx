@@ -1,4 +1,4 @@
-// VoiceFlow Pro - Home Page (Main App)
+// VoiceCode - Home Page (Main App)
 import React, { useState, useRef, useEffect } from 'react';
 import { Settings, Sun, Moon, Monitor, Globe, Mic } from 'lucide-react';
 import {
@@ -204,7 +204,7 @@ export const HomePage: React.FC = () => {
               color: colors.text,
             }}
           >
-            VoiceFlow Pro
+            VoiceCode
           </h1>
           <p
             style={{

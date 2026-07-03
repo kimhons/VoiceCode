@@ -1,7 +1,7 @@
 /**
  * Security Service
  * Phase 5.5: Advanced Security
- * 
+ *
  * Comprehensive security features including 2FA, SSO, audit logs, session management,
  * IP whitelisting, rate limiting, data encryption, and security headers
  */
@@ -27,7 +27,7 @@ export interface AuditLog {
   resourceId?: string;
   ipAddress: string;
   userAgent: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: Date;
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
@@ -92,25 +92,70 @@ export interface SecuritySettings {
 
 // Security Service
 class SecurityService {
-  private encryptionKey: string = process.env.VITE_ENCRYPTION_KEY || 'default-key-change-in-production';
-  private rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+  private encryptionKey: string;
+  private rateLimitStore = new Map<
+    string,
+    { count: number; resetAt: number }
+  >();
+  private isInitialized: boolean = false;
+
+  constructor() {
+    const key = import.meta.env.VITE_ENCRYPTION_KEY;
+    if (!key || key.length < 32) {
+      console.error(
+        'SECURITY ERROR: VITE_ENCRYPTION_KEY environment variable is missing or too short (min 32 chars). ' +
+          'Encryption features will be disabled until a valid key is provided.'
+      );
+      this.encryptionKey = '';
+      this.isInitialized = false;
+    } else {
+      this.encryptionKey = key;
+      this.isInitialized = true;
+    }
+  }
+
+  isSecurityInitialized(): boolean {
+    return this.isInitialized;
+  }
+
+  private _validateEncryptionKey(): void {
+    if (!this.isInitialized || !this.encryptionKey) {
+      throw new Error(
+        'Encryption key not configured. Set VITE_ENCRYPTION_KEY environment variable with at least 32 characters.'
+      );
+    }
+  }
+
+  // Public method to expose validation if needed
+  public checkEncryptionKey(): boolean {
+    try {
+      this._validateEncryptionKey();
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   // =====================================================
   // TWO-FACTOR AUTHENTICATION (2FA)
   // =====================================================
 
-  async enable2FA(userId: string, method: '2fa_totp' | '2fa_sms' | '2fa_email'): Promise<{ secret: string; qrCode: string; backupCodes: string[] }> {
+  async enable2FA(
+    userId: string,
+    method: '2fa_totp' | '2fa_sms' | '2fa_email'
+  ): Promise<{ secret: string; qrCode: string; backupCodes: string[] }> {
     try {
       // Generate secret
       const secret = this.generateSecret();
-      
+
       // Generate backup codes
       const backupCodes = this.generateBackupCodes(10);
-      
+
       // Generate QR code URL for TOTP
-      const qrCode = method === '2fa_totp' 
-        ? `otpauth://totp/VoiceFlowPro:${userId}?secret=${secret}&issuer=VoiceFlowPro`
-        : '';
+      const qrCode =
+        method === '2fa_totp'
+          ? `otpauth://totp/VoiceCode:${userId}?secret=${secret}&issuer=VoiceCode`
+          : '';
 
       // Save to database
       const supabaseService = getSupabaseService();
@@ -122,12 +167,18 @@ class SecurityService {
         enabled: false, // Will be enabled after verification
         method,
         secret: this.encrypt(secret),
-        backup_codes: backupCodes.map(code => this.encrypt(code)),
+        backup_codes: backupCodes.map((code) => this.encrypt(code)),
         created_at: new Date().toISOString(),
       });
 
       // Log audit
-      await this.logAudit(userId, 'user.2fa_enable', 'two_factor_auth', userId, { method });
+      await this.logAudit(
+        userId,
+        'user.2fa_enable',
+        'two_factor_auth',
+        userId,
+        { method }
+      );
 
       return { secret, qrCode, backupCodes };
     } catch (error) {
@@ -149,8 +200,9 @@ class SecurityService {
         .single();
 
       if (error || !data) return false;
+      const twoFactorData = data as Record<string, unknown>;
 
-      const secret = this.decrypt(data.secret);
+      const secret = this.decrypt(twoFactorData.secret as string);
       const isValid = this.verifyTOTP(secret, code);
 
       if (isValid) {
@@ -180,13 +232,15 @@ class SecurityService {
       const client = supabaseService.getClient();
       if (!client) throw new Error('Supabase client not available');
 
-      await client
-        .from('two_factor_auth')
-        .delete()
-        .eq('user_id', userId);
+      await client.from('two_factor_auth').delete().eq('user_id', userId);
 
       // Log audit
-      await this.logAudit(userId, 'user.2fa_disable', 'two_factor_auth', userId);
+      await this.logAudit(
+        userId,
+        'user.2fa_disable',
+        'two_factor_auth',
+        userId
+      );
 
       return true;
     } catch (error) {
@@ -204,7 +258,7 @@ class SecurityService {
     action: AuditAction,
     resource: string,
     resourceId?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<void> {
     try {
       const supabaseService = getSupabaseService();
@@ -256,8 +310,10 @@ class SecurityService {
       if (filters?.action) query = query.eq('action', filters.action);
       if (filters?.resource) query = query.eq('resource', filters.resource);
       if (filters?.severity) query = query.eq('severity', filters.severity);
-      if (filters?.startDate) query = query.gte('timestamp', filters.startDate.toISOString());
-      if (filters?.endDate) query = query.lte('timestamp', filters.endDate.toISOString());
+      if (filters?.startDate)
+        query = query.gte('timestamp', filters.startDate.toISOString());
+      if (filters?.endDate)
+        query = query.lte('timestamp', filters.endDate.toISOString());
       if (filters?.limit) query = query.limit(filters.limit);
 
       const { data, error } = await query;
@@ -302,9 +358,10 @@ class SecurityService {
       if (error) throw error;
 
       // Log audit
-      await this.logAudit(userId, 'user.login', 'session', data.id);
+      const sessionRec = data as Record<string, unknown>;
+      await this.logAudit(userId, 'user.login', 'session', sessionRec.id as string);
 
-      return data as Session;
+      return data as unknown as Session;
     } catch (error) {
       console.error('Failed to create session:', error);
       throw error;
@@ -341,7 +398,7 @@ class SecurityService {
         .order('last_activity_at', { ascending: false });
 
       if (error) throw error;
-      return data as Session[];
+      return (data || []) as Session[];
     } catch (error) {
       console.error('Failed to get active sessions:', error);
       return [];
@@ -352,7 +409,11 @@ class SecurityService {
   // IP WHITELISTING
   // =====================================================
 
-  async addIPToWhitelist(userId: string, ipAddress: string, description?: string): Promise<void> {
+  async addIPToWhitelist(
+    userId: string,
+    ipAddress: string,
+    description?: string
+  ): Promise<void> {
     try {
       const supabaseService = getSupabaseService();
       const client = supabaseService.getClient();
@@ -366,14 +427,23 @@ class SecurityService {
       });
 
       // Log audit
-      await this.logAudit(userId, 'settings.update', 'ip_whitelist', ipAddress, { action: 'add' });
+      await this.logAudit(
+        userId,
+        'settings.update',
+        'ip_whitelist',
+        ipAddress,
+        { action: 'add' }
+      );
     } catch (error) {
       console.error('Failed to add IP to whitelist:', error);
       throw error;
     }
   }
 
-  async removeIPFromWhitelist(userId: string, ipAddress: string): Promise<void> {
+  async removeIPFromWhitelist(
+    userId: string,
+    ipAddress: string
+  ): Promise<void> {
     try {
       const supabaseService = getSupabaseService();
       const client = supabaseService.getClient();
@@ -386,7 +456,13 @@ class SecurityService {
         .eq('ip_address', ipAddress);
 
       // Log audit
-      await this.logAudit(userId, 'settings.update', 'ip_whitelist', ipAddress, { action: 'remove' });
+      await this.logAudit(
+        userId,
+        'settings.update',
+        'ip_whitelist',
+        ipAddress,
+        { action: 'remove' }
+      );
     } catch (error) {
       console.error('Failed to remove IP from whitelist:', error);
       throw error;
@@ -448,7 +524,11 @@ class SecurityService {
   private generateBackupCodes(count: number): string[] {
     const codes: string[] = [];
     for (let i = 0; i < count; i++) {
-      codes.push(CryptoJS.lib.WordArray.random(4).toString(CryptoJS.enc.Hex).toUpperCase());
+      codes.push(
+        CryptoJS.lib.WordArray.random(4)
+          .toString(CryptoJS.enc.Hex)
+          .toUpperCase()
+      );
     }
     return codes;
   }
@@ -470,17 +550,19 @@ class SecurityService {
     // Simple TOTP verification (in production, use a library like otplib)
     const window = 30; // 30 second window
     const time = Math.floor(Date.now() / 1000 / window);
-    
+
     for (let i = -1; i <= 1; i++) {
       const hash = CryptoJS.HmacSHA1(String(time + i), secret);
       const offset = parseInt(hash.toString().slice(-1), 16);
-      const code = parseInt(hash.toString().slice(offset * 2, offset * 2 + 6), 16) % 1000000;
-      
+      const code =
+        parseInt(hash.toString().slice(offset * 2, offset * 2 + 6), 16) %
+        1000000;
+
       if (String(code).padStart(6, '0') === token) {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -494,11 +576,25 @@ class SecurityService {
     }
   }
 
-  private getAuditSeverity(action: AuditAction): 'low' | 'medium' | 'high' | 'critical' {
-    const criticalActions: AuditAction[] = ['user.delete', 'workspace.delete', 'security.violation'];
-    const highActions: AuditAction[] = ['user.password_change', 'user.2fa_disable', 'transcript.delete'];
-    const mediumActions: AuditAction[] = ['user.2fa_enable', 'workspace.create', 'transcript.share'];
-    
+  private getAuditSeverity(
+    action: AuditAction
+  ): 'low' | 'medium' | 'high' | 'critical' {
+    const criticalActions: AuditAction[] = [
+      'user.delete',
+      'workspace.delete',
+      'security.violation',
+    ];
+    const highActions: AuditAction[] = [
+      'user.password_change',
+      'user.2fa_disable',
+      'transcript.delete',
+    ];
+    const mediumActions: AuditAction[] = [
+      'user.2fa_enable',
+      'workspace.create',
+      'transcript.share',
+    ];
+
     if (criticalActions.includes(action)) return 'critical';
     if (highActions.includes(action)) return 'high';
     if (mediumActions.includes(action)) return 'medium';
@@ -517,4 +613,3 @@ export function getSecurityService(): SecurityService {
 }
 
 export default SecurityService;
-

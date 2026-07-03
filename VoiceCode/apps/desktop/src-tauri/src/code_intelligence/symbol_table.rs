@@ -1,17 +1,16 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 1.2: Symbol Table & Cross-File Resolution
 // Provides project-wide symbol indexing and reference resolution
 
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use dashmap::DashMap;
 use parking_lot::RwLock;
 
 use super::ast_engine::{
     Language, CodeStructure, SourceRange, FunctionDefinition,
-    ClassDefinition, TypeDefinition, VariableDeclaration, ImportDeclaration,
-    ExportDeclaration, Visibility,
+    ClassDefinition, TypeDefinition, VariableDeclaration, ImportDeclaration, Visibility,
 };
 
 /// Kind of symbol
@@ -183,6 +182,16 @@ impl Symbol {
             language,
         }
     }
+
+    /// Get line number (convenience accessor)
+    pub fn line(&self) -> usize {
+        self.range.start_line
+    }
+
+    /// Get end line number (convenience accessor)
+    pub fn end_line(&self) -> usize {
+        self.range.end_line
+    }
 }
 
 /// A reference to a symbol
@@ -244,6 +253,16 @@ pub struct SymbolTable {
     project_root: RwLock<Option<PathBuf>>,
     /// References to symbols
     references: DashMap<String, Vec<SymbolReference>>,
+}
+
+impl std::fmt::Debug for SymbolTable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SymbolTable")
+            .field("symbol_count", &self.symbols_by_id.len())
+            .field("file_count", &self.symbols_by_file.len())
+            .field("export_count", &self.exports_by_file.len())
+            .finish()
+    }
 }
 
 impl SymbolTable {

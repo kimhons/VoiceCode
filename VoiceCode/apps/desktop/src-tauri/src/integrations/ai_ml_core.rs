@@ -1,9 +1,9 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Core AI ML API Client for aimlapi.com integration
 // Provides HTTP client and authentication for all AI services
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::HashMap;
 use reqwest::Client as HttpClient;
 use tokio::time::{timeout, Duration};
 

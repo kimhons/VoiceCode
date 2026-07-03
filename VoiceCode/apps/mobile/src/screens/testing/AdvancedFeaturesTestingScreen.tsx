@@ -226,24 +226,24 @@ export default function AdvancedFeaturesTestingScreen({ navigation }: any) {
   const loadData = async () => {
     try {
       // Load test cases
-      const storedTests = await AsyncStorage.getItem('@voiceflow_test_cases');
+      const storedTests = await AsyncStorage.getItem('@VoiceCode_test_cases');
       if (storedTests) {
         setTestCases(JSON.parse(storedTests));
       } else {
         // Initialize with default test cases
         const defaultTests = generateDefaultTestCases();
         setTestCases(defaultTests);
-        await AsyncStorage.setItem('@voiceflow_test_cases', JSON.stringify(defaultTests));
+        await AsyncStorage.setItem('@VoiceCode_test_cases', JSON.stringify(defaultTests));
       }
 
       // Load accessibility issues
-      const storedIssues = await AsyncStorage.getItem('@voiceflow_accessibility_issues');
+      const storedIssues = await AsyncStorage.getItem('@VoiceCode_accessibility_issues');
       if (storedIssues) {
         setAccessibilityIssues(JSON.parse(storedIssues));
       } else {
         const defaultIssues = generateDefaultAccessibilityIssues();
         setAccessibilityIssues(defaultIssues);
-        await AsyncStorage.setItem('@voiceflow_accessibility_issues', JSON.stringify(defaultIssues));
+        await AsyncStorage.setItem('@VoiceCode_accessibility_issues', JSON.stringify(defaultIssues));
       }
     } catch (error) {
       console.error('Error loading test data:', error);

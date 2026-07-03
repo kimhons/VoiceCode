@@ -761,7 +761,7 @@ export default function AnalyticsScreen() {
               Activity Breakdown
             </Text>
             <Text style={[styles.chartSubtitle, { color: theme.colors.textSecondary }]}>
-              This week's activity distribution
+              This week&apos;s activity distribution
             </Text>
           </View>
           {activityPieData.length > 0 ? (

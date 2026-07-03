@@ -85,7 +85,7 @@ class EncryptionService {
   /**
    * Generate a key URI for QR code display in authenticator apps
    */
-  generateKeyUri(secret: string, accountName: string, issuer: string = 'VoiceFlowPro'): string {
+  generateKeyUri(secret: string, accountName: string, issuer: string = 'VoiceCode'): string {
     return authenticator.keyuri(accountName, issuer, secret);
   }
 

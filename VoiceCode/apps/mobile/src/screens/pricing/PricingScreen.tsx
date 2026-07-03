@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Pricing Screen
+// VoiceCode Mobile - Pricing Screen
 
 import React, { useState } from 'react';
 import {
@@ -7,10 +7,14 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Text, Button, Card } from '../../components/common';
+import { paymentService } from '../../services/paymentService';
+import { STRIPE_PRICE_IDS } from '../../config/constants';
 
 const { width } = Dimensions.get('window');
 
@@ -33,7 +37,7 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'free',
     name: 'Free Forever',
-    description: 'Perfect for trying out VoiceFlow Pro',
+    description: 'Perfect for trying out VoiceCode',
     price: { monthly: 0, annual: 0 },
     features: [
       '120 minutes/month',
@@ -96,8 +100,48 @@ const pricingTiers: PricingTier[] = [
 
 export const PricingScreen: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
+  const [isLoading, setIsLoading] = useState(false);
   const { theme } = useTheme();
   const navigation = useNavigation();
+
+  const getPriceId = (tierId: string): string | null => {
+    if (tierId === 'pro') {
+      return billingCycle === 'monthly' ? STRIPE_PRICE_IDS.proMonthly : STRIPE_PRICE_IDS.proYearly;
+    }
+    if (tierId === 'team' || tierId === 'enterprise') {
+      return billingCycle === 'monthly' ? STRIPE_PRICE_IDS.enterpriseMonthly : STRIPE_PRICE_IDS.enterpriseYearly;
+    }
+    return null;
+  };
+
+  const handleSubscribe = async (tierId: string) => {
+    if (tierId === 'free') return;
+    if (tierId === 'enterprise') {
+      await Linking.openURL('mailto:support@voicecode.com?subject=Enterprise%20Inquiry');
+      return;
+    }
+
+    const priceId = getPriceId(tierId);
+    if (!priceId) {
+      Alert.alert('Configuration Error', 'Price ID not configured for this plan.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const result = await paymentService.createCheckoutSession(priceId);
+      if (result.success && result.url) {
+        await Linking.openURL(result.url);
+      } else {
+        Alert.alert('Error', result.error || 'Failed to create checkout session');
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      Alert.alert('Error', message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getPrice = (tier: PricingTier) => {
     if (tier.id === 'enterprise') return 'Custom';
@@ -222,14 +266,18 @@ export const PricingScreen: React.FC = () => {
 
               {/* CTA Button */}
               <Button
-                onPress={() => {
-                  // TODO: Navigate to subscription flow
-                  console.log(`Selected ${tier.name}`);
-                }}
+                onPress={() => handleSubscribe(tier.id)}
                 variant={tier.popular ? 'primary' : 'outline'}
                 style={styles.ctaButton}
+                disabled={isLoading}
               >
-                {tier.id === 'enterprise' ? 'Contact Sales' : tier.id === 'free' ? 'Get Started' : 'Start Free Trial'}
+                {isLoading && tier.id !== 'free' && tier.id !== 'enterprise'
+                  ? 'Loading...'
+                  : tier.id === 'enterprise'
+                    ? 'Contact Sales'
+                    : tier.id === 'free'
+                      ? 'Get Started'
+                      : 'Start Free Trial'}
               </Button>
 
               {/* Features */}

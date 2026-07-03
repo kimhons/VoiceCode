@@ -7,3 +7,8 @@
 export { default as ProductivityDashboardScreen } from './ProductivityDashboardScreen';
 export { default as TeamPerformanceScreen } from './TeamPerformanceScreen';
 
+// New Analytics Screens
+export { default as UsageAnalyticsScreen } from './UsageAnalyticsScreen';
+export { default as ReportsGeneratorScreen } from './ReportsGeneratorScreen';
+export { default as StorageAnalyticsScreen } from './StorageAnalyticsScreen';
+export { default as MeetingInsightsScreen } from './MeetingInsightsScreen';

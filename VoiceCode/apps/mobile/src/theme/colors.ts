@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Color Palette
+// VoiceCode Mobile - Color Palette
 
 export const colors = {
   light: {

@@ -1,0 +1,186 @@
+name: Mobile CI/CD
+
+on:
+    push:
+        branches: [main, develop]
+        paths:
+            - "apps/mobile/**"
+    pull_request:
+        branches: [main, develop]
+        paths:
+            - "apps/mobile/**"
+
+env:
+    NODE_VERSION: "18.x"
+    WORKING_DIRECTORY: apps/mobile
+
+jobs:
+    lint-and-test:
+        name: Lint & Test
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ${{ env.WORKING_DIRECTORY }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: "npm"
+                  cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run ESLint
+              run: npm run lint
+
+            - name: Run TypeScript check
+              run: npm run typecheck
+
+            - name: Run tests with coverage
+              run: npm test -- --coverage --coverageReporters=lcov
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v3
+              with:
+                  files: ${{ env.WORKING_DIRECTORY }}/coverage/lcov.info
+                  flags: mobile
+                  name: mobile-coverage
+
+    build-android:
+        name: Build Android
+        needs: lint-and-test
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        defaults:
+            run:
+                working-directory: ${{ env.WORKING_DIRECTORY }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: "npm"
+                  cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "17"
+
+            - name: Setup Expo
+              uses: expo/expo-github-action@v8
+              with:
+                  eas-version: latest
+                  token: ${{ secrets.EXPO_TOKEN }}
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build Android APK (Preview)
+              run: eas build --platform android --profile preview --non-interactive
+
+    build-ios:
+        name: Build iOS
+        needs: lint-and-test
+        runs-on: macos-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        defaults:
+            run:
+                working-directory: ${{ env.WORKING_DIRECTORY }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: "npm"
+                  cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+
+            - name: Setup Expo
+              uses: expo/expo-github-action@v8
+              with:
+                  eas-version: latest
+                  token: ${{ secrets.EXPO_TOKEN }}
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build iOS Simulator
+              run: eas build --platform ios --profile preview --non-interactive
+
+    deploy-preview:
+        name: Deploy Preview
+        needs: [build-android, build-ios]
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        defaults:
+            run:
+                working-directory: ${{ env.WORKING_DIRECTORY }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Expo
+              uses: expo/expo-github-action@v8
+              with:
+                  eas-version: latest
+                  token: ${{ secrets.EXPO_TOKEN }}
+
+            - name: Publish to Expo
+              run: eas update --branch preview --message "Deploy from CI"
+
+    deploy-production:
+        name: Deploy Production
+        needs: [build-android, build-ios]
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[release]')
+        environment: production
+        defaults:
+            run:
+                working-directory: ${{ env.WORKING_DIRECTORY }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: "npm"
+                  cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+
+            - name: Setup Expo
+              uses: expo/expo-github-action@v8
+              with:
+                  eas-version: latest
+                  token: ${{ secrets.EXPO_TOKEN }}
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Submit to App Store
+              run: eas submit --platform ios --profile production --non-interactive
+              env:
+                  APPLE_ID: ${{ secrets.APPLE_ID }}
+                  APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
+            - name: Submit to Play Store
+              run: eas submit --platform android --profile production --non-interactive
+              env:
+                  GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}

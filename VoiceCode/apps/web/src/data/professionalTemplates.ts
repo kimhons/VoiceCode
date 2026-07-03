@@ -1,4 +1,4 @@
-// Built-in Professional Templates for VoiceFlow Pro
+// Built-in Professional Templates for VoiceCode
 
 import { NoteTemplate, ProfessionalMode } from '@/types';
 

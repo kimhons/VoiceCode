@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Testing Screens Index
+// VoiceCode Mobile - Testing Screens Index
 
 export { default as AdvancedFeaturesTestingScreen } from './AdvancedFeaturesTestingScreen';
 

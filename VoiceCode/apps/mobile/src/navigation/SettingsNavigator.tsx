@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Settings Navigator
+// VoiceCode Mobile - Settings Navigator
 // Phase 2 Integration: Provides navigation to all settings and advanced features
 
 import React from 'react';
@@ -61,7 +61,6 @@ export const SettingsNavigator: React.FC = () => {
           letterSpacing: -0.4,
           color: theme.colors.textPrimary,
         },
-        headerBackTitleVisible: false,
         cardStyle: {
           backgroundColor: theme.colors.background,
         },

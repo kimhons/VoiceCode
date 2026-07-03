@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 3: Context Aggregation System
 // Intelligent context building for LLM-powered coding assistance
 
@@ -7,10 +8,10 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use parking_lot::RwLock;
 
-use super::ast_engine::{ASTEngine, CodeStructure, ParsedFile, Language};
-use super::symbol_table::{SymbolTable, Symbol, SymbolKind};
-use super::chunker::{CodeChunker, CodeChunk, ChunkType, ChunkerConfig};
-use super::token_budget::{TokenBudget, ContentCategory, LLMModel, TruncationStrategy};
+use super::ast_engine::{ASTEngine, CodeStructure, ParsedFile};
+use super::symbol_table::SymbolTable;
+use super::chunker::{CodeChunker, ChunkType};
+use super::token_budget::{TokenBudget, ContentCategory, LLMModel};
 
 /// Priority level for context items
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -597,21 +598,21 @@ impl ContextBuilder {
 
         // Collect references from functions
         for func in &structure.functions {
-            for reference in &func.references {
+            for reference in func.references() {
                 referenced_symbols.insert(reference.clone());
             }
         }
 
         // Collect references from classes
         for class in &structure.classes {
-            if let Some(ext) = &class.extends {
+            for ext in &class.extends {
                 referenced_symbols.insert(ext.clone());
             }
             for impl_name in &class.implements {
                 referenced_symbols.insert(impl_name.clone());
             }
             for method in &class.methods {
-                for reference in &method.references {
+                for reference in method.references() {
                     referenced_symbols.insert(reference.clone());
                 }
             }
@@ -632,7 +633,9 @@ impl ContextBuilder {
 
                 // Read the symbol's content
                 if let Ok(content) = std::fs::read_to_string(&symbol.file_path) {
-                    let symbol_content = extract_lines(&content, symbol.line, symbol.end_line.unwrap_or(symbol.line + 20));
+                    let symbol_start = symbol.line();
+                    let symbol_end = symbol.end_line();
+                    let symbol_content = extract_lines(&content, symbol_start, symbol_end);
                     let processed = budget.add_content(ContentCategory::Definitions, &symbol_content);
                     let tokens = budget.count_tokens(&symbol_content);
 
@@ -644,8 +647,8 @@ impl ContextBuilder {
                         relevance: 0.85,
                         content: processed,
                         tokens,
-                        start_line: symbol.line,
-                        end_line: symbol.end_line.unwrap_or(symbol.line + 20),
+                        start_line: symbol_start,
+                        end_line: symbol_end,
                         symbol_name: Some(symbol.name.clone()),
                         metadata: HashMap::from([
                             ("kind".to_string(), format!("{:?}", symbol.kind)),
@@ -683,7 +686,9 @@ impl ContextBuilder {
             }
 
             if let Ok(content) = std::fs::read_to_string(&symbol.file_path) {
-                let symbol_content = extract_lines(&content, symbol.line, symbol.end_line.unwrap_or(symbol.line + 30));
+                let sym_start = symbol.line();
+                let sym_end = symbol.end_line();
+                let symbol_content = extract_lines(&content, sym_start, sym_end);
                 let processed = budget.add_content(ContentCategory::Retrieved, &symbol_content);
                 let tokens = budget.count_tokens(&symbol_content);
 
@@ -696,8 +701,8 @@ impl ContextBuilder {
                     relevance: 0.6,
                     content: processed,
                     tokens,
-                    start_line: symbol.line,
-                    end_line: symbol.end_line.unwrap_or(symbol.line + 30),
+                    start_line: sym_start,
+                    end_line: sym_end,
                     symbol_name: Some(symbol.name.clone()),
                     metadata: HashMap::new(),
                 });

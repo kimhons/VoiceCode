@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - FolderManagementScreen Tests
+// VoiceCode Mobile - FolderManagementScreen Tests
 
 import searchReducer, {
   getFolders,

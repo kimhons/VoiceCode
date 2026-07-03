@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AI Screens Barrel Export
+// VoiceCode Mobile - AI Screens Barrel Export
 
 export { AISummaryScreen } from './AISummaryScreen';
 export { AIKeyPointsScreen } from './AIKeyPointsScreen';
@@ -19,3 +19,6 @@ export { default as AIWorkflowOptimizationScreen } from './AIWorkflowOptimizatio
 
 // Phase 3 Week 10 Day 70: AI Quality & Safety
 export { default as AIQualityControlScreen } from './AIQualityControlScreen';
+
+// New AI Screens
+export { default as SentimentAnalysisScreen } from './SentimentAnalysisScreen';

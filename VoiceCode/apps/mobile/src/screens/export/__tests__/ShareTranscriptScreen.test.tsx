@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - ShareTranscriptScreen Tests
+// VoiceCode Mobile - ShareTranscriptScreen Tests
 
 import exportReducer, {
   createShareLink,

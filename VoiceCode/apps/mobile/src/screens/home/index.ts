@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Home Screens Barrel Export
+// VoiceCode Mobile - Home Screens Barrel Export
 
 export { HomeScreen } from './HomeScreen';
 export { default as RecordingScreen } from './RecordingScreen';

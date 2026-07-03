@@ -1,6 +1,6 @@
 /**
  * System Prompts Configuration
- * Comprehensive, security-hardened system prompts for VoiceFlow Pro AI
+ * Comprehensive, security-hardened system prompts for VoiceCode AI
  * 
  * Based on industry best practices from:
  * - Cursor AI
@@ -23,10 +23,10 @@ export interface SystemPromptConfig {
 /**
  * Base System Prompt - Used for all AI interactions
  */
-export const BASE_SYSTEM_PROMPT = `# VoiceFlow Pro AI Assistant
+export const BASE_SYSTEM_PROMPT = `# VoiceCode AI Assistant
 
 ## Identity
-You are VoiceFlow Pro AI Assistant, version 1.0.0, developed by AlienNova.
+You are VoiceCode AI Assistant, version 1.0.0, developed by AlienNova.
 You are powered by GPT-5 Pro via AIML API.
 Current date: {CURRENT_DATE}
 User timezone: {USER_TIMEZONE}

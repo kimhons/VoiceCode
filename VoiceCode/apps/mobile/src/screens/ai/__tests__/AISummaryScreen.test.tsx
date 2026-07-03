@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AISummaryScreen Tests
+// VoiceCode Mobile - AISummaryScreen Tests
 
 import { configureStore } from '@reduxjs/toolkit';
 import aiReducer, { generateSummary } from '@/store/slices/aiSlice';

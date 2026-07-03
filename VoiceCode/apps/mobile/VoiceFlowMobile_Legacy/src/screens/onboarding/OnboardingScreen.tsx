@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Onboarding Screen
+// VoiceCode Pro Mobile - Onboarding Screen
 
 import React, { useRef, useState } from 'react';
 import {
@@ -17,7 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type OnboardingNavigationProp = StackNavigationProp<RootStackParamList, 'Onboarding'>;
 
-const ONBOARDING_KEY = '@voiceflow_onboarding_complete';
+const ONBOARDING_KEY = '@VoiceCode_onboarding_complete';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

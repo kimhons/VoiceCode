@@ -1,6 +1,6 @@
-// Service Worker for VoiceFlow PRO Push Notifications
+// Service Worker for VoiceCode Push Notifications
 
-const CACHE_NAME = 'voiceflow-pro-v1';
+const CACHE_NAME = 'voicecode-v1';
 const OFFLINE_URL = '/offline.html';
 
 // Install event - cache essential assets
@@ -11,7 +11,7 @@ self.addEventListener('install', (event) => {
         '/',
         '/offline.html',
         '/icons/icon-192x192.png',
-        '/icons/badge-72x72.png',
+        '/icons/icon-512x512.png',
       ]);
     })
   );
@@ -43,10 +43,10 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     
     const options = {
-      body: data.body || 'New notification from VoiceFlow PRO',
+      body: data.body || 'New notification from VoiceCode',
       icon: data.icon || '/icons/icon-192x192.png',
-      badge: data.badge || '/icons/badge-72x72.png',
-      tag: data.tag || 'voiceflow-notification',
+      badge: data.badge || '/icons/icon-72x72.png',
+      tag: data.tag || 'voicecode-notification',
       data: data.data || {},
       vibrate: [100, 50, 100],
       actions: [
@@ -57,7 +57,7 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-      self.registration.showNotification(data.title || 'VoiceFlow PRO', options)
+      self.registration.showNotification(data.title || 'VoiceCode', options)
     );
   } catch (error) {
     console.error('Error handling push event:', error);

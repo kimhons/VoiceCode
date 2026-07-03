@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AI Features Redux Slice
+// VoiceCode Mobile - AI Features Redux Slice
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import AIMLService, { AISummary, AIKeyPoints, ActionItem, Speaker } from '@/services/AIMLService';

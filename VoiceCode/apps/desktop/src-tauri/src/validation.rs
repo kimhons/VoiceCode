@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 //! Input validation module for VoiceFlow Pro
 //! Provides secure input validation for all user-provided data
 

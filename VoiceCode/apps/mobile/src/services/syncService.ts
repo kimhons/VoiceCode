@@ -64,7 +64,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
   private isSyncing: boolean = false;
   private autoSyncEnabled: boolean = true;
   private autoSyncInterval: number = 5 * 60 * 1000; // 5 minutes
-  private autoSyncTimer: NodeJS.Timeout | null = null;
+  private autoSyncTimer: ReturnType<typeof setInterval> | null = null;
   private lastSyncAt: Date | null = null;
 
   constructor() {
@@ -78,7 +78,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
    */
   private loadSyncQueue(): void {
     try {
-      const stored = localStorage.getItem('voiceflow_sync_queue');
+      const stored = localStorage.getItem('VoiceCode_sync_queue');
       if (stored) {
         this.syncQueue = JSON.parse(stored);
       }
@@ -93,7 +93,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
    */
   private saveSyncQueue(): void {
     try {
-      localStorage.setItem('voiceflow_sync_queue', JSON.stringify(this.syncQueue));
+      localStorage.setItem('VoiceCode_sync_queue', JSON.stringify(this.syncQueue));
     } catch (error) {
       console.error('Failed to save sync queue:', error);
     }
@@ -327,7 +327,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
    */
   private saveLocalTranscript(transcript: Transcript): void {
     try {
-      const stored = localStorage.getItem('voiceflow_transcripts');
+      const stored = localStorage.getItem('VoiceCode_transcripts');
       const transcripts: Transcript[] = stored ? JSON.parse(stored) : [];
       
       const index = transcripts.findIndex(t => t.id === transcript.id);
@@ -337,7 +337,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
         transcripts.push(transcript);
       }
 
-      localStorage.setItem('voiceflow_transcripts', JSON.stringify(transcripts));
+      localStorage.setItem('VoiceCode_transcripts', JSON.stringify(transcripts));
     } catch (error) {
       console.error('Failed to save local transcript:', error);
     }

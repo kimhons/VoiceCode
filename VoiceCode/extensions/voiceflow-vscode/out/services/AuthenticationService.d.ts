@@ -58,5 +58,21 @@ export declare class AuthenticationService {
      * Upgrade tier (for testing)
      */
     upgradeTier(newTier: ServiceTier): Promise<void>;
+    /**
+     * Store API key securely using VS Code SecretStorage
+     */
+    storeApiKey(provider: string, key: string): Promise<void>;
+    /**
+     * Get API key from SecretStorage
+     */
+    getApiKey(provider: string): Promise<string | undefined>;
+    /**
+     * Delete API key from SecretStorage
+     */
+    deleteApiKey(provider: string): Promise<void>;
+    /**
+     * Check if API key exists for provider
+     */
+    hasApiKey(provider: string): Promise<boolean>;
 }
 //# sourceMappingURL=AuthenticationService.d.ts.map

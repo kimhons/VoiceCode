@@ -1,8 +1,8 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 //! Error handling module for VoiceFlow Pro
 //! Defines comprehensive error types for all application components
 
 use thiserror::Error;
-use std::fmt;
 
 // Import event types from integration modules
 use crate::integrations::voice_recognition::VoiceEvent;

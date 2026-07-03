@@ -177,13 +177,14 @@ class AdvancedAIService {
 
       if (error || !prompt) throw new Error('Prompt not found');
 
+      const promptData = prompt as Record<string, unknown>;
       // Execute prompt
-      const result = await this.callAI(prompt.prompt, transcriptText);
+      const result = await this.callAI(promptData.prompt as string, transcriptText);
 
       // Update usage count
       await client
         .from('ai_prompts')
-        .update({ usage_count: prompt.usage_count + 1 })
+        .update({ usage_count: (promptData.usage_count as number) + 1 })
         .eq('id', promptId);
 
       return result;
@@ -269,7 +270,7 @@ Format: JSON array only, no markdown.`;
       const response = await this.callAI(prompt, '');
       const categories = JSON.parse(response);
 
-      return categories.map((cat: any, index: number) => ({
+      return categories.map((cat: { name: string; description: string; keywords?: string[]; confidence?: number; color?: string; icon?: string }, index: number) => ({
         id: `cat_${Date.now()}_${index}`,
         name: cat.name,
         description: cat.description,

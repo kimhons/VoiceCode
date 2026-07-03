@@ -431,8 +431,9 @@ impl AppAwareFormatter {
         let mut result = text.to_string();
         for filler in &fillers {
             // Match filler words with word boundaries
-            let pattern = regex::Regex::new(&format!(r"(?i)\b{}\b,?\s*", regex::escape(filler))).unwrap();
-            result = pattern.replace_all(&result, " ").to_string();
+            if let Ok(pattern) = regex::Regex::new(&format!(r"(?i)\b{}\b,?\s*", regex::escape(filler))) {
+                result = pattern.replace_all(&result, " ").to_string();
+            }
         }
 
         // Clean up multiple spaces
@@ -523,9 +524,9 @@ impl AppAwareFormatter {
                 '\'' => {
                     // Check if it's a contraction or quote
                     if result.chars().last().map(|c| c.is_alphabetic()).unwrap_or(false) {
-                        result.push(''');
+                        result.push('\u{2019}'); // Right single quote '
                     } else {
-                        result.push(''');
+                        result.push('\u{2018}'); // Left single quote '
                     }
                 }
                 _ => result.push(c),
@@ -536,7 +537,7 @@ impl AppAwareFormatter {
     }
 
     fn normalize_whitespace(&self, text: &str) -> String {
-        let re = regex::Regex::new(r"\s+").unwrap();
+        let re = regex::Regex::new(r"\s+").expect("valid regex: whitespace normalization pattern");
         re.replace_all(text, " ").trim().to_string()
     }
 
@@ -743,5 +744,606 @@ mod tests {
         let profiles = formatter.get_profiles().await;
         assert_eq!(profiles.len(), 1);
         assert_eq!(profiles[0].name, "SlackCasual");
+    }
+
+    // ── FormattingStyle defaults ─────────────────────────────────────
+
+    #[test]
+    fn test_formatting_style_defaults() {
+        let style = FormattingStyle::default();
+        assert!(!style.lowercase);
+        assert!(!style.uppercase);
+        assert!(style.auto_punctuate);
+        assert_eq!(style.punctuation_style, PunctuationStyle::Standard);
+        assert!(!style.auto_paragraph);
+        assert_eq!(style.capitalization, CapitalizationStyle::Sentence);
+        assert!(style.remove_fillers);
+        assert!(style.allow_emoji);
+        assert!(!style.markdown_enabled);
+        assert!(!style.code_formatting);
+        assert!(style.smart_quotes);
+        assert!(style.em_dash);
+        assert!(style.ellipsis);
+        assert!(style.prefix.is_none());
+        assert!(style.suffix.is_none());
+    }
+
+    // ── Filler word removal (additional) ─────────────────────────────
+
+    #[test]
+    fn test_filler_word_removal_preserves_content() {
+        let formatter = AppAwareFormatter::new();
+        let cleaned = formatter.remove_filler_words("I um went to the er store");
+        assert!(cleaned.contains("went"));
+        assert!(cleaned.contains("store"));
+        assert!(!cleaned.contains(" um "));
+    }
+
+    #[test]
+    fn test_filler_word_removal_empty_string() {
+        let formatter = AppAwareFormatter::new();
+        let cleaned = formatter.remove_filler_words("");
+        assert!(cleaned.is_empty());
+    }
+
+    #[test]
+    fn test_filler_word_removal_no_fillers() {
+        let formatter = AppAwareFormatter::new();
+        let input = "The quick brown fox";
+        let cleaned = formatter.remove_filler_words(input);
+        assert_eq!(cleaned, input);
+    }
+
+    #[test]
+    fn test_filler_word_removal_case_insensitive() {
+        let formatter = AppAwareFormatter::new();
+        let cleaned = formatter.remove_filler_words("UM I was thinking BASICALLY yes");
+        assert!(!cleaned.to_lowercase().contains(" um "));
+        assert!(!cleaned.to_lowercase().contains("basically"));
+        assert!(cleaned.contains("was thinking"));
+    }
+
+    // ── Sentence case (additional) ───────────────────────────────────
+
+    #[test]
+    fn test_sentence_case_basic() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.sentence_case("hello world");
+        assert!(result.starts_with('H'));
+    }
+
+    #[test]
+    fn test_sentence_case_after_period() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.sentence_case("hello. world");
+        assert!(result.starts_with('H'));
+        assert!(result.contains(". W"));
+    }
+
+    #[test]
+    fn test_sentence_case_after_question_mark() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.sentence_case("is it done? yes");
+        assert!(result.contains("? Y"));
+    }
+
+    #[test]
+    fn test_sentence_case_after_exclamation() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.sentence_case("wow! great");
+        assert!(result.contains("! G"));
+    }
+
+    #[test]
+    fn test_sentence_case_empty() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.sentence_case("");
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_sentence_case_already_capitalized() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.sentence_case("Hello world");
+        assert_eq!(result, "Hello world");
+    }
+
+    // ── Title case ───────────────────────────────────────────────────
+
+    #[test]
+    fn test_title_case_basic() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.title_case("the quick brown fox");
+        assert!(result.starts_with("The"));
+        assert!(result.contains("Quick"));
+        assert!(result.contains("Brown"));
+        assert!(result.contains("Fox"));
+    }
+
+    #[test]
+    fn test_title_case_small_words_lowercase() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.title_case("war and peace");
+        assert_eq!(result, "War and Peace");
+    }
+
+    #[test]
+    fn test_title_case_first_word_always_capitalized() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.title_case("a tale of two cities");
+        assert!(result.starts_with("A "));
+    }
+
+    #[test]
+    fn test_title_case_empty() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.title_case("");
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_title_case_single_word() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.title_case("hello");
+        assert_eq!(result, "Hello");
+    }
+
+    // ── Punctuation handling ─────────────────────────────────────────
+
+    #[test]
+    fn test_apply_punctuation_standard_adds_period() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("Hello world", &PunctuationStyle::Standard);
+        assert!(result.ends_with('.'));
+    }
+
+    #[test]
+    fn test_apply_punctuation_standard_preserves_existing_period() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("Hello world.", &PunctuationStyle::Standard);
+        assert!(result.ends_with('.'));
+        assert!(!result.ends_with(".."));
+    }
+
+    #[test]
+    fn test_apply_punctuation_standard_preserves_question_mark() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("Is it done?", &PunctuationStyle::Standard);
+        assert!(result.ends_with('?'));
+        assert!(!result.ends_with("?."));
+    }
+
+    #[test]
+    fn test_apply_punctuation_standard_preserves_exclamation() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("Wow!", &PunctuationStyle::Standard);
+        assert!(result.ends_with('!'));
+    }
+
+    #[test]
+    fn test_apply_punctuation_formal_adds_period() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("Hello world", &PunctuationStyle::Formal);
+        assert!(result.ends_with('.'));
+    }
+
+    #[test]
+    fn test_apply_punctuation_minimal_no_period() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("Hello world", &PunctuationStyle::Minimal);
+        assert!(!result.ends_with('.'));
+    }
+
+    #[test]
+    fn test_apply_punctuation_none_removes_all() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("Hello, world!", &PunctuationStyle::None);
+        assert!(!result.contains(','));
+        assert!(!result.contains('!'));
+    }
+
+    #[test]
+    fn test_apply_punctuation_empty_string() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_punctuation("", &PunctuationStyle::Standard);
+        assert!(result.is_empty());
+    }
+
+    // ── Remove punctuation ───────────────────────────────────────────
+
+    #[test]
+    fn test_remove_punctuation_basic() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.remove_punctuation("Hello, world! How are you?");
+        assert!(!result.contains(','));
+        assert!(!result.contains('!'));
+        assert!(!result.contains('?'));
+    }
+
+    #[test]
+    fn test_remove_punctuation_preserves_apostrophe() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.remove_punctuation("don't stop");
+        assert!(result.contains('\''));
+    }
+
+    #[test]
+    fn test_remove_punctuation_preserves_hyphen() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.remove_punctuation("well-known fact");
+        assert!(result.contains('-'));
+    }
+
+    #[test]
+    fn test_remove_punctuation_empty() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.remove_punctuation("");
+        assert!(result.is_empty());
+    }
+
+    // ── Smart quotes (additional) ────────────────────────────────────
+
+    #[test]
+    fn test_smart_quotes_single_contraction() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_smart_quotes("don't");
+        assert!(result.contains('\u{2019}'));
+    }
+
+    #[test]
+    fn test_smart_quotes_empty() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_smart_quotes("");
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_smart_quotes_no_quotes() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.apply_smart_quotes("Hello world");
+        assert_eq!(result, "Hello world");
+    }
+
+    // ── Normalize whitespace ─────────────────────────────────────────
+
+    #[test]
+    fn test_normalize_whitespace_multiple_spaces() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.normalize_whitespace("hello   world");
+        assert_eq!(result, "hello world");
+    }
+
+    #[test]
+    fn test_normalize_whitespace_leading_trailing() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.normalize_whitespace("  hello world  ");
+        assert_eq!(result, "hello world");
+    }
+
+    #[test]
+    fn test_normalize_whitespace_tabs_and_newlines() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.normalize_whitespace("hello\t\nworld");
+        assert_eq!(result, "hello world");
+    }
+
+    #[test]
+    fn test_normalize_whitespace_empty() {
+        let formatter = AppAwareFormatter::new();
+        let result = formatter.normalize_whitespace("");
+        assert!(result.is_empty());
+    }
+
+    // ── Typography substitutions (em dash, ellipsis) ─────────────────
+
+    #[test]
+    fn test_em_dash_substitution_spaced() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            em_dash: true,
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("hello - world", &style);
+        assert!(result.formatted.contains('\u{2014}')); // em dash
+    }
+
+    #[test]
+    fn test_em_dash_substitution_double_hyphen() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            em_dash: true,
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("hello--world", &style);
+        assert!(result.formatted.contains('\u{2014}'));
+    }
+
+    #[test]
+    fn test_ellipsis_substitution() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            ellipsis: true,
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            em_dash: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("well...", &style);
+        assert!(result.formatted.contains('\u{2026}')); // ellipsis character
+    }
+
+    // ── Prefix / Suffix ──────────────────────────────────────────────
+
+    #[test]
+    fn test_prefix_applied() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            prefix: Some("> ".to_string()),
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            em_dash: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("quote text", &style);
+        assert!(result.formatted.starts_with("> "));
+    }
+
+    #[test]
+    fn test_suffix_applied() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            suffix: Some(" [end]".to_string()),
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            em_dash: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("content", &style);
+        assert!(result.formatted.ends_with("[end]"));
+    }
+
+    // ── Capitalization overrides (lowercase / uppercase) ─────────────
+
+    #[test]
+    fn test_lowercase_override() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            lowercase: true,
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            em_dash: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("Hello WORLD", &style);
+        assert_eq!(result.formatted, "hello world");
+    }
+
+    #[test]
+    fn test_uppercase_override() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            uppercase: true,
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            em_dash: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("hello world", &style);
+        assert_eq!(result.formatted, "HELLO WORLD");
+    }
+
+    // ── Default profiles for app types (additional) ──────────────────
+
+    #[test]
+    fn test_code_editor_profile_preserves_case() {
+        let formatter = AppAwareFormatter::new();
+        let style = formatter.default_profiles.get(&ApplicationType::CodeEditor).unwrap();
+        let result = formatter.apply_style("camelCase myFunction", style);
+        assert!(result.formatted.contains("camelCase"));
+    }
+
+    #[test]
+    fn test_terminal_profile_is_lowercase() {
+        let formatter = AppAwareFormatter::new();
+        let style = formatter.default_profiles.get(&ApplicationType::Terminal).unwrap();
+        assert!(style.lowercase);
+        assert_eq!(style.punctuation_style, PunctuationStyle::None);
+    }
+
+    #[test]
+    fn test_messaging_profile_allows_emoji() {
+        let formatter = AppAwareFormatter::new();
+        let style = formatter.default_profiles.get(&ApplicationType::Messaging).unwrap();
+        assert!(style.allow_emoji);
+        assert!(!style.remove_fillers);
+    }
+
+    #[test]
+    fn test_document_profile_is_formal() {
+        let formatter = AppAwareFormatter::new();
+        let style = formatter.default_profiles.get(&ApplicationType::Document).unwrap();
+        assert_eq!(style.punctuation_style, PunctuationStyle::Formal);
+        assert!(style.auto_paragraph);
+        assert!(style.smart_quotes);
+    }
+
+    #[test]
+    fn test_unknown_app_type_uses_defaults() {
+        let formatter = AppAwareFormatter::new();
+        let style = formatter.default_profiles.get(&ApplicationType::Unknown).unwrap();
+        let default_style = FormattingStyle::default();
+        assert_eq!(style.auto_punctuate, default_style.auto_punctuate);
+    }
+
+    #[test]
+    fn test_all_app_types_have_default_profiles() {
+        let formatter = AppAwareFormatter::new();
+        let expected_types = [
+            ApplicationType::Terminal,
+            ApplicationType::CodeEditor,
+            ApplicationType::Messaging,
+            ApplicationType::Email,
+            ApplicationType::Document,
+            ApplicationType::Notes,
+            ApplicationType::Browser,
+            ApplicationType::Unknown,
+        ];
+        for app_type in &expected_types {
+            assert!(
+                formatter.default_profiles.contains_key(app_type),
+                "Missing default profile for {:?}",
+                app_type
+            );
+        }
+    }
+
+    // ── Custom profiles (additional) ─────────────────────────────────
+
+    #[tokio::test]
+    async fn test_custom_profile_remove() {
+        let formatter = AppAwareFormatter::new();
+
+        let profile = FormattingProfile {
+            name: "TestProfile".to_string(),
+            app_type: ApplicationType::Browser,
+            app_name_pattern: None,
+            style: FormattingStyle::default(),
+            is_custom: true,
+            priority: 50,
+        };
+
+        formatter.add_profile(profile).await;
+        assert_eq!(formatter.get_profiles().await.len(), 1);
+
+        let removed = formatter.remove_profile("TestProfile").await;
+        assert!(removed);
+        assert_eq!(formatter.get_profiles().await.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_custom_profile_remove_nonexistent() {
+        let formatter = AppAwareFormatter::new();
+        let removed = formatter.remove_profile("DoesNotExist").await;
+        assert!(!removed);
+    }
+
+    // ── FormattedText structure ──────────────────────────────────────
+
+    #[test]
+    fn test_apply_style_returns_original_and_formatted() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            uppercase: true,
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            em_dash: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("hello", &style);
+        assert_eq!(result.original, "hello");
+        assert_eq!(result.formatted, "HELLO");
+        assert!(!result.changes.is_empty());
+    }
+
+    #[test]
+    fn test_apply_style_changes_tracks_uppercase() {
+        let formatter = AppAwareFormatter::new();
+        let style = FormattingStyle {
+            uppercase: true,
+            auto_punctuate: false,
+            remove_fillers: false,
+            smart_quotes: false,
+            em_dash: false,
+            ellipsis: false,
+            capitalization: CapitalizationStyle::Preserve,
+            punctuation_style: PunctuationStyle::Minimal,
+            ..Default::default()
+        };
+        let result = formatter.apply_style("hello", &style);
+        assert!(result.changes.iter().any(|c| c.contains("uppercase")));
+    }
+
+    // ── Learning / corrections ───────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_record_correction_not_enough_data() {
+        let formatter = AppAwareFormatter::new();
+        for _ in 0..5 {
+            formatter
+                .record_correction("TestApp", "Hello World", "hello world")
+                .await;
+        }
+        let adjustments = formatter.get_learned_adjustments("TestApp").await;
+        assert!(adjustments.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_record_correction_enough_data_suggest_lowercase() {
+        let formatter = AppAwareFormatter::new();
+        for _ in 0..12 {
+            formatter
+                .record_correction("TermApp", "Hello World", "hello world")
+                .await;
+        }
+        let adjustments = formatter.get_learned_adjustments("TermApp").await;
+        assert!(adjustments.is_some());
+        let adj = adjustments.unwrap();
+        assert!(adj.suggest_lowercase);
+    }
+
+    #[tokio::test]
+    async fn test_record_correction_unknown_app() {
+        let formatter = AppAwareFormatter::new();
+        let adjustments = formatter.get_learned_adjustments("NonExistentApp").await;
+        assert!(adjustments.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_record_correction_punctuation_removal() {
+        let formatter = AppAwareFormatter::new();
+        for _ in 0..15 {
+            formatter
+                .record_correction("ChatApp", "Hello, world!", "Hello world")
+                .await;
+        }
+        let adjustments = formatter.get_learned_adjustments("ChatApp").await;
+        assert!(adjustments.is_some());
+        let adj = adjustments.unwrap();
+        assert!(adj.suggest_no_punctuation);
     }
 }

@@ -1,4 +1,4 @@
-// VoiceFlow Pro - Pricing Page Component
+// VoiceCode - Pricing Page Component
 import React, { useState } from 'react';
 import { Check, X, Zap, Users, Building2, Sparkles, ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -25,7 +25,7 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'free',
     name: 'Free Forever',
-    description: 'Perfect for trying out VoiceFlow Pro',
+    description: 'Perfect for trying out VoiceCode',
     price: { monthly: 0, annual: 0 },
     features: [
       '120 minutes/month transcription',

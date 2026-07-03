@@ -282,7 +282,7 @@ class AITrainingService {
       training_job_id: config.training_job_id,
       deployment_status: config.deployment_status,
       endpoint_url: config.deployment_status === 'production'
-        ? `https://api.voiceflow.com/models/${config.name}`
+        ? `https://api.VoiceCode.com/models/${config.name}`
         : undefined,
       performance_metrics: {
         requests_per_second: 0,

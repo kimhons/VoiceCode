@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // External Agent Adapters - Integration with external CLI coding agents
 // Provides adapters for Claude Code, Codex CLI, Gemini CLI, and others
 
@@ -233,7 +234,7 @@ impl ClaudeCodeAdapter {
             } => {
                 format!(
                     "Generate {} code: {}{}",
-                    language,
+                    language.as_deref().unwrap_or("auto"),
                     description,
                     if !file_context.is_empty() {
                         format!("\n\nContext file: {}", file_context)
@@ -273,7 +274,7 @@ impl ClaudeCodeAdapter {
             } => {
                 format!(
                     "Refactor the code in {} - Type: {}, Scope: {}",
-                    file_context, refactor_type, scope
+                    file_context, refactor_type, scope.as_deref().unwrap_or("file")
                 )
             }
             TaskType::TestGeneration {
@@ -282,13 +283,13 @@ impl ClaudeCodeAdapter {
             } => {
                 format!(
                     "Generate {} tests for {} with {}% coverage target",
-                    test_type, file_context, coverage_target
+                    test_type, file_context, coverage_target.unwrap_or(80.0)
                 )
             }
             TaskType::Documentation { doc_type, format } => {
                 format!(
                     "Generate {} documentation in {} format for: {}",
-                    doc_type, format, file_context
+                    doc_type, format.as_deref().unwrap_or("markdown"), file_context
                 )
             }
             TaskType::Explanation { detail_level } => {
@@ -298,7 +299,7 @@ impl ClaudeCodeAdapter {
                 )
             }
             TaskType::Search { query, scope } => {
-                format!("Search for '{}' in scope: {}", query, scope)
+                format!("Search for '{}' in scope: {}", query, scope.as_deref().unwrap_or("project"))
             }
             TaskType::Custom { name, params } => {
                 format!("{}: {:?}", name, params)
@@ -321,9 +322,12 @@ impl ClaudeCodeAdapter {
                         file_path: current_file.take().unwrap(),
                         change_type: super::agent_protocol::ChangeType::Create,
                         old_content: None,
-                        new_content: current_content.clone(),
+                        new_content: Some(current_content.clone()),
                         line_start: None,
                         line_end: None,
+                        before: None,
+                        after: None,
+                        line_range: None,
                     });
                     current_content.clear();
                 }
@@ -344,10 +348,10 @@ impl ClaudeCodeAdapter {
 
         TaskResult {
             status: TaskStatus::Completed,
+            success: true,
             output: Some(output.to_string()),
             changes,
-            error: None,
-            metadata: HashMap::new(),
+            ..Default::default()
         }
     }
 }
@@ -505,10 +509,8 @@ impl AiderAdapter {
             args.push(file.clone());
         }
 
-        if let Some(files) = &context.related_files {
-            for file in files {
-                args.push(file.clone());
-            }
+        for file in &context.related_files {
+            args.push(file.clone());
         }
 
         // Add message
@@ -594,14 +596,14 @@ impl ExternalAgentAdapter for AiderAdapter {
             } else {
                 TaskStatus::Failed
             },
+            success: output.status.success(),
             output: Some(stdout.to_string()),
-            changes: vec![],
             error: if !output.status.success() {
                 Some(String::from_utf8_lossy(&output.stderr).to_string())
             } else {
                 None
             },
-            metadata: HashMap::new(),
+            ..Default::default()
         })
     }
 
@@ -708,15 +710,14 @@ impl ExternalAgentAdapter for GenericCliAdapter {
             .map_err(|e| format!("Failed to execute: {}", e))?;
 
         Ok(TaskResult {
+            success: output.status.success(),
             status: if output.status.success() {
                 TaskStatus::Completed
             } else {
                 TaskStatus::Failed
             },
             output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
-            changes: vec![],
-            error: None,
-            metadata: HashMap::new(),
+            ..Default::default()
         })
     }
 
@@ -833,15 +834,11 @@ mod tests {
         let context = TaskContext {
             file_path: Some("test.rs".to_string()),
             code_content: Some("fn main() {}".to_string()),
-            cursor_position: None,
-            selection: None,
-            related_files: None,
-            project_root: None,
-            additional_context: HashMap::new(),
+            ..Default::default()
         };
 
         let task = TaskType::CodeGeneration {
-            language: "rust".to_string(),
+            language: Some("rust".to_string()),
             description: "Add error handling".to_string(),
         };
 

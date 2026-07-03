@@ -165,7 +165,7 @@ class RealTimeAIService {
     return new Promise((resolve, reject) => {
       // In production, this would connect to your WebSocket server
       // For now, we'll simulate the connection
-      const wsUrl = `wss://api.voiceflowpro.com/realtime/${sessionId}`;
+      const wsUrl = `wss://api.VoiceCodepro.com/realtime/${sessionId}`;
       
       this.ws = new WebSocket(wsUrl);
 

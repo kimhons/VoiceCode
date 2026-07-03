@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Theme System
+// VoiceCode Mobile - Theme System
 // Apple-inspired design system with SF Pro typography and elevation
 
 export { colors, type ColorScheme, type ThemeColors } from './colors';

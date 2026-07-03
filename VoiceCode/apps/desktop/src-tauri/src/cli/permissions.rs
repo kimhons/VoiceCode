@@ -1,10 +1,11 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Permission System - Tiered permission modes with sandbox execution
 // Inspired by Claude Code's permission model and Codex CLI's safety features
 
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 
 /// Permission mode controlling agent autonomy level
@@ -205,7 +206,6 @@ const SENSITIVE_PATHS: &[&str] = &[
 ];
 
 /// Permission system managing access control
-#[derive(Debug)]
 pub struct PermissionSystem {
     /// Current permission mode
     mode: RwLock<PermissionMode>,
@@ -225,6 +225,15 @@ pub struct PermissionSystem {
     ask_callback: Option<Arc<dyn Fn(&PermissionRequest) -> PermissionDecision + Send + Sync>>,
     /// Operation history for audit
     history: RwLock<Vec<PermissionAuditEntry>>,
+}
+
+impl std::fmt::Debug for PermissionSystem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("PermissionSystem")
+            .field("working_dir", &self.working_dir)
+            .field("has_ask_callback", &self.ask_callback.is_some())
+            .finish()
+    }
 }
 
 /// Audit entry for permission history

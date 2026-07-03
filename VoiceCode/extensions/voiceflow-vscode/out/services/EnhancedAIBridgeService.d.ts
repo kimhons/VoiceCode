@@ -5,6 +5,8 @@
  */
 import * as vscode from 'vscode';
 import { MCPIntegrationService } from './MCPIntegrationService';
+import { CostTrackingService } from './CostTrackingService';
+import { CodebaseIndexService } from './CodebaseIndexService';
 export type AIProviderType = 'copilot' | 'cursor' | 'cline' | 'aider' | 'augment' | 'anthropic' | 'openai' | 'local';
 export interface AIRequest {
     type: 'completion' | 'chat' | 'edit' | 'refactor' | 'explain' | 'test' | 'review';
@@ -63,6 +65,10 @@ export declare class EnhancedAIBridgeService {
     private mcpService;
     private providerStatus;
     private preferredProvider;
+    private costTracking?;
+    private codebaseIndex?;
+    private rateLimiter;
+    private responseCache;
     private readonly _onProviderChanged;
     private readonly _onRequestStarted;
     private readonly _onRequestCompleted;
@@ -74,7 +80,7 @@ export declare class EnhancedAIBridgeService {
         chunk: string;
         provider: AIProviderType;
     }>;
-    constructor(config?: vscode.WorkspaceConfiguration, mcpService?: MCPIntegrationService);
+    constructor(config?: vscode.WorkspaceConfiguration, mcpService?: MCPIntegrationService, costTracking?: CostTrackingService, codebaseIndex?: CodebaseIndexService);
     /**
      * Detect which AI providers are available
      */
@@ -83,6 +89,14 @@ export declare class EnhancedAIBridgeService {
      * Send request to the appropriate provider
      */
     sendRequest(request: AIRequest): Promise<AIResponse>;
+    /**
+     * Get default model for provider
+     */
+    private getDefaultModel;
+    /**
+     * Estimate token count
+     */
+    private estimateTokens;
     /**
      * Send request to GitHub Copilot
      * Uses VS Code Language Model API for full response capture

@@ -13,7 +13,7 @@ describe('System Prompts Configuration', () => {
 
       expect(prompt).toBeDefined();
       expect(prompt.length).toBeGreaterThan(100);
-      expect(prompt).toContain('VoiceFlow Pro AI Assistant');
+      expect(prompt).toContain('VoiceCode AI Assistant');
       expect(prompt).toContain('version 1.0.0');
     });
 
@@ -21,7 +21,7 @@ describe('System Prompts Configuration', () => {
       const prompt = getSystemPrompt();
 
       expect(prompt).toContain('## Identity');
-      expect(prompt).toContain('VoiceFlow Pro AI Assistant');
+      expect(prompt).toContain('VoiceCode AI Assistant');
       expect(prompt).toContain('GPT-5 Pro');
       expect(prompt).toContain('AIML API');
     });
@@ -125,7 +125,7 @@ describe('System Prompts Configuration', () => {
       const prompt = getSystemPrompt('invalid_context' as any);
 
       expect(prompt).toBeDefined();
-      expect(prompt).toContain('VoiceFlow Pro AI Assistant');
+      expect(prompt).toContain('VoiceCode AI Assistant');
       expect(prompt).not.toContain('invalid_context');
     });
   });
@@ -152,7 +152,7 @@ describe('System Prompts Configuration', () => {
       const prompt = getSystemPrompt(undefined, '');
 
       expect(prompt).toBeDefined();
-      expect(prompt).toContain('VoiceFlow Pro AI Assistant');
+      expect(prompt).toContain('VoiceCode AI Assistant');
     });
   });
 

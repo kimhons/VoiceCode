@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports, unused_assignments)]
 // MCP (Model Context Protocol) Integration
 // Implements STDIO, HTTP, SSE transports with OAuth support
 // Following the MCP specification for tool discovery and execution
@@ -666,7 +667,7 @@ impl SseTransport {
             )));
         }
 
-        let (event_tx, mut event_rx) = mpsc::channel::<SseEvent>(100);
+        let (event_tx, event_rx) = mpsc::channel::<SseEvent>(100);
         self.event_tx = Some(event_tx.clone());
 
         let connected = self.connected.clone();

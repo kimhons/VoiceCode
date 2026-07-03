@@ -285,7 +285,7 @@ class IntegrationsService {
         title: transcriptTitle,
         title_link: transcriptUrl,
         text: 'Click to view the full transcript',
-        footer: 'VoiceFlow Pro',
+        footer: 'VoiceCode',
         ts: Math.floor(Date.now() / 1000),
       },
     ];
@@ -351,7 +351,7 @@ class IntegrationsService {
     const text = transcriptTitle;
     const sections = [
       {
-        activityTitle: 'VoiceFlow Pro',
+        activityTitle: 'VoiceCode',
         activitySubtitle: new Date().toLocaleString(),
         facts: [
           { name: 'Transcript:', value: transcriptTitle },

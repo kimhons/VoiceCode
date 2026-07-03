@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Team Management Screen
+ * VoiceCode Mobile - Team Management Screen
  * 
  * Comprehensive team management interface for Phase 2: Advanced Features
  * Week 6 Day 40-41 Implementation
@@ -230,7 +230,7 @@ export type SortType = 'name' | 'role' | 'activity' | 'joined';
 // ============================================================================
 
 const BASE_UNIT = 4;
-const STORAGE_KEY = '@voiceflow_team_management';
+const STORAGE_KEY = '@VoiceCode_team_management';
 const AVATAR_SIZE = BASE_UNIT * 10;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -1051,10 +1051,11 @@ export default function TeamManagementScreen({
       case 'name':
         sorted.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case 'role':
+      case 'role': {
         const roleOrder: TeamRole[] = ['owner', 'admin', 'editor', 'viewer'];
         sorted.sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
         break;
+      }
       case 'activity':
         sorted.sort((a, b) => b.contributionCount - a.contributionCount);
         break;

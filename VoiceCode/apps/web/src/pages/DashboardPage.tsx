@@ -3,19 +3,34 @@
  * Combined monitoring dashboard with usage statistics, security, cost, and performance
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UsageDashboard } from '@/components/UsageDashboard';
 import AISecurityDashboard from '../components/monitoring/AISecurityDashboard';
 import CostMonitoringDashboard from '../components/monitoring/CostMonitoringDashboard';
 import PerformanceDashboard from '../components/monitoring/PerformanceDashboard';
 import { useAuth } from '../contexts/AuthContext';
-import { BarChart3, Shield, DollarSign, Zap } from 'lucide-react';
+import { BarChart3, Shield, DollarSign, Zap, LayoutDashboard } from 'lucide-react';
+import { LoadingSkeleton } from '@/components/LoadingSkeleton';
+import { EmptyState } from '@/components/EmptyState';
 
 type DashboardTab = 'usage' | 'security' | 'cost' | 'performance';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<DashboardTab>('usage');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasData, setHasData] = useState(false);
+
+  // Simulate async dashboard data loading
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      // In production, this would check actual recording/usage data
+      setHasData(true);
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const tabs: Array<{ id: DashboardTab; label: string; icon: React.ReactNode }> = [
     { id: 'usage', label: 'Usage & Stats', icon: <BarChart3 size={20} /> },
@@ -23,6 +38,10 @@ export const DashboardPage: React.FC = () => {
     { id: 'cost', label: 'Cost Monitoring', icon: <DollarSign size={20} /> },
     { id: 'performance', label: 'Performance', icon: <Zap size={20} /> },
   ];
+
+  if (isLoading) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -95,10 +114,30 @@ export const DashboardPage: React.FC = () => {
 
       {/* Dashboard Content */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
-        {activeTab === 'usage' && <UsageDashboard />}
-        {activeTab === 'security' && <AISecurityDashboard userId={user?.id || 'guest'} />}
-        {activeTab === 'cost' && <CostMonitoringDashboard userId={user?.id || 'guest'} />}
-        {activeTab === 'performance' && <PerformanceDashboard userId={user?.id || 'guest'} />}
+        {!hasData ? (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          }}>
+            <EmptyState
+              icon={LayoutDashboard}
+              title="Welcome! Start recording to see your dashboard"
+              description="Once you create your first recording, your usage statistics, security insights, and performance metrics will appear here."
+              actionLabel="Go to Recordings"
+              onAction={() => {
+                window.location.href = '/recordings';
+              }}
+            />
+          </div>
+        ) : (
+          <>
+            {activeTab === 'usage' && <UsageDashboard />}
+            {activeTab === 'security' && <AISecurityDashboard userId={user?.id || 'guest'} />}
+            {activeTab === 'cost' && <CostMonitoringDashboard userId={user?.id || 'guest'} />}
+            {activeTab === 'performance' && <PerformanceDashboard userId={user?.id || 'guest'} />}
+          </>
+        )}
       </div>
     </div>
   );

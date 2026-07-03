@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Mobile Export Service
+// VoiceCode Mobile - Mobile Export Service
 
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';

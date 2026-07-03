@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Agent Registry - Discovery and management of available agents
 // Supports local, remote, and external agents (Claude Code, Codex, Gemini)
 
@@ -8,7 +9,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::net::TcpStream;
 use tokio::sync::RwLock;
 
-use super::agent_protocol::{AgentCapability, AgentMessage, AgentProtocol};
+use super::agent_protocol::AgentCapability;
 
 /// Agent status
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

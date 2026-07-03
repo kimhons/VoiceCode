@@ -543,7 +543,7 @@ export default function CustomAITrainingScreen() {
         <Text style={styles.comingSoonIcon}>🧪</Text>
         <Text style={styles.comingSoonTitle}>A/B Testing</Text>
         <Text style={styles.comingSoonText}>
-          A/B testing functionality will be available soon. You'll be able to:
+          A/B testing functionality will be available soon. You&apos;ll be able to:
         </Text>
         <View style={styles.featureList}>
           <Text style={styles.featureItem}>• Compare two models side-by-side</Text>

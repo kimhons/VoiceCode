@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - TemplateSelectionScreen Tests
+// VoiceCode Mobile - TemplateSelectionScreen Tests
 
 import exportReducer, {
   updateTemplate,

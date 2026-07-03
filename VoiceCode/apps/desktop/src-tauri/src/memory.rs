@@ -1,13 +1,14 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 //! Memory management module for VoiceFlow Pro
 //! Provides proper resource cleanup and memory management
 //! OPTIMIZED VERSION - Phase 1.1.4: Memory Management Optimization
 
-use std::sync::{Arc, Weak};
+use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
-use tokio::sync::{Mutex, OwnedMutexGuard, MutexGuard, RwLock};
+use tokio::sync::{Mutex, RwLock};
 use std::time::{Duration, Instant};
 use std::collections::HashMap;
-use tracing::{info, warn, error, debug};
+use tracing::{info, warn, debug};
 
 /// Resource management structure
 #[derive(Debug)]
@@ -598,7 +599,7 @@ pub async fn start_cleanup_task() {
             interval.tick().await;
 
             // Resource manager cleanup
-            let mut manager = resource_manager.lock().await;
+            let manager = resource_manager.lock().await;
             if manager.needs_cleanup() {
                 let rm = resource_manager.clone();
                 tokio::spawn(async move {

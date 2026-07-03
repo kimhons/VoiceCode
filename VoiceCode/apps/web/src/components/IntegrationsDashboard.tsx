@@ -177,7 +177,7 @@ export const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ us
       <div className="dashboard-header">
         <div>
           <h1>🔗 Integrations</h1>
-          <p>Connect VoiceFlow Pro with your favorite apps</p>
+          <p>Connect VoiceCode with your favorite apps</p>
         </div>
       </div>
 
@@ -369,7 +369,7 @@ export const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ us
               {!['slack', 'microsoft_teams', 'zapier'].includes(selectedProvider) && (
                 <div className="oauth-notice">
                   <p>
-                    This integration requires OAuth authentication. Click "Connect" to authorize VoiceFlow Pro to
+                    This integration requires OAuth authentication. Click "Connect" to authorize VoiceCode to
                     access your {AVAILABLE_INTEGRATIONS.find((i) => i.provider === selectedProvider)?.name} account.
                   </p>
                 </div>

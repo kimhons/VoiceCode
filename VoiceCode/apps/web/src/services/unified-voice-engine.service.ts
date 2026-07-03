@@ -255,7 +255,7 @@ export class UnifiedVoiceEngine {
 
     // Save to localStorage
     try {
-      localStorage.setItem('voiceflow_usage_history', JSON.stringify(this.usageHistory));
+      localStorage.setItem('voicecode_usage_history', JSON.stringify(this.usageHistory));
     } catch (error) {
       console.warn('Failed to save usage history:', error);
     }
@@ -303,7 +303,7 @@ export class UnifiedVoiceEngine {
   clearUsageHistory(): void {
     this.usageHistory = [];
     try {
-      localStorage.removeItem('voiceflow_usage_history');
+      localStorage.removeItem('voicecode_usage_history');
     } catch (error) {
       console.warn('Failed to clear usage history:', error);
     }
@@ -314,7 +314,7 @@ export class UnifiedVoiceEngine {
    */
   private loadUsageHistory(): void {
     try {
-      const saved = localStorage.getItem('voiceflow_usage_history');
+      const saved = localStorage.getItem('voicecode_usage_history');
       if (saved) {
         const parsed = JSON.parse(saved);
         // Convert timestamp strings back to Date objects

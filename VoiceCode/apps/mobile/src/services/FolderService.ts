@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Folder Service
+// VoiceCode Mobile - Folder Service
 
 import { supabase } from './supabaseService';
 
@@ -70,8 +70,8 @@ class FolderService {
   async createFolder(
     userId: string,
     name: string,
-    color: string,
-    parentId?: string
+    parentId: string | null,
+    color: string
   ): Promise<Folder> {
     try {
       const { data, error } = await supabase
@@ -107,17 +107,20 @@ class FolderService {
   /**
    * Update a folder
    */
-  async updateFolder(id: string, name: string, color: string, parentId?: string | null): Promise<Folder> {
+  async updateFolder(id: string, updates: Partial<{ name: string; color: string; parentId: string | null }>): Promise<Folder> {
     try {
       const updateData: any = {
-        name,
-        color,
         updated_at: new Date().toISOString(),
       };
 
-      // Only update parentId if it's explicitly provided
-      if (parentId !== undefined) {
-        updateData.parent_id = parentId;
+      if (updates.name !== undefined) {
+        updateData.name = updates.name;
+      }
+      if (updates.color !== undefined) {
+        updateData.color = updates.color;
+      }
+      if (updates.parentId !== undefined) {
+        updateData.parent_id = updates.parentId;
       }
 
       const { data, error } = await supabase
@@ -144,6 +147,13 @@ class FolderService {
       console.error('Update folder error:', error);
       throw error;
     }
+  }
+
+  /**
+   * Move folder to new parent
+   */
+  async moveFolder(folderId: string, newParentId: string | null): Promise<Folder> {
+    return this.updateFolder(folderId, { parentId: newParentId });
   }
 
   /**

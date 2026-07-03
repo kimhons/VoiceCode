@@ -4,6 +4,8 @@
  * Enables VoiceFlow PRO to expose tools to Claude, OpenAI, and other AI providers
  */
 import * as vscode from 'vscode';
+import { ToolChainExecutor } from './ToolChainExecutor';
+import { HumanApprovalService } from './HumanApprovalService';
 /**
  * MCP Tool Definition
  */
@@ -86,6 +88,8 @@ export declare class MCPIntegrationService {
     private prompts;
     private isRunning;
     private serverConfig;
+    private toolChainExecutor?;
+    private humanApproval?;
     private readonly _onToolRegistered;
     private readonly _onResourceRegistered;
     private readonly _onPromptRegistered;
@@ -104,7 +108,7 @@ export declare class MCPIntegrationService {
         params: Record<string, any>;
         error: any;
     }>;
-    constructor(config: vscode.WorkspaceConfiguration);
+    constructor(config: vscode.WorkspaceConfiguration, toolChainExecutor?: ToolChainExecutor, humanApproval?: HumanApprovalService);
     /**
      * Register built-in VoiceFlow PRO tools
      */
@@ -165,6 +169,86 @@ export declare class MCPIntegrationService {
      * Handle Git operations
      */
     private handleGitOperation;
+    /**
+     * Handle editor navigation
+     */
+    private handleEditorNavigation;
+    /**
+     * Handle code refactoring
+     */
+    private handleRefactoring;
+    /**
+     * Handle debugging operations
+     */
+    private handleDebugging;
+    /**
+     * Handle test runner operations
+     */
+    private handleTestRunner;
+    /**
+     * Handle snippet operations
+     */
+    private handleSnippets;
+    /**
+     * Handle workspace management
+     */
+    private handleWorkspaceManagement;
+    /**
+     * Handle documentation operations
+     */
+    private handleDocumentation;
+    /**
+     * Handle code formatting
+     */
+    private handleFormatting;
+    /**
+     * Handle diagnostics operations
+     */
+    private handleDiagnostics;
+    /**
+     * Handle selection operations
+     */
+    private handleSelection;
+    /**
+     * Handle comment operations
+     */
+    private handleComments;
+    /**
+     * Handle clipboard operations
+     */
+    private handleClipboard;
+    /**
+     * Handle window management
+     */
+    private handleWindowManagement;
+    /**
+     * Handle extension management
+     */
+    private handleExtensions;
+    /**
+     * Handle project generation
+     */
+    private handleProjectGeneration;
+    /**
+     * Handle code folding
+     */
+    private handleFolding;
+    /**
+     * Handle multi-cursor operations
+     */
+    private handleMultiCursor;
+    /**
+     * Handle language server operations
+     */
+    private handleLanguageServer;
+    /**
+     * Handle VS Code tasks
+     */
+    private handleTasks;
+    /**
+     * Handle diff and merge operations
+     */
+    private handleDiffMerge;
     /**
      * Get server configuration for MCP clients
      */

@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Enhanced Subagent System - Specialized agents with model routing
 // Implements Claude Code's subagent pattern with Plan/Explore/Code/Review agents
 
@@ -6,7 +7,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use super::agent_protocol::{AgentCapability, TaskContext, TaskResult, TaskStatus};
+use super::agent_protocol::{AgentCapability, TaskContext};
 use super::permissions::{OperationType, PermissionRequest, PermissionSystem};
 use super::validation::{ContentType, ValidationContext, ValidationPipeline};
 
@@ -53,7 +54,7 @@ impl std::fmt::Display for SubagentType {
 }
 
 /// Model selection for subagents
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ModelTier {
     /// Fastest, cheapest - for simple tasks
     Fast,
@@ -511,7 +512,7 @@ impl SubagentManager {
     /// Get the appropriate subagent for a task
     pub fn select_agent(&self, task: &TaskContext) -> SubagentType {
         // Analyze task to select best agent
-        let task_lower = task.description.to_lowercase();
+        let task_lower = task.description.as_deref().unwrap_or("").to_lowercase();
 
         if task_lower.contains("plan")
             || task_lower.contains("design")
@@ -657,7 +658,7 @@ impl SubagentManager {
             "[{} agent response]\n\nTask: {}\n\nThis is a placeholder response. \
             In production, this would contain the actual LLM response based on the \
             agent's system prompt and the task context.",
-            agent_type, context.description
+            agent_type, context.description.as_deref().unwrap_or("(no description)")
         );
 
         let execution_time_ms = start_time.elapsed().as_millis() as u64;
@@ -724,7 +725,9 @@ impl SubagentManager {
 
         // Task
         prompt.push_str("## Task\n");
-        prompt.push_str(&context.description);
+        if let Some(desc) = &context.description {
+            prompt.push_str(desc);
+        }
 
         prompt
     }
@@ -788,10 +791,8 @@ impl SubagentPipeline {
                 name: "Plan".to_string(),
                 agent_type: SubagentType::Planner,
                 transform: Some(Box::new(|result| TaskContext {
-                    description: format!("Implement the following plan:\n{}", result.content),
-                    files: Vec::new(),
-                    language: None,
-                    constraints: Vec::new(),
+                    description: Some(format!("Implement the following plan:\n{}", result.content)),
+                    ..Default::default()
                 })),
                 condition: None,
             })
@@ -799,13 +800,11 @@ impl SubagentPipeline {
                 name: "Implement".to_string(),
                 agent_type: SubagentType::Coder,
                 transform: Some(Box::new(|result| TaskContext {
-                    description: format!(
+                    description: Some(format!(
                         "Review the following implementation:\n{}",
                         result.content
-                    ),
-                    files: Vec::new(),
-                    language: None,
-                    constraints: Vec::new(),
+                    )),
+                    ..Default::default()
                 })),
                 condition: None,
             })
@@ -824,13 +823,11 @@ impl SubagentPipeline {
                 name: "Explore".to_string(),
                 agent_type: SubagentType::Explorer,
                 transform: Some(Box::new(|result| TaskContext {
-                    description: format!(
+                    description: Some(format!(
                         "Based on this exploration:\n{}\n\nCreate an implementation plan.",
                         result.content
-                    ),
-                    files: Vec::new(),
-                    language: None,
-                    constraints: Vec::new(),
+                    )),
+                    ..Default::default()
                 })),
                 condition: None,
             })
@@ -838,10 +835,8 @@ impl SubagentPipeline {
                 name: "Plan".to_string(),
                 agent_type: SubagentType::Planner,
                 transform: Some(Box::new(|result| TaskContext {
-                    description: format!("Implement this plan:\n{}", result.content),
-                    files: Vec::new(),
-                    language: None,
-                    constraints: Vec::new(),
+                    description: Some(format!("Implement this plan:\n{}", result.content)),
+                    ..Default::default()
                 })),
                 condition: None,
             })
@@ -926,34 +921,26 @@ mod tests {
         let manager = SubagentManager::new(permissions, validation);
 
         let plan_task = TaskContext {
-            description: "Plan the implementation of a new feature".to_string(),
-            files: Vec::new(),
-            language: None,
-            constraints: Vec::new(),
+            description: Some("Plan the implementation of a new feature".to_string()),
+            ..Default::default()
         };
         assert_eq!(manager.select_agent(&plan_task), SubagentType::Planner);
 
         let search_task = TaskContext {
-            description: "Find where the user authentication is handled".to_string(),
-            files: Vec::new(),
-            language: None,
-            constraints: Vec::new(),
+            description: Some("Find where the user authentication is handled".to_string()),
+            ..Default::default()
         };
         assert_eq!(manager.select_agent(&search_task), SubagentType::Explorer);
 
         let debug_task = TaskContext {
-            description: "Fix the bug in the login flow".to_string(),
-            files: Vec::new(),
-            language: None,
-            constraints: Vec::new(),
+            description: Some("Fix the bug in the login flow".to_string()),
+            ..Default::default()
         };
         assert_eq!(manager.select_agent(&debug_task), SubagentType::Debugger);
 
         let security_task = TaskContext {
-            description: "Review for security vulnerabilities".to_string(),
-            files: Vec::new(),
-            language: None,
-            constraints: Vec::new(),
+            description: Some("Review for security vulnerabilities".to_string()),
+            ..Default::default()
         };
         assert_eq!(manager.select_agent(&security_task), SubagentType::Security);
     }

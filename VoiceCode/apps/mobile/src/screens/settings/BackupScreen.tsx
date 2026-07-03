@@ -1312,7 +1312,7 @@ export const BackupScreen: React.FC = () => {
                     Set a strong password to encrypt your backups. This password will be required to restore encrypted backups.
                   </Text>
                   <Text variant="caption" style={{ color: theme.colors.textSecondary, marginTop: BASE_UNIT * 2, textAlign: 'center' }}>
-                    ⚠️ Keep this password safe. If you lose it, you won't be able to restore your backups.
+                    ⚠️ Keep this password safe. If you lose it, you won&apos;t be able to restore your backups.
                   </Text>
 
                   <TextInput

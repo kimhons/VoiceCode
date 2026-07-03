@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Template Selection Screen
+// VoiceCode Mobile - Template Selection Screen
 
 import React, { useEffect, useCallback } from 'react';
 import {

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Search Service
+// VoiceCode Mobile - Search Service
 
 import { supabase } from './supabaseService';
 

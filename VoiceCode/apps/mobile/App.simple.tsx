@@ -1,4 +1,4 @@
-// Simplified VoiceFlow Pro Mobile - For Testing
+// Simplified VoiceCode Pro Mobile - For Testing
 
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
@@ -14,7 +14,7 @@ export default function App() {
         <StatusBar style="light" />
         
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>🎙️ VoiceFlow Pro</Text>
+          <Text style={styles.title}>🎙️ VoiceCode Pro</Text>
           <Text style={styles.subtitle}>Mobile App - Test Version</Text>
           
           <View style={styles.card}>
@@ -52,7 +52,7 @@ export default function App() {
             <Text style={styles.cardText}>
               This simplified version tests if the core React Native setup works 
               without Redux, Navigation, or custom contexts. If this works, we can 
-              add features one by one to find what's causing the crash.
+              add features one by one to find what&apos;s causing the crash.
             </Text>
           </View>
         </ScrollView>

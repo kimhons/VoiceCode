@@ -942,7 +942,7 @@ class ThemeService {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as unknown as UserThemePreferences | null;
     } catch (err) {
       console.error('Failed to get user preferences:', err);
       return null;
@@ -959,7 +959,7 @@ class ThemeService {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as unknown as UserThemePreferences;
     } catch (err) {
       console.error('Failed to save user preferences:', err);
       throw err;

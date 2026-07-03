@@ -7,14 +7,14 @@
 
 import { Transcript } from './supabase.service';
 
-const DB_NAME = 'voiceflow_pro';
+const DB_NAME = 'voicecode';
 const DB_VERSION = 1;
 const TRANSCRIPTS_STORE = 'transcripts';
 const METADATA_STORE = 'metadata';
 
 export interface StorageMetadata {
   key: string;
-  value: any;
+  value: unknown;
   updated_at: string;
 }
 
@@ -326,7 +326,7 @@ export class OfflineStorageService {
   /**
    * Save metadata
    */
-  async saveMetadata(key: string, value: any): Promise<void> {
+  async saveMetadata(key: string, value: unknown): Promise<void> {
     await this.ensureInitialized();
     if (!this.db) throw new Error('Database not initialized');
 
@@ -349,7 +349,7 @@ export class OfflineStorageService {
   /**
    * Get metadata
    */
-  async getMetadata(key: string): Promise<any> {
+  async getMetadata(key: string): Promise<unknown> {
     await this.ensureInitialized();
     if (!this.db) throw new Error('Database not initialized');
 

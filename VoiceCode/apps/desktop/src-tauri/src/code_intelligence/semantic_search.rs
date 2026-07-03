@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 2: Semantic Search Infrastructure
 // Embedding generation and vector-based code search
 
@@ -208,6 +209,13 @@ impl EmbeddingService {
         }
 
         text
+    }
+
+    /// Embed a single text string (convenience method for context_lineage)
+    pub async fn embed(&self, text: &str) -> Result<Vec<f32>, String> {
+        let texts = vec![text.to_string()];
+        let mut results = self.generate_embeddings(&texts).await?;
+        results.pop().ok_or_else(|| "No embedding generated".to_string())
     }
 
     /// Generate embeddings using configured model

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Theme System
+// VoiceCode Pro Mobile - Theme System
 
 export { colors, type ColorScheme, type ThemeColors } from './colors';
 export { typography, fontFamilies, fontSizes, lineHeights, fontWeights, type TypographyVariant } from './typography';

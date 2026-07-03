@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Cloud Storage Integration Screen
+// VoiceCode Mobile - Cloud Storage Integration Screen
 // Week 7 Day 44-45: Comprehensive Cloud Storage Provider Integration
 // Phase 2: Advanced Features - Offline & Cloud Integration
 
@@ -85,7 +85,7 @@ export interface StorageQuota {
   totalSpace: number; // bytes
   usedSpace: number; // bytes
   availableSpace: number; // bytes
-  voiceflowUsage: number; // bytes
+  VoiceCodeUsage: number; // bytes
   lastUpdated: string;
 }
 
@@ -158,11 +158,11 @@ const BASE_UNIT = 4;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 // AsyncStorage keys
-const STORAGE_KEY = '@voiceflow_cloud_storage_config';
-const QUOTA_KEY = '@voiceflow_cloud_quota';
-const FILES_KEY = '@voiceflow_cloud_files';
-const HISTORY_KEY = '@voiceflow_backup_history';
-const CONFLICTS_KEY = '@voiceflow_sync_conflicts';
+const STORAGE_KEY = '@VoiceCode_cloud_storage_config';
+const QUOTA_KEY = '@VoiceCode_cloud_quota';
+const FILES_KEY = '@VoiceCode_cloud_files';
+const HISTORY_KEY = '@VoiceCode_backup_history';
+const CONFLICTS_KEY = '@VoiceCode_sync_conflicts';
 
 // Color palette
 const colors = {
@@ -301,7 +301,7 @@ const DEFAULT_PROVIDER_CONFIG: CloudProviderConfig = {
   encryptionEnabled: true,
   organizationStrategy: 'by-date',
   conflictStrategy: 'ask-me',
-  folderPath: '/VoiceFlow Pro',
+  folderPath: '/VoiceCode',
 };
 
 // Mock data for demonstration
@@ -310,7 +310,7 @@ const MOCK_QUOTA: StorageQuota = {
   totalSpace: 5 * 1024 * 1024 * 1024, // 5 GB
   usedSpace: 2.3 * 1024 * 1024 * 1024, // 2.3 GB
   availableSpace: 2.7 * 1024 * 1024 * 1024, // 2.7 GB
-  voiceflowUsage: 450 * 1024 * 1024, // 450 MB
+  VoiceCodeUsage: 450 * 1024 * 1024, // 450 MB
   lastUpdated: new Date().toISOString(),
 };
 
@@ -321,7 +321,7 @@ const MOCK_FILES: CloudFile[] = [
     type: 'recording',
     size: 12.5 * 1024 * 1024,
     localPath: '/recordings/team-meeting.m4a',
-    cloudPath: '/VoiceFlow Pro/2026/01/team-meeting.m4a',
+    cloudPath: '/VoiceCode/2026/01/team-meeting.m4a',
     status: 'synced',
     lastModifiedLocal: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     lastModifiedCloud: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
@@ -333,7 +333,7 @@ const MOCK_FILES: CloudFile[] = [
     type: 'transcript',
     size: 45 * 1024,
     localPath: '/transcripts/interview-notes.txt',
-    cloudPath: '/VoiceFlow Pro/2026/01/interview-notes.txt',
+    cloudPath: '/VoiceCode/2026/01/interview-notes.txt',
     status: 'syncing',
     lastModifiedLocal: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
     lastModifiedCloud: null,
@@ -346,7 +346,7 @@ const MOCK_FILES: CloudFile[] = [
     type: 'recording',
     size: 8.2 * 1024 * 1024,
     localPath: '/recordings/project-update.m4a',
-    cloudPath: '/VoiceFlow Pro/2026/01/project-update.m4a',
+    cloudPath: '/VoiceCode/2026/01/project-update.m4a',
     status: 'pending',
     lastModifiedLocal: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
     lastModifiedCloud: null,
@@ -358,7 +358,7 @@ const MOCK_FILES: CloudFile[] = [
     type: 'export',
     size: 1.2 * 1024 * 1024,
     localPath: '/exports/summary.pdf',
-    cloudPath: '/VoiceFlow Pro/2026/01/summary.pdf',
+    cloudPath: '/VoiceCode/2026/01/summary.pdf',
     status: 'failed',
     lastModifiedLocal: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     lastModifiedCloud: null,
@@ -1003,7 +1003,7 @@ export const CloudStorageScreen: React.FC<CloudStorageScreenProps> = ({ navigati
    */
   const renderStorageQuota = () => {
     const usagePercent = (quota.usedSpace / quota.totalSpace) * 100;
-    const voiceflowPercent = (quota.voiceflowUsage / quota.totalSpace) * 100;
+    const VoiceCodePercent = (quota.VoiceCodeUsage / quota.totalSpace) * 100;
     const usageColor =
       usagePercent > 90
         ? colors.light.error
@@ -1024,7 +1024,7 @@ export const CloudStorageScreen: React.FC<CloudStorageScreenProps> = ({ navigati
           <View style={styles.sectionInfo}>
             <Text style={styles.sectionTitle}>Storage Quota</Text>
             <Text style={styles.sectionDescription}>
-              {(quota.voiceflowUsage / 1024 / 1024).toFixed(0)} MB used by VoiceFlow
+              {(quota.VoiceCodeUsage / 1024 / 1024).toFixed(0)} MB used by VoiceCode
             </Text>
           </View>
           <Ionicons
@@ -1047,8 +1047,8 @@ export const CloudStorageScreen: React.FC<CloudStorageScreenProps> = ({ navigati
                 />
                 <View
                   style={[
-                    styles.quotaBarVoiceflow,
-                    { width: `${voiceflowPercent}%`, backgroundColor: colors.light.primary },
+                    styles.quotaBarVoiceCode,
+                    { width: `${VoiceCodePercent}%`, backgroundColor: colors.light.primary },
                   ]}
                 />
               </View>
@@ -1062,7 +1062,7 @@ export const CloudStorageScreen: React.FC<CloudStorageScreenProps> = ({ navigati
                 <View style={styles.quotaLegendItem}>
                   <View style={[styles.quotaLegendDot, { backgroundColor: colors.light.primary }]} />
                   <Text style={styles.quotaLegendText}>
-                    VoiceFlow: {(quota.voiceflowUsage / 1024 / 1024).toFixed(0)} MB
+                    VoiceCode: {(quota.VoiceCodeUsage / 1024 / 1024).toFixed(0)} MB
                   </Text>
                 </View>
               </View>
@@ -1932,7 +1932,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: BASE_UNIT * 1.5,
   },
-  quotaBarVoiceflow: {
+  quotaBarVoiceCode: {
     position: 'absolute',
     left: 0,
     top: 0,

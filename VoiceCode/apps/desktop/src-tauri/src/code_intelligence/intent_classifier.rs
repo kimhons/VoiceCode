@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 4.2: Intent Classifier
 // Classifies voice commands into coding actions
 
@@ -50,7 +51,7 @@ pub struct ClassifiedIntent {
 }
 
 /// Code entity types
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeEntity {
     Function,
     Class,
@@ -105,145 +106,145 @@ impl IntentClassifier {
     fn initialize_patterns(&mut self) {
         // Create intent patterns
         self.intent_patterns.insert(CodingIntent::Create, vec![
-            Regex::new(r"(?i)^create\s").unwrap(),
-            Regex::new(r"(?i)^add\s").unwrap(),
-            Regex::new(r"(?i)^make\s").unwrap(),
-            Regex::new(r"(?i)^new\s").unwrap(),
-            Regex::new(r"(?i)^generate\s").unwrap(),
-            Regex::new(r"(?i)^write\s").unwrap(),
-            Regex::new(r"(?i)^implement\s").unwrap(),
+            Regex::new(r"(?i)^create\s").expect("valid regex: create intent"),
+            Regex::new(r"(?i)^add\s").expect("valid regex: add intent"),
+            Regex::new(r"(?i)^make\s").expect("valid regex: make intent"),
+            Regex::new(r"(?i)^new\s").expect("valid regex: new intent"),
+            Regex::new(r"(?i)^generate\s").expect("valid regex: generate intent"),
+            Regex::new(r"(?i)^write\s").expect("valid regex: write intent"),
+            Regex::new(r"(?i)^implement\s").expect("valid regex: implement intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Modify, vec![
-            Regex::new(r"(?i)^modify\s").unwrap(),
-            Regex::new(r"(?i)^change\s").unwrap(),
-            Regex::new(r"(?i)^update\s").unwrap(),
-            Regex::new(r"(?i)^edit\s").unwrap(),
-            Regex::new(r"(?i)^replace\s").unwrap(),
-            Regex::new(r"(?i)^rename\s").unwrap(),
-            Regex::new(r"(?i)^move\s").unwrap(),
+            Regex::new(r"(?i)^modify\s").expect("valid regex: modify intent"),
+            Regex::new(r"(?i)^change\s").expect("valid regex: change intent"),
+            Regex::new(r"(?i)^update\s").expect("valid regex: update intent"),
+            Regex::new(r"(?i)^edit\s").expect("valid regex: edit intent"),
+            Regex::new(r"(?i)^replace\s").expect("valid regex: replace intent"),
+            Regex::new(r"(?i)^rename\s").expect("valid regex: rename intent"),
+            Regex::new(r"(?i)^move\s").expect("valid regex: move intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Delete, vec![
-            Regex::new(r"(?i)^delete\s").unwrap(),
-            Regex::new(r"(?i)^remove\s").unwrap(),
-            Regex::new(r"(?i)^drop\s").unwrap(),
-            Regex::new(r"(?i)^clear\s").unwrap(),
+            Regex::new(r"(?i)^delete\s").expect("valid regex: delete intent"),
+            Regex::new(r"(?i)^remove\s").expect("valid regex: remove intent"),
+            Regex::new(r"(?i)^drop\s").expect("valid regex: drop intent"),
+            Regex::new(r"(?i)^clear\s").expect("valid regex: clear intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Explain, vec![
-            Regex::new(r"(?i)^explain\s").unwrap(),
-            Regex::new(r"(?i)^what\s+(is|does|are)").unwrap(),
-            Regex::new(r"(?i)^how\s+does").unwrap(),
-            Regex::new(r"(?i)^describe\s").unwrap(),
-            Regex::new(r"(?i)^tell\s+me\s+about").unwrap(),
+            Regex::new(r"(?i)^explain\s").expect("valid regex: explain intent"),
+            Regex::new(r"(?i)^what\s+(is|does|are)").expect("valid regex: what-is intent"),
+            Regex::new(r"(?i)^how\s+does").expect("valid regex: how-does intent"),
+            Regex::new(r"(?i)^describe\s").expect("valid regex: describe intent"),
+            Regex::new(r"(?i)^tell\s+me\s+about").expect("valid regex: tell-me intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Fix, vec![
-            Regex::new(r"(?i)^fix\s").unwrap(),
-            Regex::new(r"(?i)^debug\s").unwrap(),
-            Regex::new(r"(?i)^repair\s").unwrap(),
-            Regex::new(r"(?i)^solve\s").unwrap(),
-            Regex::new(r"(?i)^resolve\s").unwrap(),
-            Regex::new(r"(?i)there('s| is)\s+a\s+(bug|error|issue)").unwrap(),
+            Regex::new(r"(?i)^fix\s").expect("valid regex: fix intent"),
+            Regex::new(r"(?i)^debug\s").expect("valid regex: debug intent"),
+            Regex::new(r"(?i)^repair\s").expect("valid regex: repair intent"),
+            Regex::new(r"(?i)^solve\s").expect("valid regex: solve intent"),
+            Regex::new(r"(?i)^resolve\s").expect("valid regex: resolve intent"),
+            Regex::new(r"(?i)there('s| is)\s+a\s+(bug|error|issue)").expect("valid regex: bug-report intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Refactor, vec![
-            Regex::new(r"(?i)^refactor\s").unwrap(),
-            Regex::new(r"(?i)^clean\s+up").unwrap(),
-            Regex::new(r"(?i)^optimize\s").unwrap(),
-            Regex::new(r"(?i)^improve\s").unwrap(),
-            Regex::new(r"(?i)^simplify\s").unwrap(),
-            Regex::new(r"(?i)^extract\s").unwrap(),
+            Regex::new(r"(?i)^refactor\s").expect("valid regex: refactor intent"),
+            Regex::new(r"(?i)^clean\s+up").expect("valid regex: clean-up intent"),
+            Regex::new(r"(?i)^optimize\s").expect("valid regex: optimize intent"),
+            Regex::new(r"(?i)^improve\s").expect("valid regex: improve intent"),
+            Regex::new(r"(?i)^simplify\s").expect("valid regex: simplify intent"),
+            Regex::new(r"(?i)^extract\s").expect("valid regex: extract intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Test, vec![
-            Regex::new(r"(?i)^test\s").unwrap(),
-            Regex::new(r"(?i)^add\s+test").unwrap(),
-            Regex::new(r"(?i)^write\s+test").unwrap(),
-            Regex::new(r"(?i)^create\s+test").unwrap(),
-            Regex::new(r"(?i)^generate\s+test").unwrap(),
+            Regex::new(r"(?i)^test\s").expect("valid regex: test intent"),
+            Regex::new(r"(?i)^add\s+test").expect("valid regex: add-test intent"),
+            Regex::new(r"(?i)^write\s+test").expect("valid regex: write-test intent"),
+            Regex::new(r"(?i)^create\s+test").expect("valid regex: create-test intent"),
+            Regex::new(r"(?i)^generate\s+test").expect("valid regex: generate-test intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Document, vec![
-            Regex::new(r"(?i)^document\s").unwrap(),
-            Regex::new(r"(?i)^add\s+(comment|doc|documentation)").unwrap(),
-            Regex::new(r"(?i)^write\s+(comment|doc|documentation)").unwrap(),
+            Regex::new(r"(?i)^document\s").expect("valid regex: document intent"),
+            Regex::new(r"(?i)^add\s+(comment|doc|documentation)").expect("valid regex: add-doc intent"),
+            Regex::new(r"(?i)^write\s+(comment|doc|documentation)").expect("valid regex: write-doc intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Complete, vec![
-            Regex::new(r"(?i)^complete\s").unwrap(),
-            Regex::new(r"(?i)^finish\s").unwrap(),
-            Regex::new(r"(?i)^continue\s").unwrap(),
-            Regex::new(r"(?i)^autocomplete").unwrap(),
+            Regex::new(r"(?i)^complete\s").expect("valid regex: complete intent"),
+            Regex::new(r"(?i)^finish\s").expect("valid regex: finish intent"),
+            Regex::new(r"(?i)^continue\s").expect("valid regex: continue intent"),
+            Regex::new(r"(?i)^autocomplete").expect("valid regex: autocomplete intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Navigate, vec![
-            Regex::new(r"(?i)^go\s+to").unwrap(),
-            Regex::new(r"(?i)^navigate\s+to").unwrap(),
-            Regex::new(r"(?i)^jump\s+to").unwrap(),
-            Regex::new(r"(?i)^open\s").unwrap(),
-            Regex::new(r"(?i)^show\s+me").unwrap(),
+            Regex::new(r"(?i)^go\s+to").expect("valid regex: go-to intent"),
+            Regex::new(r"(?i)^navigate\s+to").expect("valid regex: navigate-to intent"),
+            Regex::new(r"(?i)^jump\s+to").expect("valid regex: jump-to intent"),
+            Regex::new(r"(?i)^open\s").expect("valid regex: open intent"),
+            Regex::new(r"(?i)^show\s+me").expect("valid regex: show-me intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Search, vec![
-            Regex::new(r"(?i)^search\s").unwrap(),
-            Regex::new(r"(?i)^find\s").unwrap(),
-            Regex::new(r"(?i)^look\s+for").unwrap(),
-            Regex::new(r"(?i)^where\s+(is|are)").unwrap(),
+            Regex::new(r"(?i)^search\s").expect("valid regex: search intent"),
+            Regex::new(r"(?i)^find\s").expect("valid regex: find intent"),
+            Regex::new(r"(?i)^look\s+for").expect("valid regex: look-for intent"),
+            Regex::new(r"(?i)^where\s+(is|are)").expect("valid regex: where-is intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Run, vec![
-            Regex::new(r"(?i)^run\s").unwrap(),
-            Regex::new(r"(?i)^execute\s").unwrap(),
-            Regex::new(r"(?i)^build\s").unwrap(),
-            Regex::new(r"(?i)^compile\s").unwrap(),
-            Regex::new(r"(?i)^start\s").unwrap(),
+            Regex::new(r"(?i)^run\s").expect("valid regex: run intent"),
+            Regex::new(r"(?i)^execute\s").expect("valid regex: execute intent"),
+            Regex::new(r"(?i)^build\s").expect("valid regex: build intent"),
+            Regex::new(r"(?i)^compile\s").expect("valid regex: compile intent"),
+            Regex::new(r"(?i)^start\s").expect("valid regex: start intent"),
         ]);
 
         self.intent_patterns.insert(CodingIntent::Git, vec![
-            Regex::new(r"(?i)^git\s").unwrap(),
-            Regex::new(r"(?i)^commit\s").unwrap(),
-            Regex::new(r"(?i)^push\s").unwrap(),
-            Regex::new(r"(?i)^pull\s").unwrap(),
-            Regex::new(r"(?i)^merge\s").unwrap(),
-            Regex::new(r"(?i)^checkout\s").unwrap(),
-            Regex::new(r"(?i)^branch\s").unwrap(),
+            Regex::new(r"(?i)^git\s").expect("valid regex: git intent"),
+            Regex::new(r"(?i)^commit\s").expect("valid regex: commit intent"),
+            Regex::new(r"(?i)^push\s").expect("valid regex: push intent"),
+            Regex::new(r"(?i)^pull\s").expect("valid regex: pull intent"),
+            Regex::new(r"(?i)^merge\s").expect("valid regex: merge intent"),
+            Regex::new(r"(?i)^checkout\s").expect("valid regex: checkout intent"),
+            Regex::new(r"(?i)^branch\s").expect("valid regex: branch intent"),
         ]);
 
         // Entity patterns
         self.entity_patterns.insert(CodeEntity::Function, vec![
-            Regex::new(r"(?i)function\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)method\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)fn\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)def\s+(\w+)").unwrap(),
+            Regex::new(r"(?i)function\s+(\w+)").expect("valid regex: function entity"),
+            Regex::new(r"(?i)method\s+(\w+)").expect("valid regex: method entity"),
+            Regex::new(r"(?i)fn\s+(\w+)").expect("valid regex: fn entity"),
+            Regex::new(r"(?i)def\s+(\w+)").expect("valid regex: def entity"),
         ]);
 
         self.entity_patterns.insert(CodeEntity::Class, vec![
-            Regex::new(r"(?i)class\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)struct\s+(\w+)").unwrap(),
+            Regex::new(r"(?i)class\s+(\w+)").expect("valid regex: class entity"),
+            Regex::new(r"(?i)struct\s+(\w+)").expect("valid regex: struct entity"),
         ]);
 
         self.entity_patterns.insert(CodeEntity::Variable, vec![
-            Regex::new(r"(?i)variable\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)const(ant)?\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)let\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)var\s+(\w+)").unwrap(),
+            Regex::new(r"(?i)variable\s+(\w+)").expect("valid regex: variable entity"),
+            Regex::new(r"(?i)const(ant)?\s+(\w+)").expect("valid regex: const entity"),
+            Regex::new(r"(?i)let\s+(\w+)").expect("valid regex: let entity"),
+            Regex::new(r"(?i)var\s+(\w+)").expect("valid regex: var entity"),
         ]);
 
         self.entity_patterns.insert(CodeEntity::File, vec![
-            Regex::new(r"(?i)file\s+(\S+)").unwrap(),
-            Regex::new(r"(?i)in\s+(\S+\.\w+)").unwrap(),
+            Regex::new(r"(?i)file\s+(\S+)").expect("valid regex: file entity"),
+            Regex::new(r"(?i)in\s+(\S+\.\w+)").expect("valid regex: in-file entity"),
         ]);
 
         self.entity_patterns.insert(CodeEntity::Interface, vec![
-            Regex::new(r"(?i)interface\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)trait\s+(\w+)").unwrap(),
+            Regex::new(r"(?i)interface\s+(\w+)").expect("valid regex: interface entity"),
+            Regex::new(r"(?i)trait\s+(\w+)").expect("valid regex: trait entity"),
         ]);
 
         self.entity_patterns.insert(CodeEntity::Type, vec![
-            Regex::new(r"(?i)type\s+(\w+)").unwrap(),
-            Regex::new(r"(?i)typedef\s+(\w+)").unwrap(),
+            Regex::new(r"(?i)type\s+(\w+)").expect("valid regex: type entity"),
+            Regex::new(r"(?i)typedef\s+(\w+)").expect("valid regex: typedef entity"),
         ]);
 
         // Action verbs mapping
@@ -499,9 +500,8 @@ impl IntentClassifier {
                         }
                     }
                 }
-            }
-            CodingIntent::Rename => {
-                // Extract "to X"
+
+                // Extract "to X" for rename operations (Rename is an alias for Modify)
                 if let Ok(re) = Regex::new(r"(?i)\s+to\s+(\w+)") {
                     if let Some(captures) = re.captures(text) {
                         if let Some(new_name) = captures.get(1) {
@@ -556,6 +556,7 @@ impl IntentClassifier {
 
 /// Rename intent (additional)
 impl CodingIntent {
+    #[allow(non_upper_case_globals)]
     pub const Rename: CodingIntent = CodingIntent::Modify;
 }
 

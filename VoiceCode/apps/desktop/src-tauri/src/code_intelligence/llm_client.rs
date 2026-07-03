@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 4: LLM Client Service
 // Unified interface for multiple LLM providers with streaming support
 
@@ -7,9 +8,71 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 use parking_lot::RwLock;
 use reqwest::Client;
+use once_cell::sync::Lazy;
 
 use super::context_builder::ProjectContext;
-use super::token_budget::LLMModel;
+
+/// Global LLM client singleton
+static LLM_CLIENT: Lazy<Arc<tokio::sync::RwLock<Option<LLMClient>>>> = Lazy::new(|| {
+    Arc::new(tokio::sync::RwLock::new(None))
+});
+
+/// Initialize the global LLM client with configuration.
+/// Reads API keys from environment variables if not provided in config.
+pub async fn init_llm_client(mut config: LLMClientConfig) -> Result<(), String> {
+    // Auto-detect API keys from environment if not already set
+    if !config.api_keys.contains_key(&LLMProvider::Anthropic) {
+        if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
+            config.api_keys.insert(LLMProvider::Anthropic, key);
+        }
+    }
+    if !config.api_keys.contains_key(&LLMProvider::OpenAI) {
+        if let Ok(key) = std::env::var("OPENAI_API_KEY") {
+            config.api_keys.insert(LLMProvider::OpenAI, key);
+        }
+    }
+    if !config.api_keys.contains_key(&LLMProvider::AIML) {
+        if let Ok(key) = std::env::var("AIML_API_KEY") {
+            config.api_keys.insert(LLMProvider::AIML, key);
+        }
+    }
+    if !config.api_keys.contains_key(&LLMProvider::Google) {
+        if let Ok(key) = std::env::var("GOOGLE_API_KEY") {
+            config.api_keys.insert(LLMProvider::Google, key);
+        }
+    }
+
+    let client = LLMClient::new(config)?;
+    *LLM_CLIENT.write().await = Some(client);
+    Ok(())
+}
+
+/// Get a reference to the global LLM client.
+/// Returns None if not yet initialized.
+pub fn get_llm_client() -> Arc<tokio::sync::RwLock<Option<LLMClient>>> {
+    LLM_CLIENT.clone()
+}
+
+/// Check if the LLM client is initialized and has at least one API key configured.
+pub async fn is_llm_available() -> bool {
+    let guard = LLM_CLIENT.read().await;
+    guard.as_ref().map_or(false, |c| !c.config.api_keys.is_empty())
+}
+
+/// Helper: Complete a request using the global LLM client.
+/// Falls back gracefully if the client is not initialized.
+pub async fn llm_complete(request: LLMRequest) -> Result<LLMResponse, String> {
+    let guard = LLM_CLIENT.read().await;
+    let client = guard.as_ref().ok_or("LLM client not initialized. Call init_llm_client first.")?;
+    client.complete(request).await
+}
+
+/// Helper: Stream a request using the global LLM client.
+pub async fn llm_stream(request: LLMRequest, tx: mpsc::Sender<StreamEvent>) -> Result<(), String> {
+    let guard = LLM_CLIENT.read().await;
+    let client = guard.as_ref().ok_or("LLM client not initialized. Call init_llm_client first.")?;
+    client.stream(request, tx).await
+}
 
 /// Supported LLM providers
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -580,44 +643,524 @@ impl LLMClient {
         }
     }
 
-    /// Complete with OpenAI API (placeholder)
+    /// Complete with OpenAI Chat Completions API
     async fn complete_openai(
         &self,
         request: &LLMRequest,
         model: &ModelConfig,
     ) -> Result<LLMResponse, String> {
-        // Implementation similar to Anthropic but with OpenAI format
-        Err("OpenAI provider not yet implemented".to_string())
+        let api_key = self.config.api_keys.get(&LLMProvider::OpenAI)
+            .ok_or("OpenAI API key not configured")?;
+
+        let base_url = self.config.base_urls.get(&LLMProvider::OpenAI).unwrap();
+
+        // Build messages array — OpenAI uses system as a regular message role
+        let messages: Vec<serde_json::Value> = request.messages.iter()
+            .map(|m| {
+                let role = match m.role {
+                    MessageRole::System => "system",
+                    MessageRole::User => "user",
+                    MessageRole::Assistant => "assistant",
+                    MessageRole::Tool => "tool",
+                };
+                let mut msg = serde_json::json!({
+                    "role": role,
+                    "content": m.content
+                });
+                if let Some(ref name) = m.name {
+                    msg["name"] = serde_json::json!(name);
+                }
+                if let Some(ref tool_call_id) = m.tool_call_id {
+                    msg["tool_call_id"] = serde_json::json!(tool_call_id);
+                }
+                msg
+            })
+            .collect();
+
+        let mut body = serde_json::json!({
+            "model": model.model_id,
+            "max_tokens": model.max_tokens,
+            "temperature": model.temperature,
+            "messages": messages,
+        });
+
+        if let Some(top_p) = model.top_p {
+            body["top_p"] = serde_json::json!(top_p);
+        }
+
+        if !model.stop_sequences.is_empty() {
+            body["stop"] = serde_json::json!(model.stop_sequences);
+        }
+
+        // Add tools if any (OpenAI function calling format)
+        if !request.tools.is_empty() {
+            let tools: Vec<serde_json::Value> = request.tools.iter()
+                .map(|t| serde_json::json!({
+                    "type": "function",
+                    "function": {
+                        "name": t.name,
+                        "description": t.description,
+                        "parameters": t.parameters
+                    }
+                }))
+                .collect();
+            body["tools"] = serde_json::json!(tools);
+        }
+
+        let response = self.http_client
+            .post(format!("{}/v1/chat/completions", base_url))
+            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| format!("Request failed: {}", e))?;
+
+        if !response.status().is_success() {
+            let error_text = response.text().await.unwrap_or_default();
+            return Err(format!("OpenAI API error: {}", error_text));
+        }
+
+        let result: serde_json::Value = response.json().await
+            .map_err(|e| format!("Failed to parse response: {}", e))?;
+
+        // Extract content from first choice
+        let choice = result["choices"]
+            .as_array()
+            .and_then(|arr| arr.first())
+            .ok_or("No choices in response")?;
+
+        let content = choice["message"]["content"]
+            .as_str()
+            .unwrap_or("")
+            .to_string();
+
+        // Extract tool calls
+        let tool_calls: Vec<ToolCall> = choice["message"]["tool_calls"]
+            .as_array()
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|tc| {
+                        let id = tc["id"].as_str()?.to_string();
+                        let name = tc["function"]["name"].as_str()?.to_string();
+                        let arguments: serde_json::Value = tc["function"]["arguments"]
+                            .as_str()
+                            .and_then(|s| serde_json::from_str(s).ok())
+                            .unwrap_or(serde_json::Value::Null);
+                        Some(ToolCall { id, name, arguments })
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        let finish_reason = match choice["finish_reason"].as_str() {
+            Some("stop") => FinishReason::Stop,
+            Some("length") => FinishReason::MaxTokens,
+            Some("tool_calls") => FinishReason::ToolUse,
+            Some("content_filter") => FinishReason::ContentFilter,
+            _ => FinishReason::Stop,
+        };
+
+        let usage = TokenUsage {
+            prompt_tokens: result["usage"]["prompt_tokens"].as_u64().unwrap_or(0) as usize,
+            completion_tokens: result["usage"]["completion_tokens"].as_u64().unwrap_or(0) as usize,
+            total_tokens: result["usage"]["total_tokens"].as_u64().unwrap_or(0) as usize,
+            cached_tokens: result["usage"]["prompt_tokens_details"]["cached_tokens"]
+                .as_u64()
+                .map(|v| v as usize),
+        };
+
+        Ok(LLMResponse {
+            id: result["id"].as_str().unwrap_or("").to_string(),
+            content,
+            tool_calls,
+            finish_reason,
+            usage,
+            model: model.model_id.clone(),
+            latency_ms: 0,
+        })
     }
 
-    /// Stream with OpenAI API (placeholder)
+    /// Stream with OpenAI Chat Completions API (SSE)
     async fn stream_openai(
         &self,
         request: &LLMRequest,
         model: &ModelConfig,
         tx: mpsc::Sender<StreamEvent>,
     ) -> Result<(), String> {
-        Err("OpenAI streaming not yet implemented".to_string())
+        let api_key = self.config.api_keys.get(&LLMProvider::OpenAI)
+            .ok_or("OpenAI API key not configured")?;
+
+        let base_url = self.config.base_urls.get(&LLMProvider::OpenAI).unwrap();
+
+        let messages: Vec<serde_json::Value> = request.messages.iter()
+            .map(|m| {
+                let role = match m.role {
+                    MessageRole::System => "system",
+                    MessageRole::User => "user",
+                    MessageRole::Assistant => "assistant",
+                    MessageRole::Tool => "tool",
+                };
+                let mut msg = serde_json::json!({
+                    "role": role,
+                    "content": m.content
+                });
+                if let Some(ref name) = m.name {
+                    msg["name"] = serde_json::json!(name);
+                }
+                if let Some(ref tool_call_id) = m.tool_call_id {
+                    msg["tool_call_id"] = serde_json::json!(tool_call_id);
+                }
+                msg
+            })
+            .collect();
+
+        let mut body = serde_json::json!({
+            "model": model.model_id,
+            "max_tokens": model.max_tokens,
+            "temperature": model.temperature,
+            "messages": messages,
+            "stream": true,
+            "stream_options": { "include_usage": true },
+        });
+
+        if let Some(top_p) = model.top_p {
+            body["top_p"] = serde_json::json!(top_p);
+        }
+
+        if !model.stop_sequences.is_empty() {
+            body["stop"] = serde_json::json!(model.stop_sequences);
+        }
+
+        if !request.tools.is_empty() {
+            let tools: Vec<serde_json::Value> = request.tools.iter()
+                .map(|t| serde_json::json!({
+                    "type": "function",
+                    "function": {
+                        "name": t.name,
+                        "description": t.description,
+                        "parameters": t.parameters
+                    }
+                }))
+                .collect();
+            body["tools"] = serde_json::json!(tools);
+        }
+
+        let response = self.http_client
+            .post(format!("{}/v1/chat/completions", base_url))
+            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| format!("Request failed: {}", e))?;
+
+        if !response.status().is_success() {
+            let error_text = response.text().await.unwrap_or_default();
+            let _ = tx.send(StreamEvent::Error { error: error_text }).await;
+            return Err("Stream failed".to_string());
+        }
+
+        // Process SSE stream
+        let mut stream = response.bytes_stream();
+        use futures_util::StreamExt;
+
+        let mut buffer = String::new();
+
+        while let Some(chunk_result) = stream.next().await {
+            match chunk_result {
+                Ok(chunk) => {
+                    buffer.push_str(&String::from_utf8_lossy(&chunk));
+
+                    // Process complete SSE events (delimited by \n\n)
+                    while let Some(event_end) = buffer.find("\n\n") {
+                        let event_str = buffer[..event_end].to_string();
+                        buffer = buffer[event_end + 2..].to_string();
+
+                        // OpenAI SSE format: "data: {json}\n\n" or "data: [DONE]\n\n"
+                        for line in event_str.lines() {
+                            if let Some(data) = line.strip_prefix("data: ") {
+                                if data.trim() == "[DONE]" {
+                                    let _ = tx.send(StreamEvent::Done {
+                                        finish_reason: FinishReason::Stop,
+                                    }).await;
+                                    return Ok(());
+                                }
+
+                                if let Ok(json) = serde_json::from_str::<serde_json::Value>(data) {
+                                    if let Some(event) = self.parse_openai_stream_chunk(&json) {
+                                        if tx.send(event).await.is_err() {
+                                            return Ok(());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    let _ = tx.send(StreamEvent::Error {
+                        error: format!("Stream error: {}", e),
+                    }).await;
+                    break;
+                }
+            }
+        }
+
+        Ok(())
     }
 
-    /// Complete with AI/ML API
+    /// Parse a single OpenAI streaming chunk into a StreamEvent
+    fn parse_openai_stream_chunk(&self, json: &serde_json::Value) -> Option<StreamEvent> {
+        // First chunk has model info
+        let choices = json["choices"].as_array()?;
+
+        if choices.is_empty() {
+            // Usage-only chunk (sent with stream_options.include_usage)
+            if let Some(usage_obj) = json["usage"].as_object() {
+                return Some(StreamEvent::Usage {
+                    usage: TokenUsage {
+                        prompt_tokens: usage_obj.get("prompt_tokens")
+                            .and_then(|v| v.as_u64()).unwrap_or(0) as usize,
+                        completion_tokens: usage_obj.get("completion_tokens")
+                            .and_then(|v| v.as_u64()).unwrap_or(0) as usize,
+                        total_tokens: usage_obj.get("total_tokens")
+                            .and_then(|v| v.as_u64()).unwrap_or(0) as usize,
+                        cached_tokens: None,
+                    },
+                });
+            }
+            return None;
+        }
+
+        let choice = &choices[0];
+        let delta = &choice["delta"];
+
+        // Check for finish_reason
+        if let Some(reason) = choice["finish_reason"].as_str() {
+            let finish_reason = match reason {
+                "stop" => FinishReason::Stop,
+                "length" => FinishReason::MaxTokens,
+                "tool_calls" => FinishReason::ToolUse,
+                "content_filter" => FinishReason::ContentFilter,
+                _ => FinishReason::Stop,
+            };
+            return Some(StreamEvent::Done { finish_reason });
+        }
+
+        // Check for role (first chunk) — emit Start
+        if delta.get("role").is_some() {
+            return Some(StreamEvent::Start {
+                id: json["id"].as_str().unwrap_or("").to_string(),
+                model: json["model"].as_str().unwrap_or("").to_string(),
+            });
+        }
+
+        // Content delta
+        if let Some(content) = delta["content"].as_str() {
+            if !content.is_empty() {
+                return Some(StreamEvent::Delta {
+                    content: content.to_string(),
+                });
+            }
+        }
+
+        // Tool call deltas
+        if let Some(tool_calls) = delta["tool_calls"].as_array() {
+            if let Some(tc) = tool_calls.first() {
+                if let Some(func) = tc["function"].as_object() {
+                    if let Some(name) = func.get("name").and_then(|n| n.as_str()) {
+                        let id = tc["id"].as_str().unwrap_or("").to_string();
+                        let arguments: serde_json::Value = func.get("arguments")
+                            .and_then(|a| a.as_str())
+                            .and_then(|s| serde_json::from_str(s).ok())
+                            .unwrap_or(serde_json::Value::Null);
+                        return Some(StreamEvent::ToolCall {
+                            tool_call: ToolCall { id, name: name.to_string(), arguments },
+                        });
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
+    /// Complete with AI/ML API (OpenAI-compatible format)
     async fn complete_aiml(
         &self,
         request: &LLMRequest,
         model: &ModelConfig,
     ) -> Result<LLMResponse, String> {
-        // Similar to OpenAI format
-        Err("AIML provider not yet implemented".to_string())
+        let api_key = self.config.api_keys.get(&LLMProvider::AIML)
+            .ok_or("AIML API key not configured")?;
+
+        let base_url = self.config.base_urls.get(&LLMProvider::AIML).unwrap();
+
+        // AIML uses OpenAI-compatible Chat Completions format
+        let messages: Vec<serde_json::Value> = request.messages.iter()
+            .map(|m| {
+                let role = match m.role {
+                    MessageRole::System => "system",
+                    MessageRole::User => "user",
+                    MessageRole::Assistant => "assistant",
+                    MessageRole::Tool => "tool",
+                };
+                serde_json::json!({ "role": role, "content": m.content })
+            })
+            .collect();
+
+        let mut body = serde_json::json!({
+            "model": model.model_id,
+            "max_tokens": model.max_tokens,
+            "temperature": model.temperature,
+            "messages": messages,
+        });
+
+        if let Some(top_p) = model.top_p {
+            body["top_p"] = serde_json::json!(top_p);
+        }
+
+        let response = self.http_client
+            .post(format!("{}/v1/chat/completions", base_url))
+            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| format!("Request failed: {}", e))?;
+
+        if !response.status().is_success() {
+            let error_text = response.text().await.unwrap_or_default();
+            return Err(format!("AIML API error: {}", error_text));
+        }
+
+        let result: serde_json::Value = response.json().await
+            .map_err(|e| format!("Failed to parse response: {}", e))?;
+
+        let choice = result["choices"]
+            .as_array()
+            .and_then(|arr| arr.first())
+            .ok_or("No choices in response")?;
+
+        let content = choice["message"]["content"]
+            .as_str()
+            .unwrap_or("")
+            .to_string();
+
+        let finish_reason = match choice["finish_reason"].as_str() {
+            Some("stop") => FinishReason::Stop,
+            Some("length") => FinishReason::MaxTokens,
+            _ => FinishReason::Stop,
+        };
+
+        let usage = TokenUsage {
+            prompt_tokens: result["usage"]["prompt_tokens"].as_u64().unwrap_or(0) as usize,
+            completion_tokens: result["usage"]["completion_tokens"].as_u64().unwrap_or(0) as usize,
+            total_tokens: result["usage"]["total_tokens"].as_u64().unwrap_or(0) as usize,
+            cached_tokens: None,
+        };
+
+        Ok(LLMResponse {
+            id: result["id"].as_str().unwrap_or("").to_string(),
+            content,
+            tool_calls: vec![],
+            finish_reason,
+            usage,
+            model: model.model_id.clone(),
+            latency_ms: 0,
+        })
     }
 
-    /// Stream with AI/ML API
+    /// Stream with AI/ML API (OpenAI-compatible SSE)
     async fn stream_aiml(
         &self,
         request: &LLMRequest,
         model: &ModelConfig,
         tx: mpsc::Sender<StreamEvent>,
     ) -> Result<(), String> {
-        Err("AIML streaming not yet implemented".to_string())
+        let api_key = self.config.api_keys.get(&LLMProvider::AIML)
+            .ok_or("AIML API key not configured")?;
+
+        let base_url = self.config.base_urls.get(&LLMProvider::AIML).unwrap();
+
+        let messages: Vec<serde_json::Value> = request.messages.iter()
+            .map(|m| {
+                let role = match m.role {
+                    MessageRole::System => "system",
+                    MessageRole::User => "user",
+                    MessageRole::Assistant => "assistant",
+                    MessageRole::Tool => "tool",
+                };
+                serde_json::json!({ "role": role, "content": m.content })
+            })
+            .collect();
+
+        let body = serde_json::json!({
+            "model": model.model_id,
+            "max_tokens": model.max_tokens,
+            "temperature": model.temperature,
+            "messages": messages,
+            "stream": true,
+        });
+
+        let response = self.http_client
+            .post(format!("{}/v1/chat/completions", base_url))
+            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| format!("Request failed: {}", e))?;
+
+        if !response.status().is_success() {
+            let error_text = response.text().await.unwrap_or_default();
+            let _ = tx.send(StreamEvent::Error { error: error_text }).await;
+            return Err("Stream failed".to_string());
+        }
+
+        let mut stream = response.bytes_stream();
+        use futures_util::StreamExt;
+        let mut buffer = String::new();
+
+        while let Some(chunk_result) = stream.next().await {
+            match chunk_result {
+                Ok(chunk) => {
+                    buffer.push_str(&String::from_utf8_lossy(&chunk));
+
+                    while let Some(event_end) = buffer.find("\n\n") {
+                        let event_str = buffer[..event_end].to_string();
+                        buffer = buffer[event_end + 2..].to_string();
+
+                        for line in event_str.lines() {
+                            if let Some(data) = line.strip_prefix("data: ") {
+                                if data.trim() == "[DONE]" {
+                                    let _ = tx.send(StreamEvent::Done {
+                                        finish_reason: FinishReason::Stop,
+                                    }).await;
+                                    return Ok(());
+                                }
+                                if let Ok(json) = serde_json::from_str::<serde_json::Value>(data) {
+                                    if let Some(event) = self.parse_openai_stream_chunk(&json) {
+                                        if tx.send(event).await.is_err() {
+                                            return Ok(());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    let _ = tx.send(StreamEvent::Error {
+                        error: format!("Stream error: {}", e),
+                    }).await;
+                    break;
+                }
+            }
+        }
+
+        Ok(())
     }
 
     /// Complete with local LLM (Ollama)
@@ -841,6 +1384,68 @@ Generate tests that cover:
 Output the test code:"#,
             context, code
         )
+    }
+}
+
+// Tauri commands for LLM client
+
+#[tauri::command]
+pub async fn initialize_llm_client(
+    provider: Option<String>,
+    api_key: Option<String>,
+    model_id: Option<String>,
+) -> Result<String, String> {
+    let mut config = LLMClientConfig::default();
+
+    // If a specific provider + key is given, set it
+    if let (Some(provider_str), Some(key)) = (provider.as_deref(), api_key) {
+        let provider = match provider_str.to_lowercase().as_str() {
+            "anthropic" | "claude" => LLMProvider::Anthropic,
+            "openai" | "gpt" => LLMProvider::OpenAI,
+            "google" | "gemini" => LLMProvider::Google,
+            "aiml" => LLMProvider::AIML,
+            "local" | "ollama" => LLMProvider::Local,
+            _ => return Err(format!("Unknown provider: {}", provider_str)),
+        };
+        config.api_keys.insert(provider, key);
+
+        if let Some(model) = model_id {
+            config.default_model.provider = provider;
+            config.default_model.model_id = model;
+        }
+    }
+
+    init_llm_client(config).await?;
+
+    let available = is_llm_available().await;
+    if available {
+        Ok("LLM client initialized successfully".to_string())
+    } else {
+        Ok("LLM client initialized but no API keys found. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or pass them explicitly.".to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn check_llm_status() -> Result<serde_json::Value, String> {
+    let guard = LLM_CLIENT.read().await;
+    match guard.as_ref() {
+        Some(client) => {
+            let providers: Vec<String> = client.config.api_keys.keys()
+                .map(|p| format!("{:?}", p))
+                .collect();
+            Ok(serde_json::json!({
+                "initialized": true,
+                "providers": providers,
+                "default_model": client.config.default_model.model_id,
+                "default_provider": format!("{:?}", client.config.default_model.provider),
+            }))
+        }
+        None => Ok(serde_json::json!({
+            "initialized": false,
+            "providers": [],
+            "default_model": null,
+            "default_provider": null,
+        })),
     }
 }
 

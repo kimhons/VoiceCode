@@ -66,7 +66,7 @@ export const LANGUAGES: Record<Language, LanguageMetadata> = {
 // Translations
 const BASE_EN_TRANSLATIONS = {
     // Common
-    'common.app_name': 'VoiceFlow Pro',
+    'common.app_name': 'VoiceCode',
     'common.welcome': 'Welcome',
     'common.loading': 'Loading...',
     'common.error': 'Error',
@@ -192,7 +192,7 @@ export const translations = {
   
   es: {
     // Common
-    'common.app_name': 'VoiceFlow Pro',
+    'common.app_name': 'VoiceCode',
     'common.welcome': 'Bienvenido',
     'common.loading': 'Cargando...',
     'common.error': 'Error',
@@ -326,7 +326,7 @@ class I18nService {
     this.currentLanguage = language;
 
     // Save to localStorage
-    localStorage.setItem('voiceflow_language', language);
+    localStorage.setItem('voicecode_language', language);
 
     // Update HTML dir attribute for RTL
     const direction = LANGUAGES[language].direction;
@@ -387,7 +387,7 @@ class I18nService {
 
   // Load language from storage
   private loadLanguageFromStorage(): void {
-    const stored = localStorage.getItem('voiceflow_language') as Language;
+    const stored = localStorage.getItem('voicecode_language') as Language;
     if (stored && LANGUAGES[stored]) {
       this.currentLanguage = stored;
       const direction = LANGUAGES[stored].direction;

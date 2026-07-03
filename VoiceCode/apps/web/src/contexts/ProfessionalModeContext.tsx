@@ -1,4 +1,4 @@
-// Professional Mode Context for VoiceFlow Pro
+// Professional Mode Context for VoiceCode
 // Manages profession-specific UI modes, templates, and workflows
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';

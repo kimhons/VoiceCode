@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Audio Player Service
+// VoiceCode Pro Mobile - Audio Player Service
 
 import { Audio, AVPlaybackStatus } from 'expo-av';
 

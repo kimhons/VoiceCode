@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Navigation Types
+// VoiceCode Pro Mobile - Navigation Types
 
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Redux Store
+// VoiceCode Pro Mobile - Redux Store
 
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';

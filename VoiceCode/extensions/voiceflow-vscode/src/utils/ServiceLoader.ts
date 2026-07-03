@@ -107,6 +107,8 @@ export function createLazyService<T>(
  */
 export enum ServiceTier {
   FREE = 'free',
+  BASIC = 'basic',
+  STANDARD = 'standard',
   PRO = 'pro',
   ENTERPRISE = 'enterprise',
 }
@@ -238,6 +240,8 @@ export class EnhancedServiceLoader {
 
     const byTier = {
       [ServiceTier.FREE]: allServices.filter(s => s.tier === ServiceTier.FREE).length,
+      [ServiceTier.BASIC]: allServices.filter(s => s.tier === ServiceTier.BASIC).length,
+      [ServiceTier.STANDARD]: allServices.filter(s => s.tier === ServiceTier.STANDARD).length,
       [ServiceTier.PRO]: allServices.filter(s => s.tier === ServiceTier.PRO).length,
       [ServiceTier.ENTERPRISE]: allServices.filter(s => s.tier === ServiceTier.ENTERPRISE).length,
     };
@@ -260,8 +264,10 @@ export class EnhancedServiceLoader {
   hasAccess(tier: ServiceTier, userTier: ServiceTier): boolean {
     const tierHierarchy = {
       [ServiceTier.FREE]: 0,
-      [ServiceTier.PRO]: 1,
-      [ServiceTier.ENTERPRISE]: 2,
+      [ServiceTier.BASIC]: 1,
+      [ServiceTier.STANDARD]: 2,
+      [ServiceTier.PRO]: 3,
+      [ServiceTier.ENTERPRISE]: 4,
     };
 
     return tierHierarchy[userTier] >= tierHierarchy[tier];

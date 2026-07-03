@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Offline Mode Screen
+ * VoiceCode Mobile - Offline Mode Screen
  * Week 7 Day 43: Offline Mode Implementation
  * 
  * Comprehensive offline mode management interface that enables users to:
@@ -195,9 +195,9 @@ export interface NetworkInfo {
 
 const BASE_UNIT = 4;
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const STORAGE_KEY = '@voiceflow_offline_settings';
-const SYNC_QUEUE_KEY = '@voiceflow_sync_queue';
-const CONFLICTS_KEY = '@voiceflow_conflicts';
+const STORAGE_KEY = '@VoiceCode_offline_settings';
+const SYNC_QUEUE_KEY = '@VoiceCode_sync_queue';
+const CONFLICTS_KEY = '@VoiceCode_conflicts';
 
 /**
  * Color palette

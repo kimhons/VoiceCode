@@ -1,4 +1,4 @@
-// Core Types for VoiceFlow Pro UI Components
+// Core Types for VoiceCode UI Components
 
 export type PlatformType = 'mac' | 'windows' | 'linux';
 export type ThemeType = 'light' | 'dark' | 'auto';

@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Agent Orchestrator - Coordinates task delegation across multiple agents
 // Handles task decomposition, agent selection, parallel execution, and result aggregation
 
@@ -8,10 +9,10 @@ use std::time::{Duration, Instant};
 use tokio::sync::{mpsc, RwLock, Semaphore};
 
 use super::agent_protocol::{
-    AgentCapability, AgentMessage, AgentProtocol, CodeChange, TaskContext, TaskResult, TaskStatus,
+    AgentCapability, AgentMessage, AgentProtocol, TaskContext, TaskResult, TaskStatus,
     TaskType,
 };
-use super::agent_registry::{AgentInfo, AgentRegistry, AgentStatus};
+use super::agent_registry::{AgentInfo, AgentRegistry, AgentStatus, AgentType};
 
 /// Orchestration strategy for task execution
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -79,8 +80,14 @@ pub struct OrchestratorConfig {
 
 impl Default for OrchestratorConfig {
     fn default() -> Self {
+        // Allow override via environment variable for flexibility
+        let max_concurrent = std::env::var("VOICECODE_MAX_CONCURRENT_TASKS")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(8); // Increased from 5 to match Cursor's capacity
+
         Self {
-            max_concurrent_tasks: 5,
+            max_concurrent_tasks: max_concurrent,
             task_timeout_ms: 60000,
             auto_retry: true,
             max_retries: 2,
@@ -97,6 +104,8 @@ pub struct AgentOrchestrator {
     active_tasks: Arc<RwLock<HashMap<String, TaskAssignment>>>,
     task_semaphore: Arc<Semaphore>,
     protocols: Arc<RwLock<HashMap<String, AgentProtocol>>>,
+    /// Optional multi-agent orchestrator for CLI subprocess execution
+    multi_agent: Arc<RwLock<Option<Arc<super::multi_agent::MultiAgentOrchestrator>>>>,
 }
 
 impl AgentOrchestrator {
@@ -109,7 +118,13 @@ impl AgentOrchestrator {
             active_tasks: Arc::new(RwLock::new(HashMap::new())),
             task_semaphore: semaphore,
             protocols: Arc::new(RwLock::new(HashMap::new())),
+            multi_agent: Arc::new(RwLock::new(None)),
         }
+    }
+
+    /// Attach a MultiAgentOrchestrator for CLI-based external agent dispatch
+    pub async fn set_multi_agent(&self, multi_agent: Arc<super::multi_agent::MultiAgentOrchestrator>) {
+        *self.multi_agent.write().await = Some(multi_agent);
     }
 
     /// Execute a task with the specified strategy
@@ -263,18 +278,19 @@ impl AgentOrchestrator {
 
         for agent in &agents {
             let task_id = task_id.to_string();
-            let agent = agent.clone();
+            let agent_cloned = agent.clone();
+            let agent_id = agent.id.clone();
             let task_type = task_type.clone();
             let context = context.clone();
             let orchestrator = self.clone_for_spawn();
 
             let handle = tokio::spawn(async move {
                 orchestrator
-                    .dispatch_to_agent(&task_id, &agent, task_type, context)
+                    .dispatch_to_agent(&task_id, &agent_cloned, task_type, context)
                     .await
             });
 
-            handles.push((agent.id.clone(), handle));
+            handles.push((agent_id, handle));
         }
 
         let mut results = Vec::new();
@@ -489,14 +505,194 @@ impl AgentOrchestrator {
     ) -> Result<TaskResult, String> {
         match &agent.endpoint {
             Some(endpoint) => {
-                // External agent - use protocol
-                self.execute_remote(endpoint, task_id, task_type, context)
+                // External agent with endpoint - try TCP protocol first
+                match self
+                    .execute_remote(endpoint, task_id, task_type.clone(), context.clone())
+                    .await
+                {
+                    Ok(result) => Ok(result),
+                    Err(e) => {
+                        tracing::warn!(
+                            "TCP dispatch to {} failed ({}), trying CLI subprocess",
+                            agent.name, e
+                        );
+                        // Fallback to CLI subprocess if MultiAgentOrchestrator is available
+                        self.execute_via_cli(agent, task_id, task_type, context)
+                            .await
+                    }
+                }
+            }
+            None if agent.agent_type == AgentType::External => {
+                // External agent without endpoint - use CLI subprocess
+                self.execute_via_cli(agent, task_id, task_type, context)
                     .await
             }
             None => {
-                // Internal agent - direct execution
+                // Internal agent - direct LLM execution
                 self.execute_internal(task_id, task_type, context).await
             }
+        }
+    }
+
+    /// Execute task via CLI subprocess using MultiAgentOrchestrator
+    async fn execute_via_cli(
+        &self,
+        agent: &AgentInfo,
+        task_id: &str,
+        task_type: TaskType,
+        context: TaskContext,
+    ) -> Result<TaskResult, String> {
+        let multi_agent_guard = self.multi_agent.read().await;
+        let multi_agent = match multi_agent_guard.as_ref() {
+            Some(ma) => ma.clone(),
+            None => {
+                // No multi-agent orchestrator attached, fall back to internal
+                return self.execute_internal(task_id, task_type, context).await;
+            }
+        };
+        drop(multi_agent_guard);
+
+        // Build a prompt from task type and context
+        let prompt = self.build_cli_prompt(&task_type, &context);
+
+        // Map agent name to task category
+        let category = self.task_type_to_category(&task_type);
+
+        // Map agent name to multi-agent config ID
+        let agent_config_id = self.agent_name_to_config_id(&agent.name);
+
+        // Build CollaborativeTask with Sequential mode (single agent)
+        let collab_task = super::multi_agent::CollaborativeTask {
+            id: task_id.to_string(),
+            prompt,
+            category,
+            files: context
+                .current_file
+                .as_ref()
+                .map(|f| vec![std::path::PathBuf::from(f)])
+                .unwrap_or_default(),
+            collaboration: super::multi_agent::CollaborationMode::Sequential(
+                super::multi_agent::SequentialConfig {
+                    agent_order: vec![agent_config_id],
+                    pass_full_output: true,
+                    stop_on_success: true,
+                    max_iterations: 1,
+                },
+            ),
+            context: super::multi_agent::TaskContext::default(),
+            priority: agent.priority as i32,
+            parent_id: None,
+            dependencies: Vec::new(),
+            deadline_ms: Some(self.config.task_timeout_ms),
+            metadata: std::collections::HashMap::new(),
+        };
+
+        match multi_agent.execute_task(collab_task).await {
+            Ok(result) => {
+                // Convert multi_agent::TaskResult to agent_protocol::TaskResult
+                Ok(TaskResult {
+                    status: match result.status {
+                        super::multi_agent::TaskStatus::Completed => TaskStatus::Completed,
+                        super::multi_agent::TaskStatus::Failed => TaskStatus::Failed,
+                        _ => TaskStatus::InProgress,
+                    },
+                    success: result.status == super::multi_agent::TaskStatus::Completed,
+                    output: Some(result.output),
+                    ..Default::default()
+                })
+            }
+            Err(e) => {
+                tracing::warn!("CLI dispatch to {} failed: {}", agent.name, e);
+                // Final fallback to internal LLM execution
+                self.execute_internal(task_id, task_type, context).await
+            }
+        }
+    }
+
+    /// Build a prompt string from task type and context for CLI agents
+    fn build_cli_prompt(&self, task_type: &TaskType, context: &TaskContext) -> String {
+        let ctx_str = format!(
+            "Project: {}\nFile: {}\n{}",
+            context.project_root.as_deref().unwrap_or("unknown"),
+            context.current_file.as_deref().unwrap_or("none"),
+            context
+                .selection
+                .as_ref()
+                .map(|s| format!("Code:\n{}", s))
+                .unwrap_or_default(),
+        );
+
+        match task_type {
+            TaskType::CodeGeneration {
+                language,
+                description,
+            } => format!(
+                "Generate {} code: {}\n\n{}",
+                language.as_deref().unwrap_or(""),
+                description,
+                ctx_str
+            ),
+            TaskType::CodeReview { focus_areas } => format!(
+                "Review the code. Focus on: {}\n\n{}",
+                focus_areas.join(", "),
+                ctx_str
+            ),
+            TaskType::BugFix {
+                error_message,
+                stack_trace,
+            } => format!(
+                "Fix this bug.\nError: {}\n{}\n\n{}",
+                error_message.as_deref().unwrap_or("Unknown"),
+                stack_trace.as_deref().unwrap_or(""),
+                ctx_str
+            ),
+            TaskType::Refactoring {
+                refactor_type,
+                scope,
+            } => format!(
+                "Refactor: {}{}\n\n{}",
+                refactor_type,
+                scope
+                    .as_ref()
+                    .map(|s| format!(" (scope: {})", s))
+                    .unwrap_or_default(),
+                ctx_str
+            ),
+            TaskType::TestGeneration { test_type, .. } => {
+                format!("Generate {} tests\n\n{}", test_type, ctx_str)
+            }
+            TaskType::Documentation { doc_type, .. } => {
+                format!("Generate {} documentation\n\n{}", doc_type, ctx_str)
+            }
+            _ => format!("{:?}\n\n{}", task_type, ctx_str),
+        }
+    }
+
+    /// Map task type to multi_agent TaskCategory
+    fn task_type_to_category(
+        &self,
+        task_type: &TaskType,
+    ) -> super::multi_agent::TaskCategory {
+        match task_type {
+            TaskType::CodeGeneration { .. } => super::multi_agent::TaskCategory::CodeGeneration,
+            TaskType::CodeReview { .. } => super::multi_agent::TaskCategory::CodeReview,
+            TaskType::BugFix { .. } => super::multi_agent::TaskCategory::BugFixing,
+            TaskType::Refactoring { .. } => super::multi_agent::TaskCategory::ComplexRefactoring,
+            TaskType::TestGeneration { .. } => super::multi_agent::TaskCategory::Testing,
+            TaskType::Documentation { .. } => super::multi_agent::TaskCategory::Documentation,
+            _ => super::multi_agent::TaskCategory::CodeGeneration,
+        }
+    }
+
+    /// Map agent display name to multi-agent config ID
+    fn agent_name_to_config_id(&self, name: &str) -> String {
+        match name.to_lowercase().as_str() {
+            s if s.contains("claude") => "claude-code".to_string(),
+            s if s.contains("gemini") => "gemini-cli".to_string(),
+            s if s.contains("codex") => "codex-cli".to_string(),
+            s if s.contains("aider") => "aider".to_string(),
+            s if s.contains("copilot") => "copilot-cli".to_string(),
+            _ => name.to_lowercase().replace(' ', "-"),
         }
     }
 
@@ -514,8 +710,8 @@ impl AgentOrchestrator {
             p
         } else {
             let mut new_protocol = AgentProtocol::new(
-                self.registry.self_agent().id.clone(),
                 self.registry.self_agent().name.clone(),
+                self.registry.self_agent().capabilities.clone(),
             );
             new_protocol.connect(endpoint).await?;
             protocols.insert(endpoint.to_string(), new_protocol);
@@ -536,6 +732,7 @@ impl AgentOrchestrator {
                     AgentMessage::TaskComplete {
                         task_id: tid,
                         result,
+                        agent_id: _,
                     } if tid == task_id => {
                         return Ok(result);
                     }
@@ -549,9 +746,10 @@ impl AgentOrchestrator {
                     AgentMessage::Progress {
                         task_id: tid,
                         progress,
-                        message,
+                        message: msg,
+                        agent_id: _,
                     } if tid == task_id => {
-                        tracing::debug!("Task {} progress: {}% - {}", tid, progress, message);
+                        tracing::debug!("Task {} progress: {}% - {}", tid, progress, msg);
                     }
                     _ => {}
                 }
@@ -562,54 +760,113 @@ impl AgentOrchestrator {
         Err(format!("Task {} timed out waiting for response", task_id))
     }
 
-    /// Execute internally (VoiceCode agent)
+    /// Execute internally (VoiceCode agent) via LLM
     async fn execute_internal(
         &self,
         task_id: &str,
         task_type: TaskType,
         context: TaskContext,
     ) -> Result<TaskResult, String> {
-        // This would integrate with the code_intelligence modules
-        // For now, return a placeholder
         tracing::info!("Executing internal task {}: {:?}", task_id, task_type);
 
-        // Simulate processing based on task type
-        match task_type {
-            TaskType::CodeGeneration {
-                language,
-                description,
-            } => Ok(TaskResult {
-                status: TaskStatus::Completed,
-                output: Some(format!(
-                    "// Generated {} code for: {}",
-                    language, description
-                )),
-                changes: vec![],
-                error: None,
-                metadata: HashMap::new(),
-            }),
-            TaskType::CodeReview { .. } => Ok(TaskResult {
-                status: TaskStatus::Completed,
-                output: Some("Code review completed. No issues found.".to_string()),
-                changes: vec![],
-                error: None,
-                metadata: HashMap::new(),
-            }),
-            TaskType::BugFix { .. } => Ok(TaskResult {
-                status: TaskStatus::Completed,
-                output: Some("Bug analysis complete.".to_string()),
-                changes: vec![],
-                error: None,
-                metadata: HashMap::new(),
-            }),
-            _ => Ok(TaskResult {
-                status: TaskStatus::Completed,
-                output: Some(format!("Task {:?} completed", task_type)),
-                changes: vec![],
-                error: None,
-                metadata: HashMap::new(),
-            }),
+        use crate::code_intelligence::llm_client::{
+            self as llm, Message, LLMRequest, CodePrompts,
+        };
+
+        // Build context string from TaskContext
+        let ctx_str = format!(
+            "Project: {}\nFile: {}\nSelection:\n{}",
+            context.project_root.as_deref().unwrap_or("unknown"),
+            context.current_file.as_deref().unwrap_or("none"),
+            context.selection.as_deref().unwrap_or("none"),
+        );
+
+        // Build task-specific prompt
+        let user_prompt = match &task_type {
+            TaskType::CodeGeneration { language, description } => {
+                format!(
+                    "Generate {} code for: {}\n\nContext:\n{}",
+                    language.as_deref().unwrap_or(""), description, ctx_str
+                )
+            }
+            TaskType::CodeReview { focus_areas } => {
+                let code = context.selection.as_deref().unwrap_or("No code provided");
+                format!(
+                    "Review the following code. Focus on: {}\n\nCode:\n```\n{}\n```\n\nContext:\n{}",
+                    focus_areas.join(", "), code, ctx_str
+                )
+            }
+            TaskType::BugFix { error_message, stack_trace } => {
+                let code = context.selection.as_deref().unwrap_or("No code provided");
+                let err = error_message.as_deref().unwrap_or("Unknown error");
+                let trace = stack_trace.as_deref().unwrap_or("");
+                CodePrompts::bug_fix(&ctx_str, code, &format!("{}\n{}", err, trace))
+            }
+            TaskType::Refactoring { refactor_type, scope } => {
+                let code = context.selection.as_deref().unwrap_or("No code provided");
+                let goal = format!("{}{}", refactor_type, scope.as_ref().map(|s| format!(" (scope: {})", s)).unwrap_or_default());
+                CodePrompts::refactor(&ctx_str, code, &goal)
+            }
+            TaskType::TestGeneration { test_type, .. } => {
+                let code = context.selection.as_deref().unwrap_or("No code provided");
+                format!("Generate {} tests for:\n```\n{}\n```\n\nContext:\n{}", test_type, code, ctx_str)
+            }
+            TaskType::Documentation { doc_type, format } => {
+                let code = context.selection.as_deref().unwrap_or("No code provided");
+                format!(
+                    "Generate {} documentation{} for:\n```\n{}\n```",
+                    doc_type,
+                    format.as_ref().map(|f| format!(" in {} format", f)).unwrap_or_default(),
+                    code
+                )
+            }
+            TaskType::Explanation { detail_level } => {
+                let code = context.selection.as_deref().unwrap_or("No code provided");
+                CodePrompts::code_explanation(&ctx_str, code)
+            }
+            _ => {
+                format!("Task: {:?}\n\nContext:\n{}", task_type, ctx_str)
+            }
+        };
+
+        // Try LLM execution
+        if llm::is_llm_available().await {
+            let request = LLMRequest::new(vec![
+                Message::system(CodePrompts::code_generation_system()),
+                Message::user(user_prompt),
+            ]);
+
+            match llm::llm_complete(request).await {
+                Ok(response) => {
+                    let mut metadata = HashMap::new();
+                    metadata.insert("tokens_used".to_string(), response.usage.total_tokens.to_string());
+                    metadata.insert("model".to_string(), response.model);
+                    metadata.insert("latency_ms".to_string(), response.latency_ms.to_string());
+
+                    return Ok(TaskResult {
+                        status: TaskStatus::Completed,
+                        success: true,
+                        output: Some(response.content),
+                        metadata,
+                        ..Default::default()
+                    });
+                }
+                Err(e) => {
+                    tracing::warn!("LLM failed for internal task {}: {}", task_id, e);
+                }
+            }
         }
+
+        // Fallback: descriptive placeholder
+        Ok(TaskResult {
+            status: TaskStatus::Completed,
+            success: true,
+            output: Some(format!(
+                "Task {:?} acknowledged. Configure an LLM API key for AI-powered execution.",
+                task_type
+            )),
+            ..Default::default()
+        })
     }
 
     /// Convert task type to required capability
@@ -628,6 +885,8 @@ impl AgentOrchestrator {
             TaskType::Terminal { .. } => AgentCapability::Terminal,
             TaskType::Git { .. } => AgentCapability::Git,
             TaskType::Custom { .. } => AgentCapability::Custom("custom".to_string()),
+            // Legacy unit variants - map to appropriate capabilities
+            _ => AgentCapability::CodeGeneration,
         }
     }
 
@@ -635,7 +894,7 @@ impl AgentOrchestrator {
     fn capability_to_task_type(&self, capability: &AgentCapability) -> TaskType {
         match capability {
             AgentCapability::CodeGeneration => TaskType::CodeGeneration {
-                language: "auto".to_string(),
+                language: Some("auto".to_string()),
                 description: String::new(),
             },
             AgentCapability::CodeReview => TaskType::CodeReview {
@@ -670,7 +929,9 @@ impl AgentOrchestrator {
                     (AgentCapability::BugFix, |ctx, _| ctx),
                     (AgentCapability::TestGeneration, |mut ctx, result| {
                         for change in &result.changes {
-                            ctx.code_content = Some(change.new_content.clone());
+                            if let Some(ref content) = change.new_content {
+                                ctx.code_content = Some(content.clone());
+                            }
                         }
                         ctx
                     }),
@@ -689,21 +950,21 @@ impl AgentOrchestrator {
         match task_type {
             TaskType::Refactoring {
                 refactor_type,
-                scope,
+                scope: _,
             } => {
                 // Split large refactoring into file-level tasks
-                if let Some(files) = &context.related_files {
-                    files
+                if !context.related_files.is_empty() {
+                    context.related_files
                         .iter()
                         .map(|file| {
                             let mut sub_context = context.clone();
                             sub_context.file_path = Some(file.clone());
-                            sub_context.related_files = Some(vec![file.clone()]);
+                            sub_context.related_files = vec![file.clone()];
 
                             (
                                 TaskType::Refactoring {
                                     refactor_type: refactor_type.clone(),
-                                    scope: "file".to_string(),
+                                    scope: Some("file".to_string()),
                                 },
                                 sub_context,
                             )
@@ -718,8 +979,8 @@ impl AgentOrchestrator {
                 coverage_target,
             } => {
                 // Generate tests for multiple files in parallel
-                if let Some(files) = &context.related_files {
-                    files
+                if !context.related_files.is_empty() {
+                    context.related_files
                         .iter()
                         .map(|file| {
                             let mut sub_context = context.clone();
@@ -754,7 +1015,7 @@ impl AgentOrchestrator {
             .iter()
             .max_by_key(|r| {
                 if !r.changes.is_empty() {
-                    r.changes.iter().map(|c| c.new_content.len()).sum::<usize>()
+                    r.changes.iter().map(|c| c.new_content.as_ref().map(|s| s.len()).unwrap_or(0)).sum::<usize>()
                 } else {
                     r.output.as_ref().map(|o| o.len()).unwrap_or(0)
                 }
@@ -779,6 +1040,7 @@ impl AgentOrchestrator {
         }
 
         TaskResult {
+            success: all_succeeded,
             status: if all_succeeded {
                 TaskStatus::Completed
             } else {
@@ -790,8 +1052,7 @@ impl AgentOrchestrator {
                 Some(merged_output.join("\n\n"))
             },
             changes: merged_changes,
-            error: None,
-            metadata: HashMap::new(),
+            ..Default::default()
         }
     }
 
@@ -803,6 +1064,7 @@ impl AgentOrchestrator {
             active_tasks: Arc::clone(&self.active_tasks),
             task_semaphore: Arc::clone(&self.task_semaphore),
             protocols: Arc::clone(&self.protocols),
+            multi_agent: Arc::clone(&self.multi_agent),
         }
     }
 
@@ -838,18 +1100,13 @@ mod tests {
 
         let context = TaskContext {
             file_path: Some("test.rs".to_string()),
-            code_content: None,
-            cursor_position: None,
-            selection: None,
-            related_files: None,
-            project_root: None,
-            additional_context: HashMap::new(),
+            ..Default::default()
         };
 
         let result = orchestrator
             .execute_task(
                 TaskType::CodeGeneration {
-                    language: "rust".to_string(),
+                    language: Some("rust".to_string()),
                     description: "Hello world function".to_string(),
                 },
                 context,

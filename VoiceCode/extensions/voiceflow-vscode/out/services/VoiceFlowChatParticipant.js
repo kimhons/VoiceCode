@@ -32,6 +32,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VoiceFlowChatParticipant = void 0;
 const vscode = __importStar(require("vscode"));
+const SpecializedAgents_1 = require("./SpecializedAgents");
 /**
  * VoiceFlow Chat Participant Service
  * Provides @voiceflow chat participant for VS Code chat integration
@@ -44,10 +45,19 @@ class VoiceFlowChatParticipant {
     aiBridge;
     telemetry;
     disposables = [];
-    constructor(context, mcpService, aiBridge, telemetry) {
+    // Optional enhanced services
+    memory;
+    agentFactory;
+    constructor(context, mcpService, aiBridge, telemetry, memory, codebaseIndex) {
         this.mcpService = mcpService;
         this.aiBridge = aiBridge;
         this.telemetry = telemetry;
+        this.memory = memory;
+        // Initialize agent factory if we have the required services
+        if (codebaseIndex || memory) {
+            const config = vscode.workspace.getConfiguration('voicecode');
+            this.agentFactory = new SpecializedAgents_1.AgentFactory(aiBridge, config, codebaseIndex, memory);
+        }
         this.registerParticipant(context);
     }
     /**
@@ -258,10 +268,19 @@ class VoiceFlowChatParticipant {
      */
     async handleGeneralRequest(request, context, stream, token, result) {
         stream.progress('Thinking...');
-        // Build context from chat history
-        const history = context.history
+        // Add message to memory if available
+        if (this.memory) {
+            await this.memory.addMessage('user', request.prompt);
+        }
+        // Build context from chat history (enhanced with memory if available)
+        let history = context.history
             .filter(h => h instanceof vscode.ChatRequestTurn || h instanceof vscode.ChatResponseTurn)
             .slice(-10); // Last 10 messages
+        // Enhance with relevant conversation memory if available
+        let memoryContext = '';
+        if (this.memory) {
+            memoryContext = await this.memory.getConversationContext(request.prompt, 500);
+        }
         // Get workspace context
         const editor = vscode.window.activeTextEditor;
         const workspaceContext = editor ? {
@@ -269,9 +288,14 @@ class VoiceFlowChatParticipant {
             language: editor.document.languageId,
             selection: editor.document.getText(editor.selection),
         } : undefined;
+        // Enhance prompt with memory context if available
+        let enhancedPrompt = request.prompt;
+        if (memoryContext) {
+            enhancedPrompt = `${request.prompt}\n\n[Relevant context from previous conversations]:\n${memoryContext}`;
+        }
         const aiRequest = {
             type: 'chat',
-            prompt: request.prompt,
+            prompt: enhancedPrompt,
             context: {
                 code: workspaceContext?.selection,
                 language: workspaceContext?.language,
@@ -280,6 +304,14 @@ class VoiceFlowChatParticipant {
             options: { tools: true }
         };
         const response = await this.aiBridge.sendRequest(aiRequest);
+        // Add response to memory if available
+        if (this.memory && response.success && response.content) {
+            await this.memory.addMessage('assistant', response.content, {
+                provider: response.provider,
+                model: response.model,
+                tokens: response.usage?.totalTokens,
+            });
+        }
         if (response.success && response.content) {
             stream.markdown(response.content);
             // Handle tool calls if present

@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 use std::sync::Arc;
-use tauri::{Manager, State, Window, AppHandle, WindowEvent, CustomMenuItem, Menu, MenuItem, Submenu};
+use tauri::{Manager, State, Window, WindowEvent, CustomMenuItem, Menu, MenuItem, Submenu};
 use serde::{Deserialize, Serialize};
 use tokio::sync::{Mutex, mpsc};
 use uuid::Uuid;
@@ -26,15 +26,36 @@ mod natural_language_commands; // Phase 1.5: Natural Language Editing
 mod app_aware_formatting;  // Phase 1.7: App-Aware Formatting
 mod coding_agent;          // Phase 4 & 5: Coding Agent
 
+// STT Provider System - Multi-provider STT for 97%+ accuracy
+mod stt;
+
+// Audio Capture - Native microphone recording with cpal
+mod audio_capture;
+
+// File Tagging via Voice - "@file" mention detection
+mod file_tagging;
+
+// CLI Module - needed for code_intelligence integration
+mod cli;
+
 // Code Intelligence Engine (Context Engine Phase 1-3)
 mod code_intelligence;     // AST parsing, symbol resolution, context building
+
+// Computer Vision - Screen capture, OCR, UI detection
+mod computer_vision;
+
+// Vision Module - OCR engine, computer use, browser agent, visual explainer
+mod vision;
 
 // OPTIMIZATION: Import memory management and cache commands
 mod commands {
     pub mod memory_commands;
     pub mod cache_commands;      // Phase 1.1.5: Caching Optimization
     pub mod logging_commands;    // Phase 1.3: Structured Logging
+    pub mod audio;               // Audio capture commands
+    pub mod stt;                 // Native STT commands (Deepgram/Whisper)
     pub mod encryption_commands; // Phase 1.4: Data Encryption
+    pub mod code_intelligence_commands; // Code Intelligence Tauri commands
 }
 
 // Import integration modules
@@ -47,13 +68,13 @@ mod integrations {
     pub mod voice_generation;
     pub mod translation_service;
     pub mod context_processor;
-    pub use ai_ml_api::*;
+
 }
 
-use errors::{AppError, Result, VoiceError, TextProcessingError, ValidationError};
-use validation::{validate_text, validate_language_code, validate_hotkey, validate_config_value, validate_numeric_value};
+use errors::{AppError, VoiceError, TextProcessingError};
+use validation::{validate_text, validate_language_code, validate_hotkey, validate_config_value};
 use memory::{get_resource_manager, start_cleanup_task, ResourceManager};
-use error_boundary::{ErrorBoundary, ErrorBoundaryConfig, get_error_boundary_registry, start_error_monitoring_task, CircuitBreakerState};
+use error_boundary::{ErrorBoundary, get_error_boundary_registry, start_error_monitoring_task};
 
 // OPTIMIZATION: Import memory commands
 use commands::memory_commands::{
@@ -82,12 +103,12 @@ use commands::encryption_commands::{
 
 // Re-export integration types for easy access
 use integrations::voice_recognition::{
-    VoiceRecognitionEngine, VoiceRecognitionConfig, VoiceEvent, SpeechRecognitionResult,
+    VoiceRecognitionEngine, VoiceRecognitionConfig, VoiceEvent,
     get_supported_languages, is_language_supported, Language,
 };
 use integrations::ai_text_processor::{
-    AITextProcessor, TextProcessingConfig, ProcessingRequest, ProcessingResult, 
-    ProcessingContext, ToneType, ProcessingEvent, get_default_config_for_context,
+    AITextProcessor, ProcessingRequest, ProcessingResult,
+    ProcessingContext, ToneType, get_default_config_for_context,
 };
 
 use self::integrations::ai_text_processor::ProcessingOptions;
@@ -233,7 +254,7 @@ async fn initialize_voice_recognition(
 
     with_error_boundary_string!(boundary, async {
         let mut voice_engine_state = state.voice_engine.lock().await;
-        
+
         // Check if already initialized
         if voice_engine_state.is_some() {
             return Err(AppError::VoiceRecognition(VoiceError::AlreadyInitialized));
@@ -250,7 +271,7 @@ async fn initialize_voice_recognition(
         };
 
         let (event_sender, event_receiver) = mpsc::unbounded_channel();
-        
+
         // Store event receiver for the app state
         {
             let mut handlers = state.event_handlers.lock().await;
@@ -317,10 +338,10 @@ async fn process_speech_with_ai(
 
     with_error_boundary_string!(boundary, async {
         let text_processor_state = state.text_processor.lock().await;
-        
+
         // Send sanitized transcript to frontend
         let _ = window.emit("speech-transcript", validated_transcript.clone());
-        
+
         if let Some(ref processor) = *text_processor_state {
             let request = ProcessingRequest {
                 id: Uuid::new_v4().to_string(),
@@ -368,7 +389,7 @@ async fn process_speech_with_ai(
                     filler_words_removed: 0,
                 },
             };
-            
+
             let _ = window.emit("voice-response", fallback_result.processed_text.clone());
             Ok(fallback_result)
         }
@@ -386,7 +407,7 @@ async fn initialize_ai_ml_api(
 
     with_error_boundary_string!(boundary, async {
         let mut ai_ml_gateway_state = state.ai_ml_gateway.lock().await;
-        
+
         // Check if already initialized
         if ai_ml_gateway_state.is_some() {
             return Err(AppError::Custom("AI ML API Gateway already initialized".to_string()));
@@ -412,13 +433,13 @@ async fn initialize_ai_ml_api(
         let gateway = AIMLAPIGateway::new(config)
             .await
             .map_err(|e| AppError::Custom(format!("Failed to initialize AI ML API: {}", e)))?;
-        
+
         gateway.initialize()
             .await
             .map_err(|e| AppError::Custom(format!("Failed to initialize AI ML services: {}", e)))?;
 
         *ai_ml_gateway_state = Some(gateway);
-        
+
         tracing::info!("AI ML API Gateway initialized successfully");
         Ok(())
     })
@@ -444,7 +465,7 @@ async fn process_enhanced_text(
 
     with_error_boundary_string!(boundary, async {
         let ai_ml_gateway_state = state.ai_ml_gateway.lock().await;
-        
+
         if let Some(ref gateway) = *ai_ml_gateway_state {
             let request = EnhancedTextRequest {
                 id: Uuid::new_v4().to_string(),
@@ -495,7 +516,7 @@ async fn generate_enhanced_voice(
 
     with_error_boundary_string!(boundary, async {
         let ai_ml_gateway_state = state.ai_ml_gateway.lock().await;
-        
+
         if let Some(ref gateway) = *ai_ml_gateway_state {
             let request = EnhancedVoiceRequest {
                 id: Uuid::new_v4().to_string(),
@@ -511,7 +532,7 @@ async fn generate_enhanced_voice(
 
             let result = gateway.generate_enhanced_voice(request).await
                 .map_err(|e| AppError::Custom(format!("Voice generation failed: {}", e)))?;
-            
+
             Ok(result)
         } else {
             Err(AppError::Custom("AI ML API Gateway not initialized".to_string()))
@@ -536,11 +557,11 @@ async fn translate_with_enhancement(
 
     with_error_boundary_string!(boundary, async {
         let ai_ml_gateway_state = state.ai_ml_gateway.lock().await;
-        
+
         if let Some(ref gateway) = *ai_ml_gateway_state {
             let result = gateway.translate_with_enhancement(validated_text, from, to).await
                 .map_err(|e| AppError::Custom(format!("Translation failed: {}", e)))?;
-            
+
             Ok(result)
         } else {
             Err(AppError::Custom("AI ML API Gateway not initialized".to_string()))
@@ -568,7 +589,7 @@ async fn process_context_aware(
 
     with_error_boundary_string!(boundary, async {
         let ai_ml_gateway_state = state.ai_ml_gateway.lock().await;
-        
+
         if let Some(ref gateway) = *ai_ml_gateway_state {
             let request = ContextAwareRequest {
                 id: Uuid::new_v4().to_string(),
@@ -582,7 +603,7 @@ async fn process_context_aware(
 
             let result = gateway.process_context_aware(request).await
                 .map_err(|e| AppError::Custom(format!("Context processing failed: {}", e)))?;
-            
+
             Ok(result)
         } else {
             Err(AppError::Custom("AI ML API Gateway not initialized".to_string()))
@@ -611,11 +632,15 @@ async fn initialize_text_processor(
     state: State<'_, AppState>,
 ) -> std::result::Result<(), String> {
     let mut text_processor_state = state.text_processor.lock().await;
-    
+
     let config = get_default_config_for_context(ProcessingContext::Email);
     let (event_sender, _event_receiver) = mpsc::unbounded_channel();
-    
-    let processor = AITextProcessor::new(config, event_sender);
+
+    let mut processor = AITextProcessor::new(config, event_sender);
+
+    // Initialize the processor (required for it to be ready)
+    processor.initialize().await?;
+
     *text_processor_state = Some(processor);
 
     Ok(())
@@ -631,10 +656,10 @@ async fn process_text(
     // Validate and sanitize all inputs
     let validated_text = validate_text(&text, Some(1), Some(50000))
         .map_err(|e| AppError::Validation(e.to_string().into()))?;
-    
+
     let validated_context = validate_config_value(&context, "context")
         .map_err(|e| AppError::Validation(e.to_string().into()))?;
-    
+
     let validated_tone = validate_config_value(&tone, "tone")
         .map_err(|e| AppError::Validation(e.to_string().into()))?;
 
@@ -644,7 +669,7 @@ async fn process_text(
 
     with_error_boundary_string!(boundary, async {
         let text_processor_state = state.text_processor.lock().await;
-        
+
         if let Some(ref processor) = *text_processor_state {
             let processing_context = match validated_context.as_str() {
                 "email" => ProcessingContext::Email,
@@ -707,7 +732,7 @@ async fn is_language_supported_tauri(language_code: String) -> std::result::Resu
     // Validate language code input
     let validated_code = validate_language_code(&language_code)
         .map_err(|e| AppError::Validation(e.to_string().into()))?;
-    
+
     Ok(is_language_supported(&validated_code))
 }
 
@@ -723,21 +748,21 @@ async fn update_settings(new_settings: Settings, state: State<'_, AppState>) -> 
     // Validate settings inputs
     let validated_language = validate_language_code(&new_settings.language)
         .map_err(|e| AppError::Validation(e.to_string().into()))?;
-    
+
     let validated_hotkey = validate_hotkey(&new_settings.hotkey)
         .map_err(|e| AppError::Validation(e.to_string().into()))?;
-    
+
     let validated_theme = validate_config_value(&new_settings.theme, "theme")
         .map_err(|e| AppError::Validation(e.to_string().into()))?;
 
     let mut settings = state.settings.lock().await;
-    
+
     // Update with validated values
     let mut validated_settings = new_settings;
     validated_settings.language = validated_language;
     validated_settings.hotkey = validated_hotkey;
     validated_settings.theme = validated_theme;
-    
+
     *settings = validated_settings;
     Ok(())
 }
@@ -745,7 +770,7 @@ async fn update_settings(new_settings: Settings, state: State<'_, AppState>) -> 
 #[tauri::command]
 async fn get_voice_status(state: State<'_, AppState>) -> std::result::Result<HashMap<String, serde_json::Value>, String> {
     let voice_engine_state = state.voice_engine.lock().await;
-    
+
     let mut status = HashMap::new();
     if let Some(ref engine) = *voice_engine_state {
         let engine_status = engine.get_status();
@@ -757,7 +782,7 @@ async fn get_voice_status(state: State<'_, AppState>) -> std::result::Result<Has
         status.insert("is_listening".to_string(), serde_json::Value::Bool(false));
         status.insert("engine_type".to_string(), serde_json::Value::String("none".to_string()));
     }
-    
+
     Ok(status)
 }
 
@@ -771,16 +796,16 @@ async fn register_global_shortcut(shortcut: String, action: String, state: State
 #[tauri::command]
 async fn get_app_info() -> std::result::Result<HashMap<String, String>, String> {
     let mut info = HashMap::new();
-    info.insert("name".to_string(), "VoiceFlow Pro".to_string());
+    info.insert("name".to_string(), "VoiceCode".to_string());
     info.insert("version".to_string(), "1.0.0".to_string());
     info.insert("platform".to_string(), std::env::consts::OS.to_string());
-    info.insert("description".to_string(), "Advanced cross-platform voice productivity assistant".to_string());
+    info.insert("description".to_string(), "Voice-directed coding and professional dictation".to_string());
     Ok(info)
 }
 
 // Event handling functions with proper error handling
 async fn handle_voice_events(
-    voice_engine_state: Arc<Mutex<Option<VoiceRecognitionEngine>>>,
+    _voice_engine_state: Arc<Mutex<Option<VoiceRecognitionEngine>>>,
     window: Window,
 ) -> std::result::Result<(), String> {
     let registry = get_error_boundary_registry();
@@ -790,11 +815,11 @@ async fn handle_voice_events(
     with_error_boundary_string!(boundary, async {
         let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
         let mut event_counter = 0u64;
-        
+
         loop {
             interval.tick().await;
             event_counter = event_counter.wrapping_add(1);
-            
+
             // Simulate voice events with error handling
             if let Err(e) = window.emit("audio-metrics", serde_json::json!({
                 "volume": 0.5 + (event_counter % 10) as f32 * 0.01,
@@ -819,7 +844,7 @@ async fn handle_voice_events(
 
 fn create_menu() -> Menu {
     let macos = std::env::consts::OS == "macos";
-    
+
     let app_menu = if macos {
         Submenu::new(
             "VoiceFlow Pro",
@@ -943,6 +968,40 @@ fn create_menu() -> Menu {
 
 // Window event handler is now inline in the builder
 
+// =====================================================
+// Computer Vision Commands - Screen capture, OCR, UI detection
+// =====================================================
+
+#[tauri::command]
+async fn cv_capture_screen(output_path: Option<String>) -> std::result::Result<computer_vision::CaptureResult, String> {
+    computer_vision::capture_screen(output_path).await
+}
+
+#[tauri::command]
+async fn cv_analyze_screen() -> std::result::Result<computer_vision::ScreenAnalysis, String> {
+    computer_vision::analyze_screen().await
+}
+
+#[tauri::command]
+async fn cv_verbalize_screen() -> std::result::Result<String, String> {
+    computer_vision::verbalize_screen().await
+}
+
+#[tauri::command]
+async fn cv_describe_location(x: i32, y: i32) -> std::result::Result<String, String> {
+    computer_vision::describe_location(x, y).await
+}
+
+#[tauri::command]
+async fn cv_set_capture_config(config: computer_vision::ScreenCaptureConfig) -> std::result::Result<(), String> {
+    computer_vision::set_capture_config(config).await
+}
+
+#[tauri::command]
+async fn cv_set_verbalization_config(config: computer_vision::VerbalizationConfig) -> std::result::Result<(), String> {
+    computer_vision::set_verbalization_config(config).await
+}
+
 #[tokio::main]
 async fn main() {
     // Initialize global components
@@ -950,13 +1009,13 @@ async fn main() {
     let error_registry = get_error_boundary_registry().clone();
 
     // Initialize error boundaries for all components
-    error_registry.register("voice_recognition".to_string(), 
+    error_registry.register("voice_recognition".to_string(),
         Arc::new(ErrorBoundary::new("voice_recognition".to_string(), None))).await;
-    error_registry.register("text_processor".to_string(), 
+    error_registry.register("text_processor".to_string(),
         Arc::new(ErrorBoundary::new("text_processor".to_string(), None))).await;
-    error_registry.register("ai_ml_api".to_string(), 
+    error_registry.register("ai_ml_api".to_string(),
         Arc::new(ErrorBoundary::new("ai_ml_api".to_string(), None))).await;
-    error_registry.register("voice_events".to_string(), 
+    error_registry.register("voice_events".to_string(),
         Arc::new(ErrorBoundary::new("voice_events".to_string(), None))).await;
 
     // Start background tasks for memory management and error monitoring
@@ -1007,6 +1066,24 @@ async fn main() {
 
             // Also manage global dictation separately for direct access
             app.manage(global_dictation);
+            app.manage(commands::code_intelligence_commands::CodeIntelligenceState::default());
+
+            // Auto-initialize LLM client from environment variables
+            tauri::async_runtime::spawn(async {
+                let config = code_intelligence::llm_client::LLMClientConfig::default();
+                match code_intelligence::llm_client::init_llm_client(config).await {
+                    Ok(()) => {
+                        if code_intelligence::llm_client::is_llm_available().await {
+                            println!("LLM client initialized from environment variables");
+                        } else {
+                            println!("LLM client initialized but no API keys found. Voice commands will use template fallback.");
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("LLM client init failed (template fallback active): {}", e);
+                    }
+                }
+            });
 
             Ok(())
         })
@@ -1112,6 +1189,12 @@ async fn main() {
             streaming::set_streaming_config,
             streaming::get_streaming_config,
             streaming::process_audio_chunk,
+            streaming::start_streaming_event_bridge,
+            streaming::initialize_stt_providers,
+            streaming::get_stt_providers,
+            streaming::set_active_stt_provider,
+            streaming::is_real_stt_enabled,
+            streaming::get_extended_streaming_stats,
 
             // AquaVoice Parity - Phase 1.3: Code Vocabulary
             code_vocabulary::initialize_code_vocabulary,
@@ -1160,17 +1243,76 @@ async fn main() {
 
             // Code Intelligence Engine - Phase 1-3
             code_intelligence::project_indexer::init_project_indexer,
-            code_intelligence::project_indexer::index_project,
             code_intelligence::project_indexer::get_index_stats,
-            code_intelligence::project_indexer::search_symbols,
+            code_intelligence::project_indexer::get_index_status,
+            code_intelligence::project_indexer::search_project_symbols,
             code_intelligence::project_indexer::find_symbol_definition,
-            code_intelligence::project_indexer::get_file_structure,
+            code_intelligence::project_indexer::get_project_type,
             code_intelligence::context_builder::build_context,
-            code_intelligence::context_builder::serialize_context
+            code_intelligence::context_builder::serialize_context,
+
+            // LLM Client - Phase 4
+            code_intelligence::llm_client::initialize_llm_client,
+            code_intelligence::llm_client::check_llm_status,
+
+            // Computer Vision - Screen capture, OCR, UI detection
+            cv_capture_screen,
+            cv_analyze_screen,
+            cv_verbalize_screen,
+            cv_describe_location,
+            cv_set_capture_config,
+            cv_set_verbalization_config,
+
+            // Audio Capture - Native microphone recording
+            commands::audio::init_audio,
+            commands::audio::start_recording,
+            commands::audio::stop_recording,
+            commands::audio::cancel_recording,
+            commands::audio::get_recording_status,
+            commands::audio::get_audio_devices,
+            commands::audio::get_default_audio_device,
+            commands::audio::is_audio_available,
+
+            // Native STT - Deepgram/Whisper (replaces Web Speech API)
+            commands::stt::init_stt,
+            commands::stt::set_stt_api_key,
+            commands::stt::get_native_stt_providers,
+            commands::stt::set_stt_provider,
+            commands::stt::transcribe_audio_bytes,
+            commands::stt::transcribe_audio_file,
+            commands::stt::get_stt_settings,
+            commands::stt::update_stt_settings,
+            commands::stt::check_stt_api_keys,
+
+            // Voice-to-Code Pipeline (Phase 1.3)
+            coding_agent::execute_voice_coding_command,
+            coding_agent::undo_voice_coding_command,
+
+            // Code Intelligence Commands (Phase 1-5)
+            commands::code_intelligence_commands::init_code_intelligence,
+            commands::code_intelligence_commands::parse_voice_command,
+            commands::code_intelligence_commands::execute_voice_command,
+            commands::code_intelligence_commands::build_unified_context,
+            commands::code_intelligence_commands::extract_tribal_knowledge,
+            commands::code_intelligence_commands::get_tribal_knowledge_summary,
+            commands::code_intelligence_commands::validate_llm_response,
+            commands::code_intelligence_commands::generate_citation_prompt,
+            commands::code_intelligence_commands::calculate_token_budget,
+            commands::code_intelligence_commands::get_workspace_info,
+            commands::code_intelligence_commands::get_cross_references,
+            commands::code_intelligence_commands::analyze_command,
+            commands::code_intelligence_commands::execute_sandboxed_command,
+            commands::code_intelligence_commands::set_sandbox_mode,
+            commands::code_intelligence_commands::rollback_last_operation,
+            commands::code_intelligence_commands::build_prompt,
+            commands::code_intelligence_commands::get_anti_hallucination_prompt,
+            commands::code_intelligence_commands::get_symbol_context,
+            commands::code_intelligence_commands::search_codebase,
+            commands::code_intelligence_commands::search_git_history,
+            commands::code_intelligence_commands::explain_code_change,
+            commands::code_intelligence_commands::detect_external_agents,
+            commands::code_intelligence_commands::execute_with_strategy,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
-
-

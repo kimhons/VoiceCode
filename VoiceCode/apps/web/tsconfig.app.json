@@ -30,15 +30,18 @@
       "react",
       "react-dom"
     ],
-    /* Linting */
+    /* Linting - incrementally enabling strict checks */
     "strict": false,
     "noImplicitAny": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": false,
+    "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
     "noPropertyAccessFromIndexSignature": false,
     "noUncheckedSideEffectImports": false
   },

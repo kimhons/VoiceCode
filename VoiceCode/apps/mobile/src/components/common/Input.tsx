@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Input Component
+// VoiceCode Mobile - Input Component
 
 import React, { useState } from 'react';
 import {

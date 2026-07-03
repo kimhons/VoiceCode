@@ -47,6 +47,19 @@ vi.mock('vscode', () => {
     }
   }
 
+  // Mock CancellationTokenSource
+  class MockCancellationTokenSource {
+    token = { isCancellationRequested: false, onCancellationRequested: vi.fn() };
+    cancel() {}
+    dispose() {}
+  }
+
+  // Mock Language Model Chat Message
+  const LanguageModelChatMessage = {
+    User: (content: string) => ({ role: 'user', content }),
+    Assistant: (content: string) => ({ role: 'assistant', content }),
+  };
+
   return {
     extensions: {
       getExtension: vi.fn(),
@@ -55,11 +68,23 @@ vi.mock('vscode', () => {
       getConfiguration: vi.fn(() => ({
         get: vi.fn(),
       })),
+      workspaceFolders: [{ uri: { fsPath: '/test/workspace' } }],
     },
     commands: {
       executeCommand: vi.fn(),
     },
+    window: {
+      createTerminal: vi.fn(() => ({
+        show: vi.fn(),
+        sendText: vi.fn(),
+      })),
+    },
     EventEmitter: MockEventEmitter,
+    CancellationTokenSource: MockCancellationTokenSource,
+    LanguageModelChatMessage,
+    lm: {
+      selectChatModels: vi.fn().mockResolvedValue([]),
+    },
   };
 });
 
@@ -573,7 +598,46 @@ describe('EnhancedAIBridgeService', () => {
   // ============================================================
   describe('Extension-Based Providers', () => {
     describe('Copilot Integration', () => {
-      it('should trigger Copilot suggestion when available', async () => {
+      it('should use Language Model API when models are available', async () => {
+        // Mock Language Model API with available model
+        const mockModel = {
+          id: 'gpt-4',
+          sendRequest: vi.fn().mockResolvedValue({
+            text: (async function* () { yield 'Generated code response'; })(),
+          }),
+        };
+        (vscode.lm.selectChatModels as Mock).mockResolvedValue([mockModel]);
+
+        const response = await service.sendRequest({
+          type: 'completion',
+          prompt: 'Generate code',
+          options: { provider: 'copilot' },
+        });
+
+        expect(vscode.lm.selectChatModels).toHaveBeenCalled();
+        expect(response.provider).toBe('copilot');
+        expect(response.success).toBe(true);
+        expect(response.content).toBe('Generated code response');
+      });
+
+      it('should fallback to command when no Language Models available', async () => {
+        // Mock no Language Models available
+        (vscode.lm.selectChatModels as Mock).mockResolvedValue([]);
+
+        const response = await service.sendRequest({
+          type: 'completion',
+          prompt: 'Generate code',
+          options: { provider: 'copilot' },
+        });
+
+        expect(response.success).toBe(false);
+        expect(response.error).toContain('No language models available');
+        expect(response.provider).toBe('copilot');
+      });
+
+      it('should fallback to command-based approach on Language Model API error', async () => {
+        // Mock Language Model API error with "not available" message
+        (vscode.lm.selectChatModels as Mock).mockRejectedValue(new Error('not available'));
         (vscode.extensions.getExtension as Mock).mockReturnValue({ id: 'github.copilot' });
         (vscode.commands.executeCommand as Mock).mockResolvedValue(undefined);
 
@@ -585,9 +649,13 @@ describe('EnhancedAIBridgeService', () => {
 
         expect(vscode.commands.executeCommand).toHaveBeenCalledWith('github.copilot.generate');
         expect(response.provider).toBe('copilot');
+        expect(response.success).toBe(true);
       });
 
-      it('should return error when Copilot not installed', async () => {
+      it('should return error when Copilot not installed and fallback fails', async () => {
+        // Mock Language Model API error
+        (vscode.lm.selectChatModels as Mock).mockRejectedValue(new Error('not available'));
+        // Mock Copilot not installed
         (vscode.extensions.getExtension as Mock).mockReturnValue(undefined);
 
         const response = await service.sendRequest({

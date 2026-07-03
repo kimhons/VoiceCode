@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports, unused_assignments)]
 // Phase 6: IDE IPC Integration
 // WebSocket server for communication with IDE extensions
 
@@ -6,7 +7,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use tokio::net::{TcpListener, TcpStream};
-use tokio::sync::{mpsc, RwLock, broadcast};
+use tokio::sync::{RwLock, broadcast};
 use tokio_tungstenite::{accept_async, tungstenite::Message as WsMessage};
 use futures_util::{StreamExt, SinkExt};
 use uuid::Uuid;
@@ -543,7 +544,7 @@ async fn handle_connection(
                                             capabilities: capabilities.clone(),
                                             connected_at: std::time::SystemTime::now()
                                                 .duration_since(std::time::UNIX_EPOCH)
-                                                .unwrap()
+                                                .unwrap_or_default()
                                                 .as_secs(),
                                             last_ping: 0,
                                         };
@@ -555,15 +556,17 @@ async fn handle_connection(
                                             session_id: client_id.clone(),
                                             server_version: "1.0.0".to_string(),
                                         };
-                                        let json = serde_json::to_string(&welcome).unwrap();
-                                        let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                        if let Ok(json) = serde_json::to_string(&welcome) {
+                                            let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                        }
 
                                         tracing::info!("Client {} registered as {:?}", client_id, client_type);
                                     }
                                     ProtocolMessage::Ping { timestamp } => {
                                         let pong = ProtocolMessage::Pong { timestamp: *timestamp };
-                                        let json = serde_json::to_string(&pong).unwrap();
-                                        let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                        if let Ok(json) = serde_json::to_string(&pong) {
+                                            let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                        }
 
                                         // Update last ping
                                         if let Some(client) = clients.write().await.get_mut(&client_id) {
@@ -586,8 +589,9 @@ async fn handle_connection(
 
                                         if let Some(handler) = handlers.get(msg_type) {
                                             if let Some(response) = handler(message) {
-                                                let json = serde_json::to_string(&response).unwrap();
-                                                let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                                if let Ok(json) = serde_json::to_string(&response) {
+                                                    let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                                }
                                             }
                                         }
                                     }
@@ -599,8 +603,9 @@ async fn handle_connection(
                                     message: format!("Failed to parse message: {}", e),
                                     request_id: None,
                                 };
-                                let json = serde_json::to_string(&error).unwrap();
-                                let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                if let Ok(json) = serde_json::to_string(&error) {
+                                    let _ = ws_sender.send(WsMessage::Text(json.into())).await;
+                                }
                             }
                         }
                     }
@@ -619,7 +624,10 @@ async fn handle_connection(
             msg = message_rx.recv() => {
                 if let Ok((target_id, message)) = msg {
                     if target_id == client_id || target_id == "*" {
-                        let json = serde_json::to_string(&message).unwrap();
+                        let json = match serde_json::to_string(&message) {
+                            Ok(j) => j,
+                            Err(_) => break,
+                        };
                         if ws_sender.send(WsMessage::Text(json.into())).await.is_err() {
                             break;
                         }

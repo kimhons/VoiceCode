@@ -1,0 +1,25 @@
+﻿cargo :    Compiling voicecode-desktop v1.0.0 (C:\Githhub\VoiceCode\VoiceCode\apps\desktop\src-tauri)
+At line:1 char:1
++ cargo check --lib 2>&1 | Out-File -FilePath ".\build_check.txt" -Enco ...
++ ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Compiling vo...ktop\src-tauri):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+error: failed to run custom build command for `voicecode-desktop v1.0.0 
+(C:\Githhub\VoiceCode\VoiceCode\apps\desktop\src-tauri)`
+
+Caused by:
+  process didn't exit successfully: `C:\Githhub\VoiceCode\VoiceCode\apps\desktop\src-tauri\target\debug\build\voicecode
+-desktop-a831ffaba282acfe\build-script-build` (exit code: 1)
+  --- stdout
+  cargo:rerun-if-env-changed=TAURI_CONFIG
+  cargo:rerun-if-changed=tauri.conf.json
+  cargo:rustc-check-cfg=cfg(desktop)
+  cargo:rustc-cfg=desktop
+  cargo:rustc-check-cfg=cfg(mobile)
+  cargo:rustc-check-cfg=cfg(dev)
+
+        The `tauri` dependency features on the `Cargo.toml` file does not match the allowlist defined under 
+`tauri.conf.json`.
+        Please run `tauri dev` or `tauri build` or remove the `updater` feature.
+      

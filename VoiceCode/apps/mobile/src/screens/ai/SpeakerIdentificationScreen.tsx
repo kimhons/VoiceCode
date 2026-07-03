@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Speaker Identification Screen
+// VoiceCode Mobile - Speaker Identification Screen
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -182,7 +182,7 @@ export const SpeakerIdentificationScreen: React.FC = () => {
             No speakers detected
           </Text>
           <Text variant="body" style={styles.emptyMessage}>
-            This transcript doesn't contain multiple speakers.
+            This transcript doesn&apos;t contain multiple speakers.
           </Text>
           <Button onPress={handleRegenerate} style={styles.retryButton}>
             Try Again

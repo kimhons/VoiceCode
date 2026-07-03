@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Non-Coder Experience: Templates and Guided Wizards
 // Provides user-friendly interfaces for non-technical users
 // Includes project templates, step-by-step wizards, and natural language workflows

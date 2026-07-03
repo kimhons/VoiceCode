@@ -1,7 +1,7 @@
 /**
  * Analytics Service
  * Phase 4: Analytics & Reporting
- * 
+ *
  * Handles usage analytics, performance metrics, cost tracking, and reporting
  */
 
@@ -12,17 +12,33 @@ import { getSupabaseService, Transcript } from './supabase.service';
 // =====================================================
 
 export type EventType =
-  | 'transcript_created' | 'transcript_updated' | 'transcript_deleted'
-  | 'audio_uploaded' | 'audio_processed'
-  | 'export_pdf' | 'export_docx' | 'export_txt' | 'export_srt' | 'export_vtt' | 'export_json'
-  | 'ai_summary' | 'ai_key_points' | 'ai_action_items' | 'ai_sentiment' | 'ai_topics' | 'ai_search'
-  | 'comment_added' | 'annotation_added'
-  | 'workspace_created' | 'member_invited' | 'transcript_shared';
+  | 'transcript_created'
+  | 'transcript_updated'
+  | 'transcript_deleted'
+  | 'audio_uploaded'
+  | 'audio_processed'
+  | 'export_pdf'
+  | 'export_docx'
+  | 'export_txt'
+  | 'export_srt'
+  | 'export_vtt'
+  | 'export_json'
+  | 'ai_summary'
+  | 'ai_key_points'
+  | 'ai_action_items'
+  | 'ai_sentiment'
+  | 'ai_topics'
+  | 'ai_search'
+  | 'comment_added'
+  | 'annotation_added'
+  | 'workspace_created'
+  | 'member_invited'
+  | 'transcript_shared';
 
 export interface AnalyticsEvent {
   event_type: EventType;
-  event_data?: Record<string, any>;
-  metadata?: Record<string, any>;
+  event_data?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UsageStats {
@@ -143,7 +159,8 @@ export class AnalyticsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) return;
 
-    await this.supabase.getClient()
+    await this.supabase
+      .getClient()
       .from('analytics_events')
       .insert({
         user_id: user.id,
@@ -167,7 +184,11 @@ export class AnalyticsService {
     });
   }
 
-  async trackAudioUpload(audioFile: { id: string; format: string; size: number }): Promise<void> {
+  async trackAudioUpload(audioFile: {
+    id: string;
+    format: string;
+    size: number;
+  }): Promise<void> {
     await this.trackEvent({
       event_type: 'audio_uploaded',
       event_data: {
@@ -198,7 +219,8 @@ export class AnalyticsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('usage_stats')
       .select('*')
       .eq('user_id', user.id)
@@ -207,14 +229,18 @@ export class AnalyticsService {
       .order('date', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as UsageStats[];
   }
 
-  async getTranscriptStats(startDate: Date, endDate: Date): Promise<TranscriptStats> {
+  async getTranscriptStats(
+    startDate: Date,
+    endDate: Date
+  ): Promise<TranscriptStats> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('transcripts')
       .select('*')
       .eq('user_id', user.id)
@@ -224,7 +250,7 @@ export class AnalyticsService {
 
     if (error) throw error;
 
-    const transcripts = data || [];
+    const transcripts = (data || []) as Array<Record<string, unknown>>;
     const byLanguage: Record<string, number> = {};
     const byProfessionalMode: Record<string, number> = {};
     let totalDuration = 0;
@@ -232,20 +258,25 @@ export class AnalyticsService {
     let totalConfidence = 0;
 
     for (const transcript of transcripts) {
-      byLanguage[transcript.language] = (byLanguage[transcript.language] || 0) + 1;
-      byProfessionalMode[transcript.professional_mode] = (byProfessionalMode[transcript.professional_mode] || 0) + 1;
-      totalDuration += transcript.duration || 0;
-      totalWords += transcript.word_count || 0;
-      totalConfidence += transcript.confidence || 0;
+      const lang = transcript.language as string;
+      const mode = transcript.professional_mode as string;
+      byLanguage[lang] = (byLanguage[lang] || 0) + 1;
+      byProfessionalMode[mode] = (byProfessionalMode[mode] || 0) + 1;
+      totalDuration += (transcript.duration as number) || 0;
+      totalWords += (transcript.word_count as number) || 0;
+      totalConfidence += (transcript.confidence as number) || 0;
     }
 
     return {
       total: transcripts.length,
       by_language: byLanguage,
       by_professional_mode: byProfessionalMode,
-      avg_duration: transcripts.length > 0 ? totalDuration / transcripts.length : 0,
-      avg_word_count: transcripts.length > 0 ? totalWords / transcripts.length : 0,
-      avg_confidence: transcripts.length > 0 ? totalConfidence / transcripts.length : 0,
+      avg_duration:
+        transcripts.length > 0 ? totalDuration / transcripts.length : 0,
+      avg_word_count:
+        transcripts.length > 0 ? totalWords / transcripts.length : 0,
+      avg_confidence:
+        transcripts.length > 0 ? totalConfidence / transcripts.length : 0,
     };
   }
 
@@ -253,7 +284,8 @@ export class AnalyticsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('analytics_events')
       .select('*')
       .eq('user_id', user.id)
@@ -263,24 +295,27 @@ export class AnalyticsService {
 
     if (error) throw error;
 
-    const events = data || [];
+    const events = (data || []) as Array<Record<string, unknown>>;
     const byFormat: Record<string, number> = {};
     let totalSize = 0;
     let totalProcessingTime = 0;
 
     for (const event of events) {
-      const format = event.event_data?.format || 'unknown';
+      const eventData = (event.event_data || {}) as Record<string, unknown>;
+      const format = (eventData.format as string) || 'unknown';
       byFormat[format] = (byFormat[format] || 0) + 1;
-      totalSize += event.event_data?.size || 0;
-      totalProcessingTime += event.event_data?.processing_time || 0;
+      totalSize += (eventData.size as number) || 0;
+      totalProcessingTime += (eventData.processing_time as number) || 0;
     }
 
     return {
       total: events.length,
       by_format: byFormat,
       total_size_mb: totalSize / 1024 / 1024,
-      avg_size_mb: events.length > 0 ? totalSize / events.length / 1024 / 1024 : 0,
-      processing_time_avg: events.length > 0 ? totalProcessingTime / events.length : 0,
+      avg_size_mb:
+        events.length > 0 ? totalSize / events.length / 1024 / 1024 : 0,
+      processing_time_avg:
+        events.length > 0 ? totalProcessingTime / events.length : 0,
     };
   }
 
@@ -288,11 +323,15 @@ export class AnalyticsService {
   // PERFORMANCE METRICS
   // =====================================================
 
-  async getPerformanceMetrics(startDate: Date, endDate: Date): Promise<PerformanceMetrics[]> {
+  async getPerformanceMetrics(
+    startDate: Date,
+    endDate: Date
+  ): Promise<PerformanceMetrics[]> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('performance_metrics')
       .select('*')
       .eq('user_id', user.id)
@@ -301,18 +340,22 @@ export class AnalyticsService {
       .order('date', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as PerformanceMetrics[];
   }
 
   // =====================================================
   // COST TRACKING
   // =====================================================
 
-  async getCostBreakdown(startDate: Date, endDate: Date): Promise<CostBreakdown[]> {
+  async getCostBreakdown(
+    startDate: Date,
+    endDate: Date
+  ): Promise<CostBreakdown[]> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('cost_tracking')
       .select('*')
       .eq('user_id', user.id)
@@ -321,14 +364,15 @@ export class AnalyticsService {
       .order('date', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as CostBreakdown[];
   }
 
   async getStorageUsage(): Promise<{ total_gb: number; cost: number }> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('transcripts')
       .select('content')
       .eq('user_id', user.id)
@@ -336,15 +380,15 @@ export class AnalyticsService {
 
     if (error) throw error;
 
-    const transcripts = data || [];
+    const transcripts = (data || []) as Array<Record<string, unknown>>;
     let totalBytes = 0;
 
     for (const transcript of transcripts) {
-      totalBytes += new Blob([transcript.content]).size;
+      totalBytes += new Blob([transcript.content as string]).size;
     }
 
     const totalGb = totalBytes / 1024 / 1024 / 1024;
-    const cost = totalGb * 0.10; // $0.10 per GB per month
+    const cost = totalGb * 0.1; // $0.10 per GB per month
 
     return { total_gb: totalGb, cost };
   }
@@ -373,18 +417,30 @@ export class AnalyticsService {
     const monthCosts = await this.getCostBreakdown(monthAgo, now);
 
     // Get total stats
-    const { data: allTranscripts } = await this.supabase.getClient()
+    const { data: allTranscriptsData } = await this.supabase
+      .getClient()
       .from('transcripts')
       .select('duration, word_count')
       .eq('user_id', user.id)
       .eq('is_deleted', false);
 
-    const totalMinutes = (allTranscripts || []).reduce((sum, t) => sum + (t.duration || 0), 0) / 60;
-    const totalWords = (allTranscripts || []).reduce((sum, t) => sum + (t.word_count || 0), 0);
+    const allTranscripts = (allTranscriptsData || []) as Array<{ duration?: number; word_count?: number }>;
+    const totalMinutes =
+      allTranscripts.reduce(
+        (sum: number, t) => sum + (t.duration || 0),
+        0
+      ) / 60;
+    const totalWords = allTranscripts.reduce(
+      (sum: number, t) => sum + (t.word_count || 0),
+      0
+    );
 
     return {
       today: {
-        transcripts: todayStats.reduce((sum, s) => sum + s.transcripts_count, 0),
+        transcripts: todayStats.reduce(
+          (sum, s) => sum + s.transcripts_count,
+          0
+        ),
         minutes: todayStats.reduce((sum, s) => sum + s.total_minutes, 0),
         exports: todayStats.reduce((sum, s) => sum + s.exports_count, 0),
         cost: todayCosts.reduce((sum, c) => sum + c.total_cost, 0),
@@ -396,7 +452,10 @@ export class AnalyticsService {
         cost: weekCosts.reduce((sum, c) => sum + c.total_cost, 0),
       },
       thisMonth: {
-        transcripts: monthStats.reduce((sum, s) => sum + s.transcripts_count, 0),
+        transcripts: monthStats.reduce(
+          (sum, s) => sum + s.transcripts_count,
+          0
+        ),
         minutes: monthStats.reduce((sum, s) => sum + s.total_minutes, 0),
         exports: monthStats.reduce((sum, s) => sum + s.exports_count, 0),
         cost: monthCosts.reduce((sum, c) => sum + c.total_cost, 0),
@@ -414,9 +473,16 @@ export class AnalyticsService {
   // REPORTS
   // =====================================================
 
-  async generateReport(type: ReportType, startDate: Date, endDate: Date): Promise<Report> {
+  async generateReport(
+    type: ReportType,
+    startDate: Date,
+    endDate: Date
+  ): Promise<Report> {
     const usageStats = await this.getUsageStats(startDate, endDate);
-    const performanceMetrics = await this.getPerformanceMetrics(startDate, endDate);
+    const performanceMetrics = await this.getPerformanceMetrics(
+      startDate,
+      endDate
+    );
     const costBreakdown = await this.getCostBreakdown(startDate, endDate);
     const transcriptStats = await this.getTranscriptStats(startDate, endDate);
     const audioStats = await this.getAudioStats(startDate, endDate);
@@ -437,7 +503,9 @@ export class AnalyticsService {
 
   async exportReport(report: Report, format: ExportFormat): Promise<Blob> {
     if (format === 'json') {
-      return new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      return new Blob([JSON.stringify(report, null, 2)], {
+        type: 'application/json',
+      });
     }
 
     if (format === 'csv') {
@@ -451,7 +519,7 @@ export class AnalyticsService {
 
   private reportToCSV(report: Report): string {
     const lines: string[] = [];
-    
+
     // Header
     lines.push(`Report Type,${report.type}`);
     lines.push(`Start Date,${report.start_date}`);
@@ -461,17 +529,25 @@ export class AnalyticsService {
 
     // Usage Stats
     lines.push('Usage Statistics');
-    lines.push('Date,Transcripts,Audio Uploads,Exports,AI Features,Minutes,Words');
+    lines.push(
+      'Date,Transcripts,Audio Uploads,Exports,AI Features,Minutes,Words'
+    );
     for (const stat of report.usage_stats) {
-      lines.push(`${stat.date},${stat.transcripts_count},${stat.audio_uploads_count},${stat.exports_count},${stat.ai_features_count},${stat.total_minutes},${stat.total_words}`);
+      lines.push(
+        `${stat.date},${stat.transcripts_count},${stat.audio_uploads_count},${stat.exports_count},${stat.ai_features_count},${stat.total_minutes},${stat.total_words}`
+      );
     }
     lines.push('');
 
     // Cost Breakdown
     lines.push('Cost Breakdown');
-    lines.push('Date,API Calls,API Cost,Storage GB,Storage Cost,AI Features Cost,Total Cost');
+    lines.push(
+      'Date,API Calls,API Cost,Storage GB,Storage Cost,AI Features Cost,Total Cost'
+    );
     for (const cost of report.cost_breakdown) {
-      lines.push(`${cost.date},${cost.api_calls},${cost.api_cost},${cost.storage_gb},${cost.storage_cost},${cost.ai_features_cost},${cost.total_cost}`);
+      lines.push(
+        `${cost.date},${cost.api_calls},${cost.api_cost},${cost.storage_gb},${cost.storage_cost},${cost.ai_features_cost},${cost.total_cost}`
+      );
     }
 
     return lines.join('\n');
@@ -485,21 +561,28 @@ export class AnalyticsService {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('scheduled_reports')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as ScheduledReport[];
   }
 
-  async createScheduledReport(config: Omit<ScheduledReport, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<ScheduledReport> {
+  async createScheduledReport(
+    config: Omit<
+      ScheduledReport,
+      'id' | 'user_id' | 'created_at' | 'updated_at'
+    >
+  ): Promise<ScheduledReport> {
     const user = await this.supabase.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('scheduled_reports')
       .insert({
         user_id: user.id,
@@ -509,11 +592,15 @@ export class AnalyticsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as ScheduledReport;
   }
 
-  async updateScheduledReport(id: string, updates: Partial<ScheduledReport>): Promise<ScheduledReport> {
-    const { data, error } = await this.supabase.getClient()
+  async updateScheduledReport(
+    id: string,
+    updates: Partial<ScheduledReport>
+  ): Promise<ScheduledReport> {
+    const { data, error } = await this.supabase
+      .getClient()
       .from('scheduled_reports')
       .update(updates)
       .eq('id', id)
@@ -521,11 +608,12 @@ export class AnalyticsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as ScheduledReport;
   }
 
   async deleteScheduledReport(id: string): Promise<void> {
-    const { error } = await this.supabase.getClient()
+    const { error } = await this.supabase
+      .getClient()
       .from('scheduled_reports')
       .delete()
       .eq('id', id);
@@ -543,4 +631,3 @@ export function getAnalyticsService(): AnalyticsService {
   }
   return analyticsServiceInstance;
 }
-

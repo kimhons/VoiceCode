@@ -1,4 +1,4 @@
-// Accessibility Utilities for VoiceFlow Pro
+// Accessibility Utilities for VoiceCode
 
 import React from 'react';
 import { AccessibilityProps, ComponentSize, ComponentVariants } from '@/types';

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Enhanced Advanced Filter Screen
+// VoiceCode Mobile - Enhanced Advanced Filter Screen
 // Multi-criteria filtering, saved presets, filter analytics, quick filters, and Apple-caliber design
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { DatePickerWrapper } from '../../components/common/DatePickerWrapper';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
@@ -859,7 +859,7 @@ export const AdvancedFilterScreen: React.FC<AdvancedFilterScreenProps> = ({ navi
 
       {/* Date Pickers */}
       {showDateFromPicker && (
-        <DateTimePicker
+        <DatePickerWrapper
           testID="date-from-picker"
           value={dateFrom || new Date()}
           mode="date"
@@ -873,7 +873,7 @@ export const AdvancedFilterScreen: React.FC<AdvancedFilterScreenProps> = ({ navi
         />
       )}
       {showDateToPicker && (
-        <DateTimePicker
+        <DatePickerWrapper
           testID="date-to-picker"
           value={dateTo || new Date()}
           mode="date"

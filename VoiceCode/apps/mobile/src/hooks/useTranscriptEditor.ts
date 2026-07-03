@@ -1,14 +1,22 @@
 /**
  * useTranscriptEditor Hook
  * Phase 3.1: Transcript Editor & Export
- * 
+ *
  * React hook for transcript editing and export functionality
+ * Extended with word-level editing support
  */
 
 import { useState, useCallback, useRef } from 'react';
 import { Transcript } from '../services/supabase.service';
 import { getExportService, ExportFormat, ExportOptions } from '../services/export.service';
 import { useCloudSync } from './useCloudSync';
+
+export interface WordData {
+  word: string;
+  start: number;
+  end: number;
+  confidence: number;
+}
 
 export interface UseTranscriptEditorOptions {
   autoSave?: boolean;
@@ -27,6 +35,14 @@ export interface UseTranscriptEditorReturn {
   stopEditing: () => void;
   saveChanges: (content: string) => Promise<void>;
   discardChanges: () => void;
+
+  // Word-level editing
+  words: WordData[];
+  updateWord: (index: number, newWord: string) => void;
+  deleteWord: (index: number) => void;
+  updateWords: (words: WordData[]) => void;
+  wordsToText: (words: WordData[]) => string;
+  textToWords: (text: string) => WordData[];
 
   // Export actions
   exportTranscript: (format: ExportFormat, options?: ExportOptions) => Promise<void>;
@@ -58,9 +74,87 @@ export function useTranscriptEditor(
   const [currentTranscript, setCurrentTranscript] = useState<Transcript | null>(null);
   const [editedContent, setEditedContent] = useState<string | null>(null);
   const [originalContent, setOriginalContent] = useState<string | null>(null);
+  const [words, setWords] = useState<WordData[]>([]);
 
   // Auto-save timer
-  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /**
+   * Convert words array to text
+   */
+  const wordsToText = useCallback((wordArray: WordData[]): string => {
+    return wordArray.map((w) => w.word).join(' ');
+  }, []);
+
+  /**
+   * Convert text to words array with estimated timing
+   */
+  const textToWords = useCallback((text: string): WordData[] => {
+    const wordStrings = text.trim().split(/\s+/);
+    const avgWordDuration = 0.3; // Average word duration in seconds
+    let currentTime = 0;
+
+    return wordStrings.map((word) => {
+      const start = currentTime;
+      const end = currentTime + avgWordDuration;
+      currentTime = end + 0.1; // Small gap between words
+
+      return {
+        word,
+        start,
+        end,
+        confidence: 1.0, // User-provided text has high confidence
+      };
+    });
+  }, []);
+
+  /**
+   * Update a single word
+   */
+  const updateWord = useCallback(
+    (index: number, newWord: string) => {
+      if (index < 0 || index >= words.length) return;
+
+      const newWords = [...words];
+      newWords[index] = {
+        ...newWords[index],
+        word: newWord,
+        confidence: 1.0,
+      };
+
+      setWords(newWords);
+      setEditedContent(wordsToText(newWords));
+      setHasUnsavedChanges(true);
+    },
+    [words, wordsToText]
+  );
+
+  /**
+   * Delete a word
+   */
+  const deleteWord = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= words.length) return;
+
+      const newWords = words.filter((_, i) => i !== index);
+      setWords(newWords);
+      setEditedContent(wordsToText(newWords));
+      setHasUnsavedChanges(true);
+    },
+    [words, wordsToText]
+  );
+
+  /**
+   * Update entire words array
+   */
+  const updateWords = useCallback(
+    (newWords: WordData[]) => {
+      setWords(newWords);
+      setEditedContent(wordsToText(newWords));
+      setHasUnsavedChanges(true);
+    },
+    [wordsToText]
+  );
 
   /**
    * Start editing a transcript
@@ -73,6 +167,12 @@ export function useTranscriptEditor(
     setHasUnsavedChanges(false);
     setLastSaved(null);
 
+    // Initialize words from transcript metadata or content
+    const transcriptWords =
+      (transcript.metadata?.words as WordData[]) ||
+      textToWords(transcript.content);
+    setWords(transcriptWords);
+
     // Start auto-save timer
     if (autoSave) {
       autoSaveTimer.current = setInterval(() => {
@@ -81,7 +181,7 @@ export function useTranscriptEditor(
         }
       }, autoSaveInterval);
     }
-  }, [autoSave, autoSaveInterval, hasUnsavedChanges, editedContent]);
+  }, [autoSave, autoSaveInterval, hasUnsavedChanges, editedContent, textToWords]);
 
   /**
    * Stop editing
@@ -98,6 +198,7 @@ export function useTranscriptEditor(
     setEditedContent(null);
     setOriginalContent(null);
     setHasUnsavedChanges(false);
+    setWords([]);
   }, []);
 
   /**
@@ -190,6 +291,14 @@ export function useTranscriptEditor(
     stopEditing,
     saveChanges,
     discardChanges,
+
+    // Word-level editing
+    words,
+    updateWord,
+    deleteWord,
+    updateWords,
+    wordsToText,
+    textToWords,
 
     // Export actions
     exportTranscript,

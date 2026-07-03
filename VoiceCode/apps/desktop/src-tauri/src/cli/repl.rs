@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // REPL (Read-Eval-Print-Loop) Interface for VoiceCode CLI
 // Provides interactive command-line coding experience similar to Claude Code
 
@@ -8,7 +9,6 @@ use std::collections::HashMap;
 use std::io::{self, Write};
 use std::path::PathBuf;
 use std::sync::Arc;
-use tokio::sync::mpsc;
 
 use super::agent_registry::AgentRegistry;
 use super::commands::{CommandContext, CommandHandler, CommandResult};
@@ -277,6 +277,16 @@ impl ReplSession {
                 let setting = args;
                 self.handle_config(setting.as_deref())
             }
+            // Screen analysis commands
+            "screen" | "capture" => {
+                self.handle_screen_command(args.as_deref()).await
+            }
+            "describe" | "verbalize" => {
+                self.verbalize_screen().await
+            }
+            "ocr" => {
+                self.extract_screen_text().await
+            }
             "exit" | "quit" | "q" => {
                 self.running = false;
                 Ok(CommandResult::success("Goodbye!"))
@@ -325,6 +335,15 @@ AGENT MANAGEMENT:
   /strategy <name>  Set orchestration strategy
                     (single, race, consensus, pipeline, decompose)
 
+SCREEN ANALYSIS:
+  /screen capture   Capture screen to PNG file
+  /screen analyze   Full screen analysis
+  /screen elements  List detected UI elements
+  /screen verbose   Set detailed verbalization
+  /screen brief     Set minimal verbalization
+  /describe         Verbalize current screen
+  /ocr              Extract text from screen
+
 UTILITIES:
   /git <command>    Run git command
   /run <command>    Run shell command
@@ -365,7 +384,8 @@ TIPS:
 
         // Add current file if any
         if let Some(ref file) = self.context.current_file {
-            let filename = PathBuf::from(file)
+            let path = PathBuf::from(file);
+            let filename = path
                 .file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or(file);
@@ -594,6 +614,170 @@ TIPS:
     fn clear_screen(&self) {
         print!("\x1B[2J\x1B[1;1H");
         let _ = io::stdout().flush();
+    }
+
+    // ============================================
+    // Screen Analysis Commands
+    // ============================================
+
+    /// Handle screen command with subcommands
+    async fn handle_screen_command(&self, args: Option<&str>) -> Result<CommandResult, String> {
+        use crate::computer_vision::{get_cv_service, VerbosityLevel, VerbalizationConfig};
+
+        let service = get_cv_service();
+
+        match args {
+            Some("capture") | Some("save") => {
+                // Capture and save to file
+                let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
+                let filename = format!("screenshot_{}.png", timestamp);
+                let path = self.context.working_dir.join(&filename);
+
+                match service.capture_and_save(path.clone()).await {
+                    Ok(result) => {
+                        Ok(CommandResult::success(format!(
+                            "Screen captured: {} ({}x{} pixels)",
+                            path.display(),
+                            result.width,
+                            result.height
+                        )))
+                    }
+                    Err(e) => Err(format!("Screen capture failed: {}", e)),
+                }
+            }
+            Some("analyze") | Some("analysis") => {
+                // Full screen analysis
+                match service.analyze_screen().await {
+                    Ok(analysis) => {
+                        let summary = format!(
+                            "Screen Analysis:\n\
+                             - Layout: {:?}\n\
+                             - UI Elements: {}\n\
+                             - Text Blocks: {}\n\
+                             - Regions: {}\n\
+                             - Capture: {}x{} pixels",
+                            analysis.layout_type,
+                            analysis.elements.len(),
+                            analysis.text_blocks.len(),
+                            analysis.regions.len(),
+                            analysis.capture.width,
+                            analysis.capture.height
+                        );
+                        Ok(CommandResult::success(summary))
+                    }
+                    Err(e) => Err(format!("Screen analysis failed: {}", e)),
+                }
+            }
+            Some("elements") | Some("ui") => {
+                // Show UI elements
+                match service.analyze_screen().await {
+                    Ok(analysis) => {
+                        let elements: Vec<String> = analysis.elements.iter()
+                            .take(20)  // Limit output
+                            .map(|e| format!(
+                                "- {:?} at ({}, {}) {}x{}",
+                                e.element_type,
+                                e.bounds.x, e.bounds.y,
+                                e.bounds.width, e.bounds.height
+                            ))
+                            .collect();
+
+                        let output = if elements.is_empty() {
+                            "No UI elements detected".to_string()
+                        } else {
+                            format!(
+                                "UI Elements ({} found):\n{}",
+                                analysis.elements.len(),
+                                elements.join("\n")
+                            )
+                        };
+                        Ok(CommandResult::success(output))
+                    }
+                    Err(e) => Err(format!("UI detection failed: {}", e)),
+                }
+            }
+            Some("verbose") => {
+                // Set verbose verbalization
+                let mut config = VerbalizationConfig::default();
+                config.verbosity = VerbosityLevel::Detailed;
+                config.include_positions = true;
+                service.set_verbalization_config(config).await;
+                Ok(CommandResult::success("Verbalization set to detailed mode"))
+            }
+            Some("brief") => {
+                // Set brief verbalization
+                let mut config = VerbalizationConfig::default();
+                config.verbosity = VerbosityLevel::Minimal;
+                service.set_verbalization_config(config).await;
+                Ok(CommandResult::success("Verbalization set to brief mode"))
+            }
+            None | Some("help") => {
+                let help = r#"Screen Commands:
+  /screen capture    - Capture screen to file
+  /screen analyze    - Full screen analysis
+  /screen elements   - List detected UI elements
+  /screen verbose    - Set detailed verbalization
+  /screen brief      - Set minimal verbalization
+  /describe          - Verbalize current screen
+  /ocr               - Extract text from screen"#;
+                Ok(CommandResult::success(help))
+            }
+            Some(unknown) => {
+                Err(format!("Unknown screen subcommand: {}. Use /screen help", unknown))
+            }
+        }
+    }
+
+    /// Verbalize current screen content
+    async fn verbalize_screen(&self) -> Result<CommandResult, String> {
+        use crate::computer_vision::get_cv_service;
+
+        let service = get_cv_service();
+
+        match service.verbalize_screen().await {
+            Ok(description) => {
+                Ok(CommandResult::success(format!(
+                    "Screen Description:\n{}",
+                    description
+                )))
+            }
+            Err(e) => Err(format!("Screen verbalization failed: {}", e)),
+        }
+    }
+
+    /// Extract text from screen using OCR
+    async fn extract_screen_text(&self) -> Result<CommandResult, String> {
+        use crate::computer_vision::get_cv_service;
+
+        let service = get_cv_service();
+
+        match service.analyze_screen().await {
+            Ok(analysis) => {
+                if analysis.text_blocks.is_empty() {
+                    return Ok(CommandResult::success(
+                        "No text detected on screen (OCR placeholder - integrate tesseract for full OCR)"
+                    ));
+                }
+
+                let texts: Vec<String> = analysis.text_blocks.iter()
+                    .map(|block| {
+                        format!(
+                            "[{}px font{}] {}",
+                            block.font_size_estimate,
+                            if block.is_header { " HEADER" } else { "" },
+                            block.text
+                        )
+                    })
+                    .collect();
+
+                Ok(CommandResult::success(format!(
+                    "Extracted Text ({} blocks):\n{}",
+                    analysis.text_blocks.len(),
+                    texts.join("\n")
+                )))
+            }
+            Err(e) => Err(format!("Text extraction failed: {}", e)),
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - SearchScreen Tests
+// VoiceCode Mobile - SearchScreen Tests
 
 import searchReducer, {
   searchTranscripts,

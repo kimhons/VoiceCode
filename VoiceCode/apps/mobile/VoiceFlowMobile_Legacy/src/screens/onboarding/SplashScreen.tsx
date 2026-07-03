@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Splash Screen
+// VoiceCode Pro Mobile - Splash Screen
 
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
@@ -19,7 +19,7 @@ export const SplashScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-      <Text style={[styles.title, { color: '#FFFFFF' }]}>VoiceFlow Pro</Text>
+      <Text style={[styles.title, { color: '#FFFFFF' }]}>VoiceCode Pro</Text>
       <Text style={[styles.subtitle, { color: '#FFFFFF' }]}>
         Voice to Text, Perfected
       </Text>

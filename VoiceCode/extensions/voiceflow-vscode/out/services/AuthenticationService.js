@@ -167,6 +167,54 @@ class AuthenticationService {
         }
         vscode.window.showInformationMessage(`Upgraded to ${newTier} tier! Reload window to apply changes.`);
     }
+    /**
+     * Store API key securely using VS Code SecretStorage
+     */
+    async storeApiKey(provider, key) {
+        if (!this.context) {
+            throw new Error('AuthenticationService not initialized with context');
+        }
+        await this.context.secrets.store(`voicecode.${provider}ApiKey`, key);
+    }
+    /**
+     * Get API key from SecretStorage
+     */
+    async getApiKey(provider) {
+        if (!this.context) {
+            throw new Error('AuthenticationService not initialized with context');
+        }
+        // Try SecretStorage first
+        let apiKey = await this.context.secrets.get(`voicecode.${provider}ApiKey`);
+        // Fallback to settings for migration (deprecated)
+        if (!apiKey) {
+            const config = vscode.workspace.getConfiguration('voicecode');
+            apiKey = config.get(`${provider}ApiKey`);
+            // Migrate to SecretStorage if found in settings
+            if (apiKey) {
+                await this.storeApiKey(provider, apiKey);
+                // Clear from settings
+                await config.update(`${provider}ApiKey`, undefined, vscode.ConfigurationTarget.Global);
+                console.log(`[AuthenticationService] Migrated ${provider} API key to SecretStorage`);
+            }
+        }
+        return apiKey;
+    }
+    /**
+     * Delete API key from SecretStorage
+     */
+    async deleteApiKey(provider) {
+        if (!this.context) {
+            throw new Error('AuthenticationService not initialized with context');
+        }
+        await this.context.secrets.delete(`voicecode.${provider}ApiKey`);
+    }
+    /**
+     * Check if API key exists for provider
+     */
+    async hasApiKey(provider) {
+        const key = await this.getApiKey(provider);
+        return !!key;
+    }
 }
 exports.AuthenticationService = AuthenticationService;
 //# sourceMappingURL=AuthenticationService.js.map

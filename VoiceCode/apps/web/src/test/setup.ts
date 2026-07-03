@@ -1,5 +1,5 @@
 /**
- * Test setup for VoiceFlow Pro UI Components
+ * Test setup for VoiceCode UI Components
  */
 
 import '@testing-library/jest-dom';

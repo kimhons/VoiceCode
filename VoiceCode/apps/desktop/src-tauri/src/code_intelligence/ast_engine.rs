@@ -1,13 +1,12 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 1.1: TreeSitter AST Parser Integration
 // Provides language-aware AST parsing with semantic extraction
 
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
-use parking_lot::RwLock;
 use dashmap::DashMap;
-use tree_sitter::{Parser, Tree, Node, Query, QueryCursor};
+use tree_sitter::{Parser, Tree, Node, Query};
 
 /// Supported programming languages
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -82,7 +81,7 @@ impl Language {
             Language::Rust => Some(tree_sitter_rust::LANGUAGE.into()),
             Language::Go => Some(tree_sitter_go::LANGUAGE.into()),
             Language::Json => Some(tree_sitter_json::LANGUAGE.into()),
-            Language::Toml => Some(tree_sitter_toml_ng::LANGUAGE.into()),
+            Language::Toml => Some(tree_sitter_toml_ng::language().into()),
             Language::Css | Language::Scss => Some(tree_sitter_css::LANGUAGE.into()),
             Language::Html => Some(tree_sitter_html::LANGUAGE.into()),
             // Languages without tree-sitter grammars in our deps
@@ -197,6 +196,48 @@ pub struct FunctionDefinition {
     pub complexity: u32,
 }
 
+impl FunctionDefinition {
+    /// Get start line (convenience accessor)
+    pub fn start_line(&self) -> usize {
+        self.range.start_line
+    }
+
+    /// Get end line (convenience accessor)
+    pub fn end_line(&self) -> usize {
+        self.range.end_line
+    }
+
+    /// Get start column (convenience accessor)
+    pub fn start_col(&self) -> usize {
+        self.range.start_col
+    }
+
+    /// Get end column (convenience accessor)
+    pub fn end_col(&self) -> usize {
+        self.range.end_col
+    }
+
+    /// Get byte start (convenience accessor)
+    pub fn byte_start(&self) -> usize {
+        self.range.start_byte
+    }
+
+    /// Get byte end (convenience accessor)
+    pub fn byte_end(&self) -> usize {
+        self.range.end_byte
+    }
+
+    /// Get documentation (alias for docstring)
+    pub fn documentation(&self) -> Option<&str> {
+        self.docstring.as_deref()
+    }
+
+    /// Get references (placeholder - returns empty vec)
+    pub fn references(&self) -> Vec<String> {
+        Vec::new()
+    }
+}
+
 /// Function parameter
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Parameter {
@@ -234,6 +275,52 @@ pub struct ClassDefinition {
     pub type_parameters: Vec<String>,
 }
 
+impl ClassDefinition {
+    /// Get start line (convenience accessor)
+    pub fn start_line(&self) -> usize {
+        self.range.start_line
+    }
+
+    /// Get end line (convenience accessor)
+    pub fn end_line(&self) -> usize {
+        self.range.end_line
+    }
+
+    /// Get start column (convenience accessor)
+    pub fn start_col(&self) -> usize {
+        self.range.start_col
+    }
+
+    /// Get end column (convenience accessor)
+    pub fn end_col(&self) -> usize {
+        self.range.end_col
+    }
+
+    /// Get byte start (convenience accessor)
+    pub fn byte_start(&self) -> usize {
+        self.range.start_byte
+    }
+
+    /// Get byte end (convenience accessor)
+    pub fn byte_end(&self) -> usize {
+        self.range.end_byte
+    }
+
+    /// Get documentation (alias for docstring)
+    pub fn documentation(&self) -> Option<&str> {
+        self.docstring.as_deref()
+    }
+
+    /// Get visibility
+    pub fn visibility(&self) -> Visibility {
+        if self.is_exported {
+            Visibility::Public
+        } else {
+            Visibility::Default
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ClassKind {
     Class,
@@ -263,6 +350,13 @@ pub struct ImportDeclaration {
     pub specifiers: Vec<ImportSpecifier>,
     pub is_type_only: bool,
     pub range: SourceRange,
+}
+
+impl ImportDeclaration {
+    /// Get line number (convenience accessor)
+    pub fn line(&self) -> usize {
+        self.range.start_line
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -304,6 +398,50 @@ pub enum TypeKind {
     Union,
     Intersection,
     Generic,
+}
+
+/// Interface definition (alias for TypeDefinition with Interface kind)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InterfaceDefinition {
+    pub name: String,
+    pub extends: Vec<String>,
+    pub methods: Vec<FunctionDefinition>,
+    pub properties: Vec<PropertyDefinition>,
+    pub range: SourceRange,
+    pub is_exported: bool,
+    pub docstring: Option<String>,
+    pub type_parameters: Vec<String>,
+}
+
+impl InterfaceDefinition {
+    pub fn line(&self) -> usize {
+        self.range.start_line
+    }
+
+    pub fn start_line(&self) -> usize {
+        self.range.start_line
+    }
+
+    pub fn end_line(&self) -> usize {
+        self.range.end_line
+    }
+}
+
+/// Type alias definition
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TypeAlias {
+    pub name: String,
+    pub definition: String,
+    pub range: SourceRange,
+    pub is_exported: bool,
+    pub type_parameters: Vec<String>,
+    pub docstring: Option<String>,
+}
+
+impl TypeAlias {
+    pub fn line(&self) -> usize {
+        self.range.start_line
+    }
 }
 
 /// Variable declaration
@@ -358,6 +496,10 @@ pub struct CodeStructure {
     pub complexity_score: u32,
     pub lines_of_code: u32,
     pub lines_of_comments: u32,
+    // Additional fields for compatibility
+    pub interfaces: Vec<InterfaceDefinition>,
+    pub type_aliases: Vec<TypeAlias>,
+    pub module_doc: Option<String>,
 }
 
 impl Default for CodeStructure {
@@ -375,6 +517,9 @@ impl Default for CodeStructure {
             complexity_score: 0,
             lines_of_code: 0,
             lines_of_comments: 0,
+            interfaces: Vec::new(),
+            type_aliases: Vec::new(),
+            module_doc: None,
         }
     }
 }
@@ -391,6 +536,17 @@ pub struct ASTEngine {
     max_cache_size: usize,
 }
 
+impl std::fmt::Debug for ASTEngine {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ASTEngine")
+            .field("cached_languages", &self.parsers.len())
+            .field("cached_files", &self.file_cache.len())
+            .field("cached_queries", &self.query_cache.len())
+            .field("max_cache_size", &self.max_cache_size)
+            .finish()
+    }
+}
+
 impl ASTEngine {
     pub fn new() -> Self {
         Self {
@@ -402,16 +558,27 @@ impl ASTEngine {
     }
 
     /// Get or create a parser for a language
+    /// Note: Parsers are not Clone, so we create a new one each time
     fn get_parser(&self, language: Language) -> Option<Parser> {
-        if let Some(parser) = self.parsers.get(&language) {
-            return Some(parser.clone());
+        // Check if we've seen this language before (cached the tree-sitter language)
+        if self.parsers.contains_key(&language) {
+            // We know this language is valid, create a fresh parser
+            let ts_lang = language.tree_sitter_language()?;
+            let mut parser = Parser::new();
+            parser.set_language(&ts_lang).ok()?;
+            return Some(parser);
         }
 
+        // First time seeing this language - validate and cache
         let ts_lang = language.tree_sitter_language()?;
         let mut parser = Parser::new();
         parser.set_language(&ts_lang).ok()?;
 
-        self.parsers.insert(language, parser.clone());
+        // Insert a placeholder parser to mark this language as valid
+        let mut placeholder = Parser::new();
+        let _ = placeholder.set_language(&ts_lang);
+        self.parsers.insert(language, placeholder);
+
         Some(parser)
     }
 
@@ -528,29 +695,35 @@ impl ASTEngine {
                         structure.imports.push(import);
                     }
                 }
-                // Export statements
+                // Export statements (also extract exported functions/classes)
                 "export_statement" => {
                     if let Some(export) = self.extract_ts_export(parsed, &child) {
                         structure.exports.push(export);
+                    }
+                    // Also extract any function/class declarations inside the export
+                    let mut child_cursor = child.walk();
+                    for export_child in child.children(&mut child_cursor) {
+                        match export_child.kind() {
+                            "function_declaration" => {
+                                if let Some(mut func) = self.extract_ts_function(parsed, &export_child, false) {
+                                    func.is_exported = true;
+                                    structure.functions.push(func);
+                                }
+                            }
+                            "class_declaration" => {
+                                if let Some(mut class) = self.extract_ts_class(parsed, &export_child) {
+                                    class.is_exported = true;
+                                    structure.classes.push(class);
+                                }
+                            }
+                            _ => {}
+                        }
                     }
                 }
                 // Function declarations
                 "function_declaration" | "arrow_function" | "function" => {
                     if let Some(func) = self.extract_ts_function(parsed, &child, false) {
                         structure.functions.push(func);
-                    }
-                }
-                // Exported function
-                "export_statement" => {
-                    // Check for exported function
-                    let mut child_cursor = child.walk();
-                    for export_child in child.children(&mut child_cursor) {
-                        if export_child.kind() == "function_declaration" {
-                            if let Some(mut func) = self.extract_ts_function(parsed, &export_child, false) {
-                                func.is_exported = true;
-                                structure.functions.push(func);
-                            }
-                        }
                     }
                 }
                 // Class declarations
@@ -1312,6 +1485,16 @@ impl ASTEngine {
             return_type.as_ref().map(|t| format!(" -> {}", t)).unwrap_or_default()
         );
 
+        // Calculate visibility before moving name
+        let is_public = !name.starts_with('_');
+        let visibility = if name.starts_with("__") && !name.ends_with("__") {
+            Visibility::Private
+        } else if name.starts_with('_') {
+            Visibility::Protected
+        } else {
+            Visibility::Public
+        };
+
         Some(FunctionDefinition {
             name,
             signature,
@@ -1322,14 +1505,8 @@ impl ASTEngine {
             docstring,
             is_async,
             is_exported: true, // Python functions are public by default
-            is_public: !name.starts_with('_'),
-            visibility: if name.starts_with("__") && !name.ends_with("__") {
-                Visibility::Private
-            } else if name.starts_with('_') {
-                Visibility::Protected
-            } else {
-                Visibility::Public
-            },
+            is_public,
+            visibility,
             decorators,
             complexity: 1,
         })
@@ -1431,7 +1608,7 @@ impl ASTEngine {
         let mut name = String::new();
         let mut extends = Vec::new();
         let mut methods = Vec::new();
-        let mut properties = Vec::new();
+        let properties = Vec::new();
         let mut docstring = None;
         let mut decorators = Vec::new();
 

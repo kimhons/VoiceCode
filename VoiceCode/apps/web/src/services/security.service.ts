@@ -109,7 +109,7 @@ class SecurityService {
       
       // Generate QR code URL for TOTP
       const qrCode = method === '2fa_totp' 
-        ? `otpauth://totp/VoiceFlowPro:${userId}?secret=${secret}&issuer=VoiceFlowPro`
+        ? `otpauth://totp/VoiceCode:${userId}?secret=${secret}&issuer=VoiceCode`
         : '';
 
       // Save to database

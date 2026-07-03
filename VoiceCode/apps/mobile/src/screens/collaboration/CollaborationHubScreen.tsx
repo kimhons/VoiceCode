@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Collaboration Hub Screen
+ * VoiceCode Mobile - Collaboration Hub Screen
  * 
  * Comprehensive collaboration hub for Phase 2: Advanced Features
  * Week 6 Day 36-37 Implementation
@@ -251,7 +251,7 @@ export type SortType = 'recent' | 'name' | 'activity' | 'collaborators';
 // ============================================================================
 
 const BASE_UNIT = 4;
-const STORAGE_KEY = '@voiceflow_collaboration';
+const STORAGE_KEY = '@VoiceCode_collaboration';
 const AVATAR_SIZE = BASE_UNIT * 10;
 const ACTIVE_USER_AVATAR_SIZE = BASE_UNIT * 8;
 

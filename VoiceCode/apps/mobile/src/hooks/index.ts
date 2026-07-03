@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Hooks Barrel Export
+// VoiceCode Mobile - Hooks Barrel Export
 
 export * from './usePermissions';
 

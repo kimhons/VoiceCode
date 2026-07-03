@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AI Action Items Screen
+// VoiceCode Mobile - AI Action Items Screen
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -187,7 +187,7 @@ export const AIActionItemsScreen: React.FC = () => {
             No action items found
           </Text>
           <Text variant="body" style={styles.emptyMessage}>
-            This transcript doesn't contain any action items.
+            This transcript doesn&apos;t contain any action items.
           </Text>
           <Button onPress={handleRegenerate} style={styles.retryButton}>
             Try Again

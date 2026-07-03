@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Review Screen
+// VoiceCode Mobile - Review Screen
 // Phase 0: Stub Screen
 
 import React, { useState } from 'react';

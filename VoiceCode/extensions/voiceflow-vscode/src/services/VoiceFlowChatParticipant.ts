@@ -10,6 +10,9 @@ import * as vscode from 'vscode';
 import { MCPIntegrationService, MCPToolResult } from './MCPIntegrationService';
 import { EnhancedAIBridgeService, AIRequest, AIResponse } from './EnhancedAIBridgeService';
 import { TelemetryService } from './TelemetryService';
+import { ConversationMemoryService } from './ConversationMemoryService';
+import { AgentFactory } from './SpecializedAgents';
+import { CodebaseIndexService } from './CodebaseIndexService';
 
 /**
  * Chat result metadata
@@ -36,16 +39,30 @@ export class VoiceFlowChatParticipant implements vscode.Disposable {
   private aiBridge: EnhancedAIBridgeService;
   private telemetry: TelemetryService;
   private disposables: vscode.Disposable[] = [];
+  
+  // Optional enhanced services
+  private memory?: ConversationMemoryService;
+  private agentFactory?: AgentFactory;
 
   constructor(
     context: vscode.ExtensionContext,
     mcpService: MCPIntegrationService,
     aiBridge: EnhancedAIBridgeService,
-    telemetry: TelemetryService
+    telemetry: TelemetryService,
+    memory?: ConversationMemoryService,
+    codebaseIndex?: CodebaseIndexService
   ) {
     this.mcpService = mcpService;
     this.aiBridge = aiBridge;
     this.telemetry = telemetry;
+    this.memory = memory;
+    
+    // Initialize agent factory if we have the required services
+    if (codebaseIndex || memory) {
+      const config = vscode.workspace.getConfiguration('voicecode');
+      this.agentFactory = new AgentFactory(aiBridge, config, codebaseIndex, memory);
+    }
+    
     this.registerParticipant(context);
   }
 
@@ -325,11 +342,22 @@ export class VoiceFlowChatParticipant implements vscode.Disposable {
     result: VoiceFlowChatResult
   ): Promise<VoiceFlowChatResult> {
     stream.progress('Thinking...');
+    
+    // Add message to memory if available
+    if (this.memory) {
+      await this.memory.addMessage('user', request.prompt);
+    }
 
-    // Build context from chat history
-    const history = context.history
+    // Build context from chat history (enhanced with memory if available)
+    let history = context.history
       .filter(h => h instanceof vscode.ChatRequestTurn || h instanceof vscode.ChatResponseTurn)
       .slice(-10); // Last 10 messages
+    
+    // Enhance with relevant conversation memory if available
+    let memoryContext = '';
+    if (this.memory) {
+      memoryContext = await this.memory.getConversationContext(request.prompt, 500);
+    }
 
     // Get workspace context
     const editor = vscode.window.activeTextEditor;
@@ -339,9 +367,15 @@ export class VoiceFlowChatParticipant implements vscode.Disposable {
       selection: editor.document.getText(editor.selection),
     } : undefined;
 
+    // Enhance prompt with memory context if available
+    let enhancedPrompt = request.prompt;
+    if (memoryContext) {
+      enhancedPrompt = `${request.prompt}\n\n[Relevant context from previous conversations]:\n${memoryContext}`;
+    }
+    
     const aiRequest: AIRequest = {
       type: 'chat',
-      prompt: request.prompt,
+      prompt: enhancedPrompt,
       context: {
         code: workspaceContext?.selection,
         language: workspaceContext?.language,
@@ -351,6 +385,15 @@ export class VoiceFlowChatParticipant implements vscode.Disposable {
     };
 
     const response = await this.aiBridge.sendRequest(aiRequest);
+    
+    // Add response to memory if available
+    if (this.memory && response.success && response.content) {
+      await this.memory.addMessage('assistant', response.content, {
+        provider: response.provider,
+        model: response.model,
+        tokens: response.usage?.totalTokens,
+      });
+    }
 
     if (response.success && response.content) {
       stream.markdown(response.content);

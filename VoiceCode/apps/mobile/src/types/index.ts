@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Core Types
+// VoiceCode Mobile - Core Types
 
 // User Types
 export interface User {

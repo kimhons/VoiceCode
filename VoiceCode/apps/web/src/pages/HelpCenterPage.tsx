@@ -18,7 +18,7 @@ export const HelpCenterPage: React.FC = () => {
     {
       icon: Book,
       title: 'Getting Started',
-      description: 'Learn the basics of VoiceFlow Pro',
+      description: 'Learn the basics of VoiceCode',
       articles: 12,
       color: '#667eea',
     },
@@ -47,7 +47,7 @@ export const HelpCenterPage: React.FC = () => {
 
   const faqs = [
     {
-      question: 'How do I get started with VoiceFlow Pro?',
+      question: 'How do I get started with VoiceCode?',
       answer: 'Getting started is easy! Sign up for a free account, download the app for your platform (web, desktop, or mobile), and start recording. Our onboarding tutorial will guide you through the key features.',
     },
     {
@@ -55,12 +55,12 @@ export const HelpCenterPage: React.FC = () => {
       answer: 'Absolutely. We take security seriously. All data is encrypted in transit and at rest. You can also use offline mode for complete privacy. We are HIPAA-compliant and never sell your data.',
     },
     {
-      question: 'Can I use VoiceFlow Pro offline?',
-      answer: 'Yes! VoiceFlow Pro works fully offline on desktop and mobile apps. Your transcriptions are processed locally on your device, ensuring complete privacy and allowing you to work anywhere.',
+      question: 'Can I use VoiceCode offline?',
+      answer: 'Yes! VoiceCode works fully offline on desktop and mobile apps. Your transcriptions are processed locally on your device, ensuring complete privacy and allowing you to work anywhere.',
     },
     {
       question: 'What languages are supported?',
-      answer: 'VoiceFlow Pro supports over 150 languages and dialects, including English, Spanish, French, German, Chinese, Japanese, Arabic, and many more. Language detection is automatic.',
+      answer: 'VoiceCode supports over 150 languages and dialects, including English, Spanish, French, German, Chinese, Japanese, Arabic, and many more. Language detection is automatic.',
     },
     {
       question: 'How accurate is the transcription?',

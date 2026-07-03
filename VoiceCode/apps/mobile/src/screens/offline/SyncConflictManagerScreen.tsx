@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Sync Conflict Manager Screen
+// VoiceCode Mobile - Sync Conflict Manager Screen
 // Week 7 Day 46-47: Advanced Conflict Detection and Resolution
 // Phase 2: Advanced Features - Offline & Cloud Integration
 
@@ -411,7 +411,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
    */
   const loadConflicts = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_sync_conflicts');
+      const stored = await AsyncStorage.getItem('@VoiceCode_sync_conflicts');
       if (stored) {
         setConflicts(JSON.parse(stored));
       } else {
@@ -499,7 +499,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
    */
   const loadConflictHistory = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_conflict_history');
+      const stored = await AsyncStorage.getItem('@VoiceCode_conflict_history');
       if (stored) {
         setConflictHistory(JSON.parse(stored));
       } else {
@@ -541,7 +541,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
    */
   const loadResolutionRules = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_resolution_rules');
+      const stored = await AsyncStorage.getItem('@VoiceCode_resolution_rules');
       if (stored) {
         setResolutionRules(JSON.parse(stored));
       } else {
@@ -587,7 +587,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
    */
   const loadStatistics = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_conflict_statistics');
+      const stored = await AsyncStorage.getItem('@VoiceCode_conflict_statistics');
       if (stored) {
         setStatistics(JSON.parse(stored));
       } else {
@@ -626,7 +626,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
    */
   const saveConflicts = async (updatedConflicts: SyncConflict[]) => {
     try {
-      await AsyncStorage.setItem('@voiceflow_sync_conflicts', JSON.stringify(updatedConflicts));
+      await AsyncStorage.setItem('@VoiceCode_sync_conflicts', JSON.stringify(updatedConflicts));
       setConflicts(updatedConflicts);
     } catch (error) {
       console.error('Error saving conflicts:', error);
@@ -638,7 +638,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
    */
   const saveResolutionRules = async (updatedRules: ConflictResolutionRule[]) => {
     try {
-      await AsyncStorage.setItem('@voiceflow_resolution_rules', JSON.stringify(updatedRules));
+      await AsyncStorage.setItem('@VoiceCode_resolution_rules', JSON.stringify(updatedRules));
       setResolutionRules(updatedRules);
     } catch (error) {
       console.error('Error saving resolution rules:', error);
@@ -748,7 +748,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
           success: true,
         };
         const updatedHistory = [historyItem, ...conflictHistory];
-        await AsyncStorage.setItem('@voiceflow_conflict_history', JSON.stringify(updatedHistory));
+        await AsyncStorage.setItem('@VoiceCode_conflict_history', JSON.stringify(updatedHistory));
         setConflictHistory(updatedHistory);
       }
 
@@ -828,7 +828,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
   const handleToggleAutoResolve = async (enabled: boolean) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setAutoResolveEnabled(enabled);
-    await AsyncStorage.setItem('@voiceflow_auto_resolve_enabled', JSON.stringify(enabled));
+    await AsyncStorage.setItem('@VoiceCode_auto_resolve_enabled', JSON.stringify(enabled));
   };
 
   /**
@@ -837,7 +837,7 @@ export default function SyncConflictManagerScreen({ navigation }: any) {
   const handleChangeScanInterval = async (interval: typeof scanInterval) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setScanInterval(interval);
-    await AsyncStorage.setItem('@voiceflow_scan_interval', interval);
+    await AsyncStorage.setItem('@VoiceCode_scan_interval', interval);
   };
 
   // ============================================================================

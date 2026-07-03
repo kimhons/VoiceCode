@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Profile Screen
+// VoiceCode Mobile - Profile Screen
 
 import React from 'react';
 import {
@@ -70,7 +70,7 @@ export const ProfileScreen: React.FC = () => {
       icon: '❓',
       title: 'Help & Support',
       subtitle: 'Get help and contact support',
-      onPress: () => Alert.alert('Support', 'Email: support@voiceflowpro.com'),
+      onPress: () => Alert.alert('Support', 'Email: support@VoiceCodepro.com'),
     },
     {
       icon: '📄',
@@ -130,7 +130,7 @@ export const ProfileScreen: React.FC = () => {
         {/* App Info */}
         <View style={styles.appInfo}>
           <Text variant="caption" color={theme.colors.textSecondary} style={styles.appVersion}>
-            VoiceFlow Pro v1.0.0
+            VoiceCode v1.0.0
           </Text>
         </View>
 

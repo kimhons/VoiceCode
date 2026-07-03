@@ -1,23 +1,16 @@
-// VoiceFlow Pro Mobile - Onboarding Screen
+// VoiceCode Mobile - Onboarding Screen
 
 import React, { useRef, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Dimensions,
-  ViewToken,
-} from 'react-native';
+import { View, StyleSheet, FlatList, Dimensions, ViewToken } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { RootStackParamList } from '../../navigation/types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Text, Button } from '../../components/common';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type OnboardingNavigationProp = StackNavigationProp<RootStackParamList, 'Onboarding'>;
-
-const ONBOARDING_KEY = '@voiceflow_onboarding_complete';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -25,33 +18,39 @@ interface OnboardingSlide {
   id: string;
   title: string;
   description: string;
-  emoji: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  gradientColors: [string, string];
 }
 
 const slides: OnboardingSlide[] = [
   {
     id: '1',
     title: 'Record Anywhere',
-    description: 'Capture your thoughts, meetings, and ideas with high-quality audio recording.',
-    emoji: '🎙️',
+    description: 'Capture your thoughts, meetings, and ideas with crystal-clear audio recording.',
+    icon: 'mic',
+    gradientColors: ['#667eea', '#764ba2'],
   },
   {
     id: '2',
     title: 'Instant Transcription',
-    description: 'Get accurate transcriptions in real-time with support for multiple languages.',
-    emoji: '📝',
+    description: 'Get accurate transcriptions in real-time with support for 50+ languages.',
+    icon: 'document-text',
+    gradientColors: ['#f093fb', '#f5576c'],
   },
   {
     id: '3',
     title: 'AI-Powered Enhancement',
-    description: 'Transform your transcriptions with AI - adjust tone, context, and style instantly.',
-    emoji: '✨',
+    description:
+      'Transform your transcriptions with AI — adjust tone, summarize, and extract insights.',
+    icon: 'sparkles',
+    gradientColors: ['#4facfe', '#00f2fe'],
   },
   {
     id: '4',
     title: 'Sync Everywhere',
     description: 'Access your recordings and transcriptions across all your devices seamlessly.',
-    emoji: '☁️',
+    icon: 'cloud-done',
+    gradientColors: ['#43e97b', '#38f9d7'],
   },
 ];
 
@@ -61,13 +60,11 @@ export const OnboardingScreen: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0) {
-        setCurrentIndex(viewableItems[0].index || 0);
-      }
+  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    if (viewableItems.length > 0) {
+      setCurrentIndex(viewableItems[0].index || 0);
     }
-  ).current;
+  }).current;
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
@@ -88,23 +85,25 @@ export const OnboardingScreen: React.FC = () => {
     handleGetStarted();
   };
 
-  const handleGetStarted = async () => {
-    // Mark onboarding as complete
-    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
-    // Navigate to permissions screen
+  const handleGetStarted = () => {
+    // Navigate to permissions screen where onboarding will be completed
     navigation.navigate('Permissions');
   };
 
   const renderSlide = ({ item }: { item: OnboardingSlide }) => (
     <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
       <View style={styles.content}>
-        <Text style={styles.emoji}>{item.emoji}</Text>
-        <Text
-          variant="h2"
-          align="center"
-          color={theme.colors.textPrimary}
-          style={styles.title}
-        >
+        <View style={styles.iconContainer}>
+          <LinearGradient
+            colors={item.gradientColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.iconGradient}
+          >
+            <Ionicons name={item.icon} size={48} color="#FFFFFF" />
+          </LinearGradient>
+        </View>
+        <Text variant="h2" align="center" color={theme.colors.textPrimary} style={styles.title}>
           {item.title}
         </Text>
         <Text
@@ -127,10 +126,7 @@ export const OnboardingScreen: React.FC = () => {
           style={[
             styles.dot,
             {
-              backgroundColor:
-                index === currentIndex
-                  ? theme.colors.primary
-                  : theme.colors.border,
+              backgroundColor: index === currentIndex ? theme.colors.primary : theme.colors.border,
               width: index === currentIndex ? 24 : 8,
             },
           ]}
@@ -160,11 +156,7 @@ export const OnboardingScreen: React.FC = () => {
 
       <View style={styles.footer}>
         {!isLastSlide && (
-          <Button
-            variant="ghost"
-            onPress={handleSkip}
-            style={styles.skipButton}
-          >
+          <Button variant="ghost" onPress={handleSkip} style={styles.skipButton}>
             Skip
           </Button>
         )}
@@ -195,9 +187,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     alignItems: 'center',
   },
-  emoji: {
-    fontSize: 120,
-    marginBottom: 40,
+  iconContainer: {
+    marginBottom: 48,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  iconGradient: {
+    width: 120,
+    height: 120,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     marginBottom: 16,
@@ -231,4 +234,3 @@ const styles = StyleSheet.create({
     flex: 2,
   },
 });
-

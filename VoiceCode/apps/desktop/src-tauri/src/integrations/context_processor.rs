@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Context-Aware Text Processing Service
 // Provides intelligent text processing with AI-powered context understanding
 
@@ -5,7 +6,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use super::ai_ml_core::{AIMLClient, AIMLError, AIMLService};
+use super::ai_ml_core::{AIMLClient, AIMLError};
 use super::ai_ml_api::EnhancedContext as ApiEnhancedContext;
 
 /// Context-Aware Text Processor

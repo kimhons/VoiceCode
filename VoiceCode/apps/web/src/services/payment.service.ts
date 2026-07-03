@@ -1,5 +1,5 @@
 /**
- * Payment Service for VoiceFlow PRO Web App
+ * Payment Service for VoiceCode Web App
  * Handles Stripe payments, subscriptions, and billing portal
  */
 import { loadStripe, Stripe } from '@stripe/stripe-js';

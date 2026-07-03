@@ -1,11 +1,11 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Voice Generation Service using TTS capabilities
 // Provides advanced text-to-speech synthesis with multiple voice models
 
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use uuid::Uuid;
 
-use super::ai_ml_core::{AIMLClient, AIMLError, AIMLService};
+use super::ai_ml_core::{AIMLClient, AIMLError};
 
 /// Voice Generation Service
 #[derive(Debug)]
@@ -488,7 +488,7 @@ impl VoiceGenerator {
 
     /// Post-process audio data
     async fn post_process_audio(&self, audio_data: &[u8], options: &VoiceProcessingOptions) -> Result<Vec<u8>, AIMLError> {
-        let mut processed_data = audio_data.to_vec();
+        let processed_data = audio_data.to_vec();
         
         // Apply audio processing in a real implementation
         // For now, return the original data

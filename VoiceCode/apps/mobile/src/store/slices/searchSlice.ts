@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Search Redux Slice
+// VoiceCode Mobile - Search Redux Slice
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import SearchService, { TranscriptSearchResult, SearchFilters } from '../../services/SearchService';
@@ -105,7 +105,7 @@ export const createFolder = createAsyncThunk(
     color: string;
     parentId?: string;
   }) => {
-    return await FolderService.createFolder(userId, name, color, parentId);
+    return await FolderService.createFolder(userId, name, parentId ?? null, color);
   }
 );
 
@@ -113,7 +113,7 @@ export const createFolder = createAsyncThunk(
 export const updateFolder = createAsyncThunk(
   'search/updateFolder',
   async ({ id, name, color, parentId }: { id: string; name: string; color: string; parentId?: string | null }) => {
-    return await FolderService.updateFolder(id, name, color, parentId);
+    return await FolderService.updateFolder(id, { name, color, parentId: parentId ?? null });
   }
 );
 

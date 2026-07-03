@@ -90,6 +90,8 @@ function createLazyService(serviceName, importFn, constructorArgs = []) {
 var ServiceTier;
 (function (ServiceTier) {
     ServiceTier["FREE"] = "free";
+    ServiceTier["BASIC"] = "basic";
+    ServiceTier["STANDARD"] = "standard";
     ServiceTier["PRO"] = "pro";
     ServiceTier["ENTERPRISE"] = "enterprise";
 })(ServiceTier || (exports.ServiceTier = ServiceTier = {}));
@@ -170,6 +172,8 @@ class EnhancedServiceLoader {
         const loadedServices = allServices.filter(s => s.loadTime !== undefined);
         const byTier = {
             [ServiceTier.FREE]: allServices.filter(s => s.tier === ServiceTier.FREE).length,
+            [ServiceTier.BASIC]: allServices.filter(s => s.tier === ServiceTier.BASIC).length,
+            [ServiceTier.STANDARD]: allServices.filter(s => s.tier === ServiceTier.STANDARD).length,
             [ServiceTier.PRO]: allServices.filter(s => s.tier === ServiceTier.PRO).length,
             [ServiceTier.ENTERPRISE]: allServices.filter(s => s.tier === ServiceTier.ENTERPRISE).length,
         };
@@ -189,8 +193,10 @@ class EnhancedServiceLoader {
     hasAccess(tier, userTier) {
         const tierHierarchy = {
             [ServiceTier.FREE]: 0,
-            [ServiceTier.PRO]: 1,
-            [ServiceTier.ENTERPRISE]: 2,
+            [ServiceTier.BASIC]: 1,
+            [ServiceTier.STANDARD]: 2,
+            [ServiceTier.PRO]: 3,
+            [ServiceTier.ENTERPRISE]: 4,
         };
         return tierHierarchy[userTier] >= tierHierarchy[tier];
     }

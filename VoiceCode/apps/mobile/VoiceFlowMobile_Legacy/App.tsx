@@ -1,4 +1,4 @@
-﻿// VoiceFlow Pro Mobile - Testing with Theme Context
+// VoiceCode Pro Mobile - Testing with Theme Context
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -11,7 +11,7 @@ const AppContent: React.FC = () => {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Text style={[styles.title, { color: theme.colors.text }]}> VoiceFlow Pro</Text>
+      <Text style={[styles.title, { color: theme.colors.text }]}> VoiceCode Pro</Text>
       <Text style={[styles.subtitle, { color: theme.colors.primary }]}>
         Test Version - With Theme Context!
       </Text>

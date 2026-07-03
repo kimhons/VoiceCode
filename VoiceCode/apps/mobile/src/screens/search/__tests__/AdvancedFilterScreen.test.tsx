@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AdvancedFilterScreen Tests
+// VoiceCode Mobile - AdvancedFilterScreen Tests
 
 import searchReducer, { setFilters, clearFilters } from '../../../store/slices/searchSlice';
 

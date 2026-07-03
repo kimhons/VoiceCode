@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Enhanced Folder Management Screen
+// VoiceCode Mobile - Enhanced Folder Management Screen
 // Nested folders, drag-and-drop, folder sharing, analytics, and Apple-caliber design
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -513,7 +513,7 @@ export const FolderManagementScreen: React.FC<FolderManagementScreenProps> = ({ 
             style={styles.dropZone}
           >
             <Text variant="caption" style={styles.dropZoneText}>
-              Drop here to move into "{folder.name}"
+              Drop here to move into &quot;{folder.name}&quot;
             </Text>
           </TouchableOpacity>
         )}

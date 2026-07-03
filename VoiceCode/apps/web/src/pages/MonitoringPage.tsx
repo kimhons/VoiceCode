@@ -27,7 +27,7 @@ export function MonitoringPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <h1 className="text-3xl font-bold text-gray-900">
-              VoiceFlow Pro Monitoring
+              VoiceCode Monitoring
             </h1>
             <p className="mt-2 text-sm text-gray-600">
               Real-time monitoring of AI operations, security, costs, and performance
@@ -66,7 +66,7 @@ export function MonitoringPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center text-sm text-gray-600">
             <div>
-              <span className="font-medium">VoiceFlow Pro</span> - AI Security & Monitoring
+              <span className="font-medium">VoiceCode</span> - AI Security & Monitoring
             </div>
             <div className="flex gap-4">
               <a href="#" className="hover:text-gray-900">Documentation</a>

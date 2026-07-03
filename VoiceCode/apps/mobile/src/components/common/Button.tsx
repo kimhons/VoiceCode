@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Button Component
+// VoiceCode Mobile - Button Component
 
 import React from 'react';
 import {

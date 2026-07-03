@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Main Navigator (Bottom Tabs)
+// VoiceCode Pro Mobile - Main Navigator (Bottom Tabs)
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';

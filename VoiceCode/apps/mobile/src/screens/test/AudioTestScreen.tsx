@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Audio Services Test Screen
+// VoiceCode Mobile - Audio Services Test Screen
 
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
@@ -29,8 +29,8 @@ export const AudioTestScreen: React.FC = () => {
 
   // Update recording duration
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
+    let interval: ReturnType<typeof setInterval>;
+
     if (recordingStatus === RecordingStatus.RECORDING) {
       interval = setInterval(() => {
         setRecordingDuration(audioRecorder.getDuration());
@@ -44,8 +44,8 @@ export const AudioTestScreen: React.FC = () => {
 
   // Update audio metering
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
+    let interval: ReturnType<typeof setInterval>;
+
     if (recordingStatus === RecordingStatus.RECORDING) {
       interval = setInterval(async () => {
         const metering = await audioRecorder.getMetering();

@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Text Enhancement Service using GPT-5 Pro integration
 // Provides advanced text processing and enhancement capabilities
 
@@ -5,7 +6,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use super::ai_ml_core::{AIMLClient, AIMLError, AIMLMessage, AIMLService};
+use super::ai_ml_core::{AIMLClient, AIMLError, AIMLMessage};
 use super::ai_ml_api::{EnhancedContext, EnhancedProcessingOptions};
 
 /// Text Enhancement Service

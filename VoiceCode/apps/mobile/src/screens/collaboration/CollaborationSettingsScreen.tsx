@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Collaboration Settings Screen
+ * VoiceCode Mobile - Collaboration Settings Screen
  * 
  * Comprehensive collaboration settings interface for Phase 2: Advanced Features
  * Week 6 Day 42 Implementation
@@ -165,7 +165,7 @@ export interface IntegrationService {
 // ============================================================================
 
 const BASE_UNIT = 4;
-const STORAGE_KEY = '@voiceflow_collaboration_settings';
+const STORAGE_KEY = '@VoiceCode_collaboration_settings';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 /**
@@ -931,7 +931,7 @@ export default function CollaborationSettingsScreen({
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Show Online Status</Text>
               <Text style={styles.settingDescription}>
-                Let others see when you're online
+                Let others see when you&apos;re online
               </Text>
             </View>
             <Switch
@@ -963,7 +963,7 @@ export default function CollaborationSettingsScreen({
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Usage Analytics</Text>
               <Text style={styles.settingDescription}>
-                Help improve VoiceFlow with usage data
+                Help improve VoiceCode with usage data
               </Text>
             </View>
             <Switch

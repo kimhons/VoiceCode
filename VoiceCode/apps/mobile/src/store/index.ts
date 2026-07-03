@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Redux Store
+// VoiceCode Mobile - Redux Store
 
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
@@ -25,6 +25,7 @@ import workflowOptimizationReducer from './slices/workflowOptimizationSlice';
 import aiQualityReducer from './slices/aiQualitySlice';
 import productivityReducer from './slices/productivitySlice';
 import teamPerformanceReducer from './slices/teamPerformanceSlice';
+import subscriptionReducer from './slices/subscriptionSlice';
 // import transcriptionReducer from './slices/transcriptionSlice';
 // import syncReducer from './slices/syncSlice';
 
@@ -54,6 +55,7 @@ export const store = configureStore({
     aiQuality: aiQualityReducer,
     productivity: productivityReducer,
     teamPerformance: teamPerformanceReducer,
+    subscription: subscriptionReducer,
     // transcription: transcriptionReducer,
     // sync: syncReducer,
     // [baseApi.reducerPath]: baseApi.reducer,

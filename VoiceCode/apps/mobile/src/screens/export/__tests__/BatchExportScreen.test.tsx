@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - BatchExportScreen Tests
+// VoiceCode Mobile - BatchExportScreen Tests
 
 import exportReducer, {
   createBatchExportJob,

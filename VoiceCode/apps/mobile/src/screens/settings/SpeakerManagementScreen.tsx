@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Speaker Management Screen
+ * VoiceCode Mobile - Speaker Management Screen
  * 
  * Comprehensive speaker identification and management screen for Phase 2: Advanced Features
  * Week 5 Day 31-32 Implementation
@@ -429,7 +429,7 @@ export function SpeakerManagementScreen({ navigation, route }: SpeakerManagement
    */
   const loadSpeakers = async () => {
     try {
-      const stored = await AsyncStorage.getItem('voiceflow_speakers');
+      const stored = await AsyncStorage.getItem('VoiceCode_speakers');
       if (stored) {
         const parsed = JSON.parse(stored);
         setSpeakers(parsed.map((s: any) => ({
@@ -453,7 +453,7 @@ export function SpeakerManagementScreen({ navigation, route }: SpeakerManagement
    */
   const saveSpeakers = async (updatedSpeakers: SpeakerProfile[]) => {
     try {
-      await AsyncStorage.setItem('voiceflow_speakers', JSON.stringify(updatedSpeakers));
+      await AsyncStorage.setItem('VoiceCode_speakers', JSON.stringify(updatedSpeakers));
       setSpeakers(updatedSpeakers);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
@@ -999,7 +999,11 @@ export function SpeakerManagementScreen({ navigation, route }: SpeakerManagement
             <TouchableOpacity
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                isEdit ? setShowEditModal(false) : setShowAddModal(false);
+                if (isEdit) {
+                  setShowEditModal(false);
+                } else {
+                  setShowAddModal(false);
+                }
               }}
               activeOpacity={0.7}
             >
@@ -1099,7 +1103,11 @@ export function SpeakerManagementScreen({ navigation, route }: SpeakerManagement
               style={[styles.modalButton, styles.modalButtonSecondary]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                isEdit ? setShowEditModal(false) : setShowAddModal(false);
+                if (isEdit) {
+                  setShowEditModal(false);
+                } else {
+                  setShowAddModal(false);
+                }
               }}
               activeOpacity={0.7}
             >

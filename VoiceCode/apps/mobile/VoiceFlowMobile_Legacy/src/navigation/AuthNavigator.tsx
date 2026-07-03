@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Auth Navigator
+// VoiceCode Pro Mobile - Auth Navigator
 
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';

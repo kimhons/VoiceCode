@@ -19,14 +19,33 @@ pub mod natural_language_commands;
 pub mod app_aware_formatting;
 pub mod coding_agent;
 
+// STT (Speech-to-Text) Provider System
+pub mod stt;
+
+// File Tagging via Voice
+pub mod file_tagging;
+
+// Audio capture service
+pub mod audio_capture;
+
+// Computer Vision - Screen capture, OCR, UI detection
+pub mod computer_vision;
+
+// Advanced Vision - OCR, OmniParser, Computer Use, Browser Automation
+#[allow(dead_code)]
+pub mod vision;
+
 // Code Intelligence Engine
+#[allow(dead_code)]
 pub mod code_intelligence;
 
 // CLI Module - Multi-agent coding interface
+#[allow(dead_code)]
 pub mod cli;
 
 // Commands
 pub mod commands {
+    pub mod audio;
     pub mod memory_commands;
     pub mod cache_commands;
     pub mod logging_commands;
@@ -34,6 +53,7 @@ pub mod commands {
 }
 
 // Integrations
+#[allow(dead_code)]
 pub mod integrations {
     pub mod voice_recognition;
     pub mod ai_text_processor;
@@ -47,7 +67,9 @@ pub mod integrations {
 }
 
 // Re-exports for convenience
+#[allow(unused_imports)]
 pub use errors::{AppError, Result};
+#[allow(unused_imports)]
 pub use cli::{
     ReplSession, ReplConfig, BatchMode,
     CommandHandler, CommandResult, CommandContext,

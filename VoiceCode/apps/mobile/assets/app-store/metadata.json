@@ -1,0 +1,64 @@
+{
+  "appInfo": {
+    "name": "VoiceCode",
+    "subtitle": "Voice to Text Transcription",
+    "privacyPolicyUrl": "https://voicecode.com/privacy",
+    "primaryCategory": "PRODUCTIVITY",
+    "secondaryCategory": "BUSINESS",
+    "contentRating": "4+"
+  },
+  "description": {
+    "en-US": {
+      "title": "VoiceCode - Voice to Text Transcription",
+      "subtitle": "AI-Powered Speech Recognition",
+      "description": "VoiceCode is the ultimate voice transcription app that converts your speech to text with incredible accuracy. Whether you're recording meetings, lectures, interviews, or personal notes, VoiceCode uses advanced AI to deliver fast, accurate transcriptions.\n\nKEY FEATURES:\n\n• Real-Time Transcription - Watch your words appear as you speak with live transcription powered by cutting-edge AI.\n\n• Multi-Speaker Detection - Automatically identify and label different speakers in your recordings.\n\n• AI-Powered Summaries - Get instant summaries, key points, and action items from your transcripts.\n\n• Cross-Platform Sync - Access your recordings and transcripts across all your devices.\n\n• Offline Mode - Record and transcribe even without an internet connection.\n\n• Export Options - Share your transcripts as text, PDF, Word documents, or subtitles (SRT/VTT).\n\n• Secure Storage - Your data is encrypted and protected with enterprise-grade security.\n\nPERFECT FOR:\n- Business professionals recording meetings\n- Students capturing lectures\n- Journalists conducting interviews\n- Content creators making podcasts\n- Anyone who needs accurate voice-to-text conversion\n\nSUBSCRIPTION OPTIONS:\n- Free: 60 minutes/month, 5-minute max recording\n- Pro: 600 minutes/month, 30-minute max recording, AI features\n- Enterprise: Unlimited minutes, 2-hour max recording, team features\n\nDownload VoiceCode today and transform how you capture and organize spoken content!",
+      "keywords": "voice,transcription,speech to text,audio recording,meeting notes,dictation,AI transcription,voice recorder,speech recognition,interview recorder",
+      "whatsNew": "• Improved transcription accuracy\n• New AI summary features\n• Enhanced speaker detection\n• Performance improvements\n• Bug fixes"
+    }
+  },
+  "screenshots": {
+    "iphone6.5": [
+      "screenshot_home.png",
+      "screenshot_recording.png",
+      "screenshot_transcript.png",
+      "screenshot_ai_features.png",
+      "screenshot_library.png"
+    ],
+    "iphone5.5": [
+      "screenshot_home.png",
+      "screenshot_recording.png",
+      "screenshot_transcript.png",
+      "screenshot_ai_features.png",
+      "screenshot_library.png"
+    ],
+    "ipad12.9": [
+      "screenshot_home.png",
+      "screenshot_recording.png",
+      "screenshot_transcript.png",
+      "screenshot_ai_features.png",
+      "screenshot_library.png"
+    ]
+  },
+  "ageRating": {
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "contests": "NONE",
+    "gamblingSimulated": "NONE",
+    "medicalOrTreatmentInformation": "NONE",
+    "profanityOrCrudeHumor": "NONE",
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealistic": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "gambling": false,
+    "unrestrictedWebAccess": false,
+    "kidsAgeBand": null
+  },
+  "reviewInformation": {
+    "contactEmail": "support@voicecode.com",
+    "contactPhone": "+1-555-VOICE",
+    "demoAccountName": "demo@voicecode.com",
+    "demoAccountPassword": "DemoPassword123!",
+    "notes": "This app requires microphone access to record audio for transcription. The demo account has sample recordings and transcripts for review."
+  }
+}

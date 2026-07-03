@@ -16,14 +16,14 @@ interface ErrorFallbackProps {
   showDetails?: boolean;
 }
 
-const serializeError = (error: any): string => {
+const serializeError = (error: unknown): string => {
   if (error instanceof Error) {
     return `${error.name}: ${error.message}\n${error.stack || 'No stack trace available'}`;
   }
   return JSON.stringify(error, null, 2);
 };
 
-const getErrorMessage = (error: any): string => {
+const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
   }
@@ -51,7 +51,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, {
     };
   }
 
-  static getDerivedStateFromError(error: any): Partial<{ hasError: boolean; error: Error; errorId: string }> {
+  static getDerivedStateFromError(error: unknown): Partial<{ hasError: boolean; error: Error; errorId: string }> {
     const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     return { 
       hasError: true, 
@@ -79,8 +79,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, {
 
     // Optional remote error logging
     try {
-      const win: any = typeof window !== 'undefined' ? window : {};
-      const ERROR_LOG_URL: string = (import.meta as any)?.env?.VITE_ERROR_LOG_URL || win.__ERROR_LOG_URL || '';
+      const win = typeof window !== 'undefined' ? (window as Window & { __ERROR_LOG_URL?: string }) : {};
+      const ERROR_LOG_URL: string = import.meta.env?.VITE_ERROR_LOG_URL || ('__ERROR_LOG_URL' in win ? win.__ERROR_LOG_URL : '') || '';
       if (ERROR_LOG_URL && typeof fetch === 'function') {
         const payload = {
           id: this.state.errorId,
@@ -241,10 +241,11 @@ export const useErrorHandler = () => {
   return React.useCallback((error: Error, errorInfo?: React.ErrorInfo) => {
     console.error('Manual error caught:', error, errorInfo);
     
-    // In production, you might want to send this to an error reporting service
-    if (typeof window !== 'undefined' && (window as any).Sentry) {
-      (window as any).Sentry.captureException(error, {
-        extra: errorInfo
+    // In production, send to error reporting service if available
+    if (typeof window !== 'undefined' && 'Sentry' in window) {
+      const sentry = (window as Window & { Sentry?: { captureException: (error: Error, context?: Record<string, unknown>) => void } }).Sentry;
+      sentry?.captureException(error, {
+        extra: errorInfo as unknown as Record<string, unknown>
       });
     }
   }, []);

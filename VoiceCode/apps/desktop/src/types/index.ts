@@ -1,4 +1,4 @@
-// Core Types for VoiceFlow Pro UI Components
+// Core Types for VoiceCode UI Components
 
 export type PlatformType = 'mac' | 'windows' | 'linux';
 export type ThemeType = 'light' | 'dark' | 'auto';
@@ -98,7 +98,7 @@ export interface PlatformConfig {
 export interface VoiceCommand {
   phrase: string;
   action: string;
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
   description: string;
 }
 
@@ -208,7 +208,7 @@ export interface VoiceCommandDefinition {
   id: string;
   trigger: string[];
   action: VoiceCommandAction;
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
   description: string;
   mode?: ProfessionalMode;
   requiresConfirmation?: boolean;

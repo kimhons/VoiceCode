@@ -1,9 +1,9 @@
 // PHASE 1.4: Data Encryption Commands
 // Tauri commands for encryption/decryption operations
 
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 use crate::encryption::{
-    EncryptedData, EncryptionManager, EncryptionError,
-    encrypt_global, decrypt_global, get_global_encryption,
+    EncryptedData, EncryptionManager, get_global_encryption,
 };
 use serde::{Deserialize, Serialize};
 use tauri::command;
@@ -31,7 +31,7 @@ pub async fn init_encryption() -> Result<EncryptionResult, String> {
             tracing::info!("Encryption initialized successfully");
             Ok(EncryptionResult {
                 success: true,
-                data: Some(base64::encode(&key)),
+                data: Some(STANDARD.encode(&key)),
                 error: None,
             })
         }
@@ -91,7 +91,7 @@ pub async fn encrypt_text(text: String) -> Result<EncryptionResult, String> {
         Ok(encrypted) => {
             let json = serde_json::to_string(&encrypted)
                 .map_err(|e| e.to_string())?;
-            let base64_data = base64::encode(json);
+            let base64_data = STANDARD.encode(json);
 
             Ok(EncryptionResult {
                 success: true,
@@ -114,7 +114,7 @@ pub async fn decrypt_text(encrypted_base64: String) -> Result<EncryptionResult, 
         .ok_or_else(|| "Encryption not initialized".to_string())?;
     
     // Decode base64
-    let json = base64::decode(&encrypted_base64)
+    let json = STANDARD.decode(&encrypted_base64)
         .map_err(|e| e.to_string())?;
     
     // Parse encrypted data
@@ -147,7 +147,7 @@ pub async fn encrypt_audio(audio_base64: String) -> Result<EncryptionResult, Str
         .ok_or_else(|| "Encryption not initialized".to_string())?;
     
     // Decode audio data
-    let audio_data = base64::decode(&audio_base64)
+    let audio_data = STANDARD.decode(&audio_base64)
         .map_err(|e| e.to_string())?;
 
     let result = {
@@ -159,7 +159,7 @@ pub async fn encrypt_audio(audio_base64: String) -> Result<EncryptionResult, Str
         Ok(encrypted) => {
             let json = serde_json::to_string(&encrypted)
                 .map_err(|e| e.to_string())?;
-            let base64_data = base64::encode(json);
+            let base64_data = STANDARD.encode(json);
 
             tracing::info!("Audio data encrypted, size: {} bytes", audio_data.len());
 
@@ -184,7 +184,7 @@ pub async fn decrypt_audio(encrypted_base64: String) -> Result<EncryptionResult,
         .ok_or_else(|| "Encryption not initialized".to_string())?;
     
     // Decode base64
-    let json = base64::decode(&encrypted_base64)
+    let json = STANDARD.decode(&encrypted_base64)
         .map_err(|e| e.to_string())?;
     
     // Parse encrypted data
@@ -198,7 +198,7 @@ pub async fn decrypt_audio(encrypted_base64: String) -> Result<EncryptionResult,
 
     match result {
         Ok(audio_data) => {
-            let base64_audio = base64::encode(&audio_data);
+            let base64_audio = STANDARD.encode(&audio_data);
 
             tracing::info!("Audio data decrypted, size: {} bytes", audio_data.len());
 
@@ -254,7 +254,7 @@ pub async fn set_auto_encrypt(enabled: bool) -> Result<EncryptionResult, String>
 #[command]
 pub async fn generate_encryption_key() -> Result<String, String> {
     let key = EncryptionManager::generate_key();
-    Ok(base64::encode(&key))
+    Ok(STANDARD.encode(&key))
 }
 
 /// Encrypt transcription data
@@ -282,7 +282,7 @@ pub async fn encrypt_transcription(
         Ok(encrypted) => {
             let json = serde_json::to_string(&encrypted)
                 .map_err(|e| e.to_string())?;
-            let base64_data = base64::encode(json);
+            let base64_data = STANDARD.encode(json);
 
             tracing::info!("Transcription encrypted");
 

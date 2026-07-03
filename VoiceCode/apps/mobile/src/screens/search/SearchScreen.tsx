@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Enhanced Search Screen
+// VoiceCode Mobile - Enhanced Search Screen
 // Voice search, search history, suggestions, and Apple-caliber animations
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';

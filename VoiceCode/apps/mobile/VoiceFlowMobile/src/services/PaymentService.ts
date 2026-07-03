@@ -1,11 +1,11 @@
-// Payment Service for VoiceFlow PRO Mobile App
+// Payment Service for VoiceCode PRO Mobile App
 import { initStripe, presentPaymentSheet, confirmPayment } from '@stripe/stripe-react-native';
 import { supabase } from '../lib/supabase';
 import Constants from 'expo-constants';
 
 const STRIPE_PUBLISHABLE_KEY = Constants.expoConfig?.extra?.stripePublishableKey || '';
 const SUPABASE_FUNCTIONS_URL = Constants.expoConfig?.extra?.supabaseUrl + '/functions/v1';
-const MERCHANT_ID = Constants.expoConfig?.extra?.merchantId || 'merchant.com.voiceflowpro';
+const MERCHANT_ID = Constants.expoConfig?.extra?.merchantId || 'merchant.com.VoiceCodepro';
 
 export interface PaymentSheetParams {
   paymentIntentClientSecret: string;
@@ -44,7 +44,7 @@ class PaymentService {
     await initStripe({
       publishableKey: STRIPE_PUBLISHABLE_KEY,
       merchantIdentifier: MERCHANT_ID,
-      urlScheme: 'voiceflow',
+      urlScheme: 'VoiceCode',
     });
 
     this.initialized = true;
@@ -75,8 +75,8 @@ class PaymentService {
       },
       body: JSON.stringify({
         priceId,
-        successUrl: 'voiceflow://payment-success',
-        cancelUrl: 'voiceflow://payment-canceled',
+        successUrl: 'VoiceCode://payment-success',
+        cancelUrl: 'VoiceCode://payment-canceled',
       }),
     });
 

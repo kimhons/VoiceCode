@@ -318,7 +318,7 @@ class ReportExportService {
           }
 
           <div class="footer">
-            <p>VoiceFlow Pro - Monitoring Report</p>
+            <p>VoiceCode - Monitoring Report</p>
             <p>Generated on ${new Date().toLocaleString()}</p>
           </div>
         </body>

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Audio Recorder Service
+// VoiceCode Pro Mobile - Audio Recorder Service
 
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 import * as FileSystem from 'expo-file-system';

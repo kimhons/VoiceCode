@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Loading Spinner Component
+// VoiceCode Pro Mobile - Loading Spinner Component
 
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, ViewProps } from 'react-native';

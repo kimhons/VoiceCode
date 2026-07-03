@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Signup Screen
+// VoiceCode Pro Mobile - Signup Screen
 
 import React, { useState } from 'react';
 import {
@@ -167,7 +167,7 @@ export const SignupScreen: React.FC = () => {
             color={theme.colors.textSecondary}
             style={styles.subtitle}
           >
-            Sign up to get started with VoiceFlow Pro
+            Sign up to get started with VoiceCode Pro
           </Text>
         </View>
 

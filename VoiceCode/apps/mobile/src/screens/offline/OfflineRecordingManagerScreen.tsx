@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Offline Recording Manager Screen
+// VoiceCode Mobile - Offline Recording Manager Screen
 // Week 7 Day 48-49: Offline Recording Management and Upload Queue
 // Phase 2: Advanced Features - Offline & Cloud Integration
 
@@ -279,7 +279,7 @@ const OfflineRecordingManagerScreen: React.FC<OfflineRecordingManagerScreenProps
    */
   const loadRecordings = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_offline_recordings');
+      const stored = await AsyncStorage.getItem('@VoiceCode_offline_recordings');
       if (stored) {
         setRecordings(JSON.parse(stored));
       } else {
@@ -368,7 +368,7 @@ const OfflineRecordingManagerScreen: React.FC<OfflineRecordingManagerScreenProps
    */
   const loadUploadQueue = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_upload_queue');
+      const stored = await AsyncStorage.getItem('@VoiceCode_upload_queue');
       if (stored) {
         setUploadQueue(JSON.parse(stored));
       } else {
@@ -407,7 +407,7 @@ const OfflineRecordingManagerScreen: React.FC<OfflineRecordingManagerScreenProps
    */
   const loadStatistics = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_upload_statistics');
+      const stored = await AsyncStorage.getItem('@VoiceCode_upload_statistics');
       if (stored) {
         setStatistics(JSON.parse(stored));
       } else {
@@ -435,7 +435,7 @@ const OfflineRecordingManagerScreen: React.FC<OfflineRecordingManagerScreenProps
    */
   const loadOptimizationSettings = async () => {
     try {
-      const stored = await AsyncStorage.getItem('@voiceflow_optimization_settings');
+      const stored = await AsyncStorage.getItem('@VoiceCode_optimization_settings');
       if (stored) {
         setOptimizationSettings(JSON.parse(stored));
       }
@@ -449,7 +449,7 @@ const OfflineRecordingManagerScreen: React.FC<OfflineRecordingManagerScreenProps
    */
   const saveRecordings = async (newRecordings: OfflineRecording[]) => {
     try {
-      await AsyncStorage.setItem('@voiceflow_offline_recordings', JSON.stringify(newRecordings));
+      await AsyncStorage.setItem('@VoiceCode_offline_recordings', JSON.stringify(newRecordings));
       setRecordings(newRecordings);
     } catch (error) {
       console.error('Error saving recordings:', error);
@@ -461,7 +461,7 @@ const OfflineRecordingManagerScreen: React.FC<OfflineRecordingManagerScreenProps
    */
   const saveUploadQueue = async (newQueue: UploadQueueItem[]) => {
     try {
-      await AsyncStorage.setItem('@voiceflow_upload_queue', JSON.stringify(newQueue));
+      await AsyncStorage.setItem('@VoiceCode_upload_queue', JSON.stringify(newQueue));
       setUploadQueue(newQueue);
     } catch (error) {
       console.error('Error saving upload queue:', error);
@@ -473,7 +473,7 @@ const OfflineRecordingManagerScreen: React.FC<OfflineRecordingManagerScreenProps
    */
   const saveOptimizationSettings = async (newSettings: StorageOptimizationSettings) => {
     try {
-      await AsyncStorage.setItem('@voiceflow_optimization_settings', JSON.stringify(newSettings));
+      await AsyncStorage.setItem('@VoiceCode_optimization_settings', JSON.stringify(newSettings));
       setOptimizationSettings(newSettings);
     } catch (error) {
       console.error('Error saving optimization settings:', error);

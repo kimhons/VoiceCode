@@ -1,15 +1,80 @@
 /**
  * Supabase Service
  * Phase 2.3: Cloud Sync & Storage
- * 
+ *
  * Provides cloud storage, real-time sync, and collaboration features
+ * NOTE: Supabase SDK is optional - service works in offline mode without it
  */
-
-import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
 
 // Supabase configuration
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Type definitions for Supabase (avoids hard dependency on SDK)
+interface SupabaseQueryBuilder {
+  select: (columns?: string, options?: Record<string, unknown>) => SupabaseQueryBuilder;
+  insert: (data: Record<string, unknown> | Record<string, unknown>[]) => SupabaseQueryBuilder;
+  update: (data: Record<string, unknown>) => SupabaseQueryBuilder;
+  delete: () => SupabaseQueryBuilder;
+  eq: (column: string, value: unknown) => SupabaseQueryBuilder;
+  neq: (column: string, value: unknown) => SupabaseQueryBuilder;
+  gte: (column: string, value: unknown) => SupabaseQueryBuilder;
+  lte: (column: string, value: unknown) => SupabaseQueryBuilder;
+  gt: (column: string, value: unknown) => SupabaseQueryBuilder;
+  or: (filter: string, options?: Record<string, unknown>) => SupabaseQueryBuilder;
+  order: (column: string, options?: { ascending?: boolean }) => SupabaseQueryBuilder;
+  limit: (count: number) => SupabaseQueryBuilder;
+  range: (from: number, to: number) => SupabaseQueryBuilder;
+  single: () => SupabaseQueryBuilder;
+  upsert: (data: Record<string, unknown> | Record<string, unknown>[]) => SupabaseQueryBuilder;
+  then: (onfulfilled?: (value: { data: unknown; error: unknown; count?: number | null }) => unknown) => Promise<{ data: unknown; error: unknown; count?: number | null }>;
+}
+
+interface SupabaseAuthClient {
+  getSession: () => Promise<{ data: { session: Session | null }; error: unknown }>;
+  getUser: () => Promise<{ data: { user: User | null }; error: unknown }>;
+  signUp: (credentials: { email: string; password: string; options?: Record<string, unknown> }) => Promise<{ data: { user: User | null; session: Session | null }; error: unknown }>;
+  signInWithPassword: (credentials: { email: string; password: string }) => Promise<{ data: { user: User | null; session: Session | null }; error: unknown }>;
+  signOut: () => Promise<{ error: unknown }>;
+  onAuthStateChange: (callback: (event: string, session: Session | null) => void) => { data: { subscription: { unsubscribe: () => void } } };
+}
+
+interface SupabaseStorageBucket {
+  upload: (path: string, file: File | Blob, options?: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+  download: (path: string) => Promise<{ data: Blob | null; error: unknown }>;
+  getPublicUrl: (path: string) => { data: { publicUrl: string } };
+  remove: (paths: string[]) => Promise<{ data: unknown; error: unknown }>;
+}
+
+interface SupabaseChannel {
+  on: (event: string, filter: Record<string, unknown>, callback: (payload: unknown) => void) => SupabaseChannel;
+  subscribe: () => SupabaseChannel;
+}
+
+interface SupabaseClient {
+  auth: SupabaseAuthClient;
+  from: (table: string) => SupabaseQueryBuilder;
+  channel: (name: string) => SupabaseChannel;
+  removeChannel: (channel: SupabaseChannel) => void;
+  rpc: (fn: string, params?: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+  storage: {
+    from: (bucket: string) => SupabaseStorageBucket;
+  };
+  functions: {
+    invoke: (fn: string, options?: { body?: Record<string, unknown> }) => Promise<{ data: unknown; error: unknown }>;
+  };
+}
+
+interface User {
+  id: string;
+  email?: string;
+  user_metadata?: Record<string, unknown>;
+}
+
+interface Session {
+  user: User;
+  access_token: string;
+}
 
 // Database types
 export interface Transcript {
@@ -51,7 +116,7 @@ export interface TranscriptMetadata {
   version: string;
   tags?: string[];
   custom_vocabulary?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface UserProfile {
@@ -95,8 +160,25 @@ export interface CustomVocabularyEntry {
   updated_at: string;
 }
 
+// Dynamic import for Supabase SDK (optional dependency)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let createClient: ((url: string, key: string, options?: Record<string, unknown>) => any) | null = null;
+try {
+  // Only import if available - not a hard dependency
+  import('@supabase/supabase-js')
+    .then((module) => {
+      createClient = module.createClient;
+    })
+    .catch(() => {
+      console.log('Supabase SDK not available - running in offline mode');
+    });
+} catch {
+  // SDK not available
+}
+
 /**
  * Supabase Service Class
+ * Works in offline mode when Supabase SDK is not installed
  */
 export class SupabaseService {
   private client: SupabaseClient | null = null;
@@ -104,15 +186,23 @@ export class SupabaseService {
   private isInitialized: boolean = false;
 
   constructor() {
-    if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-      this.initialize();
-    }
+    // Delay initialization to allow dynamic import
+    setTimeout(() => {
+      if (SUPABASE_URL && SUPABASE_ANON_KEY && createClient) {
+        this.initialize();
+      }
+    }, 100);
   }
 
   /**
    * Initialize Supabase client
    */
   private initialize(): void {
+    if (!createClient) {
+      console.log('Supabase SDK not available - running in offline mode');
+      return;
+    }
+
     try {
       this.client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: {
@@ -130,9 +220,11 @@ export class SupabaseService {
       this.isInitialized = true;
 
       // Listen for auth changes
-      this.client.auth.onAuthStateChange((_event, session) => {
-        this.currentUser = session?.user || null;
-      });
+      this.client?.auth.onAuthStateChange(
+        (_event: string, session: Session | null) => {
+          this.currentUser = session?.user || null;
+        }
+      );
     } catch (error) {
       console.error('Failed to initialize Supabase:', error);
       this.isInitialized = false;
@@ -164,7 +256,11 @@ export class SupabaseService {
   /**
    * Sign up with email and password
    */
-  async signUp(email: string, password: string, fullName?: string): Promise<User> {
+  async signUp(
+    email: string,
+    password: string,
+    fullName?: string
+  ): Promise<User> {
     if (!this.client) throw new Error('Supabase not initialized');
 
     const { data, error } = await this.client.auth.signUp({
@@ -248,9 +344,7 @@ export class SupabaseService {
       },
     };
 
-    const { error } = await this.client
-      .from('user_profiles')
-      .insert(profile);
+    const { error } = await this.client.from('user_profiles').insert(profile);
 
     if (error) throw error;
   }
@@ -271,7 +365,7 @@ export class SupabaseService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as UserProfile | null;
   }
 
   /**
@@ -289,13 +383,15 @@ export class SupabaseService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as UserProfile;
   }
 
   /**
    * Save transcript to cloud
    */
-  async saveTranscript(transcript: Omit<Transcript, 'id' | 'created_at' | 'updated_at'>): Promise<Transcript> {
+  async saveTranscript(
+    transcript: Omit<Transcript, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Transcript> {
     if (!this.client) throw new Error('Supabase not initialized');
     if (!this.currentUser) throw new Error('No user logged in');
 
@@ -309,7 +405,7 @@ export class SupabaseService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Transcript;
   }
 
   /**
@@ -326,13 +422,16 @@ export class SupabaseService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Transcript | null;
   }
 
   /**
    * Get all transcripts for current user
    */
-  async getTranscripts(limit: number = 50, offset: number = 0): Promise<Transcript[]> {
+  async getTranscripts(
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<Transcript[]> {
     if (!this.client) throw new Error('Supabase not initialized');
     if (!this.currentUser) throw new Error('No user logged in');
 
@@ -345,13 +444,16 @@ export class SupabaseService {
       .range(offset, offset + limit - 1);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Transcript[];
   }
 
   /**
    * Update transcript
    */
-  async updateTranscript(id: string, updates: Partial<Transcript>): Promise<Transcript> {
+  async updateTranscript(
+    id: string,
+    updates: Partial<Transcript>
+  ): Promise<Transcript> {
     if (!this.client) throw new Error('Supabase not initialized');
 
     const { data, error } = await this.client
@@ -365,7 +467,7 @@ export class SupabaseService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Transcript;
   }
 
   /**
@@ -388,7 +490,10 @@ export class SupabaseService {
   /**
    * Search transcripts
    */
-  async searchTranscripts(query: string, limit: number = 20): Promise<Transcript[]> {
+  async searchTranscripts(
+    query: string,
+    limit: number = 20
+  ): Promise<Transcript[]> {
     if (!this.client) throw new Error('Supabase not initialized');
     if (!this.currentUser) throw new Error('No user logged in');
 
@@ -402,7 +507,7 @@ export class SupabaseService {
       .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Transcript[];
   }
 }
 
@@ -417,4 +522,3 @@ export function getSupabaseService(): SupabaseService {
 }
 
 export default getSupabaseService;
-

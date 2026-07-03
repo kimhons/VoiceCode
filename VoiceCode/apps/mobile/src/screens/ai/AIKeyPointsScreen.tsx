@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AI Key Points Screen
+// VoiceCode Mobile - AI Key Points Screen
 
 import React, { useEffect, useState } from 'react';
 import {

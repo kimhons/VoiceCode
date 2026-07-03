@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Recording Types
+// VoiceCode Mobile - Recording Types
 
 export interface Recording {
   id: string;

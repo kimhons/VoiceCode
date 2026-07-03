@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "VoiceFlow Pro",
+    "productName": "VoiceCode",
     "version": "1.0.0"
   },
   "tauri": {
@@ -45,11 +45,7 @@
         "removeFile": false,
         "renameFile": false,
         "exists": true,
-        "scope": [
-          "app-config/**",
-          "user-data/**",
-          "audio-files/**"
-        ]
+        "scope": ["app-config/**", "user-data/**", "audio-files/**"]
       },
       "path": {
         "all": true
@@ -86,8 +82,8 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.voiceflow.pro",
-      "publisher": "VoiceFlow Pro Team",
+      "identifier": "com.voicecode.desktop",
+      "publisher": "VoiceCode Team",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -102,11 +98,7 @@
       "shortDescription": "",
       "longDescription": "",
       "deb": {
-        "depends": [
-          "libasound2",
-          "libgtk-3-0",
-          "libwebkit2gtk-4.0-37"
-        ]
+        "depends": ["libasound2", "libgtk-3-0", "libwebkit2gtk-4.0-37"]
       },
       "windows": {
         "certificateThumbprint": null,
@@ -122,14 +114,17 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; media-src 'self' blob: data:; font-src 'self';"
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss: https://api.aimlapi.com https://api.openai.com https://api.anthropic.com https://api.deepgram.com; media-src 'self' blob: data:; font-src 'self';"
     },
     "updater": {
-      "active": false
+      "active": false,
+      "endpoints": [
+        "https://releases.voicecode.app/{{target}}/{{arch}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": ""
     },
     "windows": [
-
-
       {
         "fullscreen": false,
         "height": 800,
@@ -139,7 +134,7 @@
         "maxWidth": 1920,
         "maxHeight": 1080,
         "resizable": true,
-        "title": "VoiceFlow Pro",
+        "title": "VoiceCode",
         "center": true,
         "decorations": true,
         "alwaysOnTop": false,

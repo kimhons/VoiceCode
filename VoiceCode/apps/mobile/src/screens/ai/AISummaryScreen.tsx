@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - AI Summary Screen
+// VoiceCode Mobile - AI Summary Screen
 
 import React, { useEffect, useState } from 'react';
 import {

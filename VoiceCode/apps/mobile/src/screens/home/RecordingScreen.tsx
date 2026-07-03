@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Recording Screen
+// VoiceCode Mobile - Recording Screen
 // Live transcription with real-time waveform visualization
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -20,7 +20,7 @@ import { LiveTranscriptionView } from '../../components/recording/LiveTranscript
 import { AudioWaveform } from '../../components/recording/AudioWaveform';
 import { RecordingQuality, RecordingStatus } from '../../types/recording';
 
-const AIML_API_KEY = process.env.EXPO_PUBLIC_AIML_API_KEY || 'your-api-key-here';
+const AIML_API_KEY = process.env.EXPO_PUBLIC_AIML_API_KEY ?? '';
 
 const RecordingScreen: React.FC = () => {
   const { theme } = useTheme();
@@ -30,28 +30,27 @@ const RecordingScreen: React.FC = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
 
-  const durationInterval = useRef<NodeJS.Timeout | null>(null);
-  const meteringInterval = useRef<NodeJS.Timeout | null>(null);
+  const durationInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const meteringInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  // Initialize streaming service
+  // Initialize streaming service only when API key is configured (env-only, no placeholder)
   useEffect(() => {
+    if (!AIML_API_KEY.trim()) {
+      return;
+    }
     const streamingService = getStreamingService(AIML_API_KEY);
     audioRecorder.setStreamingService(streamingService);
 
-    // Set up event listeners
     streamingService.on('transcript', handleTranscript);
     streamingService.on('connected', () => {
-      console.log('✅ Streaming service connected');
       setIsStreaming(true);
     });
     streamingService.on('disconnected', () => {
-      console.log('🔌 Streaming service disconnected');
       setIsStreaming(false);
     });
     streamingService.on('error', (error) => {
-      console.error('❌ Streaming error:', error);
       Alert.alert('Streaming Error', error.error || 'Failed to connect to streaming service');
     });
 

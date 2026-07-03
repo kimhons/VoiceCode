@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Navigation Types
+// VoiceCode Mobile - Navigation Types
 
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -28,6 +28,7 @@ export type AuthStackNavigationProp = StackNavigationProp<AuthStackParamList>;
 // Main Tab Navigator
 export type MainTabParamList = {
   Home: undefined;
+  Explore: undefined;
   Library: undefined;
   Collaboration: undefined;
   Settings: undefined;
@@ -175,9 +176,8 @@ export type AnalyticsStackNavigationProp = CompositeNavigationProp<
 // Screen Props Helper Types
 export type ScreenProps<
   ParamList extends Record<string, any>,
-  RouteName extends keyof ParamList
+  RouteName extends keyof ParamList,
 > = {
   navigation: StackNavigationProp<ParamList, RouteName>;
   route: RouteProp<ParamList, RouteName>;
 };
-

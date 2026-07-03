@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 // Phase 3: Token Budget Management
 // Intelligent token allocation and truncation for LLM context windows
 

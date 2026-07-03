@@ -49,6 +49,11 @@ export const getBillingService = createLazyService(
   () => import('./BillingService').then(m => ({ BillingService: m.BillingService }))
 );
 
+export const getPricingService = createLazyService(
+  'PricingService',
+  () => import('./PricingService').then(m => ({ PricingService: m.default }))
+);
+
 export const getCloudSyncService = createLazyService(
   'CloudSyncService',
   () => import('./CloudSyncService').then(m => ({ CloudSyncService: m.CloudSyncService }))
@@ -109,6 +114,55 @@ export const getMultiFileEditingService = createLazyService(
 export const getTelemetryService = createLazyService(
   'TelemetryService',
   () => import('./TelemetryService').then(m => ({ TelemetryService: m.TelemetryService }))
+);
+
+/**
+ * ENHANCED AGENTIC SERVICES (New)
+ */
+
+export const getCodebaseIndexService = createLazyService(
+  'CodebaseIndexService',
+  () => import('./CodebaseIndexService').then(m => ({ CodebaseIndexService: m.CodebaseIndexService }))
+);
+
+export const getConversationMemoryService = createLazyService(
+  'ConversationMemoryService',
+  () => import('./ConversationMemoryService').then(m => ({ ConversationMemoryService: m.ConversationMemoryService }))
+);
+
+export const getCostTrackingService = createLazyService(
+  'CostTrackingService',
+  () => import('./CostTrackingService').then(m => ({ CostTrackingService: m.CostTrackingService }))
+);
+
+export const getToolChainExecutor = createLazyService(
+  'ToolChainExecutor',
+  () => import('./ToolChainExecutor').then(m => ({ ToolChainExecutor: m.ToolChainExecutor }))
+);
+
+export const getHumanApprovalService = createLazyService(
+  'HumanApprovalService',
+  () => import('./HumanApprovalService').then(m => ({ HumanApprovalService: m.HumanApprovalService }))
+);
+
+export const getAgentFactory = createLazyService(
+  'AgentFactory',
+  () => import('./SpecializedAgents').then(m => ({ AgentFactory: m.AgentFactory }))
+);
+
+export const getAgentRegistry = createLazyService(
+  'AgentRegistry',
+  () => import('./AgentRegistry').then(m => ({ AgentRegistry: m.AgentRegistry }))
+);
+
+export const getAgentCommunicationHub = createLazyService(
+  'AgentCommunicationHub',
+  () => import('./AgentCommunicationHub').then(m => ({ AgentCommunicationHub: m.AgentCommunicationHub }))
+);
+
+export const getVoiceSettingsService = createLazyService(
+  'VoiceSettingsService',
+  () => import('./VoiceSettingsService').then(m => ({ VoiceSettingsService: m.VoiceSettingsService }))
 );
 
 /**
@@ -180,6 +234,23 @@ export async function initializeServicesForTier(userTier: ServiceTier): Promise<
   console.log(
     `[LazyServices] Initialized ${coreServices.length} core + ${tierServices.length} tier services`
   );
+  
+  // Preload enhanced agentic services in background (optional)
+  if (userTier === ServiceTier.PRO || userTier === ServiceTier.ENTERPRISE) {
+    setTimeout(async () => {
+      try {
+        console.log('[LazyServices] Preloading enhanced agentic services...');
+        await Promise.allSettled([
+          getCodebaseIndexService(),
+          getConversationMemoryService(),
+          getCostTrackingService(),
+        ]);
+        console.log('[LazyServices] Enhanced agentic services preloaded');
+      } catch (error) {
+        console.error('[LazyServices] Failed to preload enhanced services:', error);
+      }
+    }, 5000); // Delay 5 seconds after activation
+  }
 
   return {
     core: coreServices,

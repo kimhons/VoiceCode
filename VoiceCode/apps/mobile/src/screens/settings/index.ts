@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Settings Screens Index
+// VoiceCode Mobile - Settings Screens Index
 
 // Basic Settings
 export { RecordingSettingsScreen } from './RecordingSettingsScreen';

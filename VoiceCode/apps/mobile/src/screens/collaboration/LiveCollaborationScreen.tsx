@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro Mobile - Live Collaboration Screen
+ * VoiceCode Mobile - Live Collaboration Screen
  * 
  * Comprehensive real-time collaborative editing interface for Phase 2: Advanced Features
  * Week 6 Day 38-39 Implementation
@@ -217,7 +217,7 @@ export type PanelType = 'chat' | 'notifications' | 'collaborators' | 'versions';
 // ============================================================================
 
 const BASE_UNIT = 4;
-const STORAGE_KEY = '@voiceflow_live_collaboration';
+const STORAGE_KEY = '@VoiceCode_live_collaboration';
 const AVATAR_SIZE = BASE_UNIT * 8;
 const CURSOR_HEIGHT = BASE_UNIT * 5;
 const NOTIFICATION_DURATION = 5000;
@@ -410,8 +410,8 @@ export default function LiveCollaborationScreen({
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scrollViewRef = useRef<ScrollView>(null);
   const textInputRef = useRef<TextInput>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ============================================================================
   // Effects

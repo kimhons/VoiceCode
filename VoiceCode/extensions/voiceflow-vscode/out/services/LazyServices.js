@@ -28,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTelemetryService = exports.getMultiFileEditingService = exports.getVoiceFlowChatParticipant = exports.getLanguageModelToolsService = exports.getMCPIntegrationService = exports.getEnhancedAIBridgeService = exports.getMultiWindowManager = exports.getTeamCollaborationService = exports.getVoiceTrainingService = exports.getCloudSyncService = exports.getBillingService = exports.getOnboardingService = exports.getAuthenticationService = exports.getCommandSuggestionsService = exports.getVoiceRecognitionService = exports.ServiceTier = void 0;
+exports.getVoiceSettingsService = exports.getAgentCommunicationHub = exports.getAgentRegistry = exports.getAgentFactory = exports.getHumanApprovalService = exports.getToolChainExecutor = exports.getCostTrackingService = exports.getConversationMemoryService = exports.getCodebaseIndexService = exports.getTelemetryService = exports.getMultiFileEditingService = exports.getVoiceFlowChatParticipant = exports.getLanguageModelToolsService = exports.getMCPIntegrationService = exports.getEnhancedAIBridgeService = exports.getMultiWindowManager = exports.getTeamCollaborationService = exports.getVoiceTrainingService = exports.getCloudSyncService = exports.getPricingService = exports.getBillingService = exports.getOnboardingService = exports.getAuthenticationService = exports.getCommandSuggestionsService = exports.getVoiceRecognitionService = exports.ServiceTier = void 0;
 exports.getWhisperModelManager = getWhisperModelManager;
 exports.initializeServicesForTier = initializeServicesForTier;
 exports.preloadAIServices = preloadAIServices;
@@ -54,6 +54,7 @@ exports.getOnboardingService = (0, ServiceLoader_1.createLazyService)('Onboardin
  * PRO TIER SERVICES (Lazy load on-demand)
  */
 exports.getBillingService = (0, ServiceLoader_1.createLazyService)('BillingService', () => Promise.resolve().then(() => __importStar(require('./BillingService'))).then(m => ({ BillingService: m.BillingService })));
+exports.getPricingService = (0, ServiceLoader_1.createLazyService)('PricingService', () => Promise.resolve().then(() => __importStar(require('./PricingService'))).then(m => ({ PricingService: m.default })));
 exports.getCloudSyncService = (0, ServiceLoader_1.createLazyService)('CloudSyncService', () => Promise.resolve().then(() => __importStar(require('./CloudSyncService'))).then(m => ({ CloudSyncService: m.CloudSyncService })));
 exports.getVoiceTrainingService = (0, ServiceLoader_1.createLazyService)('VoiceTrainingService', () => Promise.resolve().then(() => __importStar(require('./VoiceTrainingService'))).then(m => ({ VoiceTrainingService: m.VoiceTrainingService })));
 /**
@@ -73,6 +74,18 @@ exports.getVoiceFlowChatParticipant = (0, ServiceLoader_1.createLazyService)('Vo
  */
 exports.getMultiFileEditingService = (0, ServiceLoader_1.createLazyService)('MultiFileEditingService', () => Promise.resolve().then(() => __importStar(require('./MultiFileEditingService'))).then(m => ({ MultiFileEditingService: m.MultiFileEditingService })));
 exports.getTelemetryService = (0, ServiceLoader_1.createLazyService)('TelemetryService', () => Promise.resolve().then(() => __importStar(require('./TelemetryService'))).then(m => ({ TelemetryService: m.TelemetryService })));
+/**
+ * ENHANCED AGENTIC SERVICES (New)
+ */
+exports.getCodebaseIndexService = (0, ServiceLoader_1.createLazyService)('CodebaseIndexService', () => Promise.resolve().then(() => __importStar(require('./CodebaseIndexService'))).then(m => ({ CodebaseIndexService: m.CodebaseIndexService })));
+exports.getConversationMemoryService = (0, ServiceLoader_1.createLazyService)('ConversationMemoryService', () => Promise.resolve().then(() => __importStar(require('./ConversationMemoryService'))).then(m => ({ ConversationMemoryService: m.ConversationMemoryService })));
+exports.getCostTrackingService = (0, ServiceLoader_1.createLazyService)('CostTrackingService', () => Promise.resolve().then(() => __importStar(require('./CostTrackingService'))).then(m => ({ CostTrackingService: m.CostTrackingService })));
+exports.getToolChainExecutor = (0, ServiceLoader_1.createLazyService)('ToolChainExecutor', () => Promise.resolve().then(() => __importStar(require('./ToolChainExecutor'))).then(m => ({ ToolChainExecutor: m.ToolChainExecutor })));
+exports.getHumanApprovalService = (0, ServiceLoader_1.createLazyService)('HumanApprovalService', () => Promise.resolve().then(() => __importStar(require('./HumanApprovalService'))).then(m => ({ HumanApprovalService: m.HumanApprovalService })));
+exports.getAgentFactory = (0, ServiceLoader_1.createLazyService)('AgentFactory', () => Promise.resolve().then(() => __importStar(require('./SpecializedAgents'))).then(m => ({ AgentFactory: m.AgentFactory })));
+exports.getAgentRegistry = (0, ServiceLoader_1.createLazyService)('AgentRegistry', () => Promise.resolve().then(() => __importStar(require('./AgentRegistry'))).then(m => ({ AgentRegistry: m.AgentRegistry })));
+exports.getAgentCommunicationHub = (0, ServiceLoader_1.createLazyService)('AgentCommunicationHub', () => Promise.resolve().then(() => __importStar(require('./AgentCommunicationHub'))).then(m => ({ AgentCommunicationHub: m.AgentCommunicationHub })));
+exports.getVoiceSettingsService = (0, ServiceLoader_1.createLazyService)('VoiceSettingsService', () => Promise.resolve().then(() => __importStar(require('./VoiceSettingsService'))).then(m => ({ VoiceSettingsService: m.VoiceSettingsService })));
 /**
  * Service initialization based on user tier
  */
@@ -129,6 +142,23 @@ async function initializeServicesForTier(userTier) {
     }
     // AI services loaded on first use (not at activation)
     console.log(`[LazyServices] Initialized ${coreServices.length} core + ${tierServices.length} tier services`);
+    // Preload enhanced agentic services in background (optional)
+    if (userTier === ServiceLoader_1.ServiceTier.PRO || userTier === ServiceLoader_1.ServiceTier.ENTERPRISE) {
+        setTimeout(async () => {
+            try {
+                console.log('[LazyServices] Preloading enhanced agentic services...');
+                await Promise.allSettled([
+                    (0, exports.getCodebaseIndexService)(),
+                    (0, exports.getConversationMemoryService)(),
+                    (0, exports.getCostTrackingService)(),
+                ]);
+                console.log('[LazyServices] Enhanced agentic services preloaded');
+            }
+            catch (error) {
+                console.error('[LazyServices] Failed to preload enhanced services:', error);
+            }
+        }, 5000); // Delay 5 seconds after activation
+    }
     return {
         core: coreServices,
         tier: tierServices,

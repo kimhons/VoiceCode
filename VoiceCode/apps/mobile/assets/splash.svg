@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="splashGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1284" height="2778" fill="url(#splashGradient)"/>
+  
+  <!-- Logo/Icon (centered) -->
+  <g transform="translate(492, 1239)">
+    <!-- Microphone -->
+    <ellipse cx="150" cy="126" rx="36" ry="54" fill="#ffffff"/>
+    <path d="M 114 180 Q 150 195 186 180" stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <line x1="150" y1="180" x2="150" y2="225" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+    <line x1="120" y1="225" x2="180" y2="225" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+    
+    <!-- Sound waves -->
+    <path d="M 75 105 Q 66 126 75 147" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.6"/>
+    <path d="M 54 90 Q 42 126 54 162" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.4"/>
+    <path d="M 225 105 Q 234 126 225 147" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.6"/>
+    <path d="M 246 90 Q 258 126 246 162" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.4"/>
+  </g>
+  
+  <!-- App Name -->
+  <text x="642" y="1589" font-family="Arial, sans-serif" font-size="48" font-weight="bold" 
+        fill="#ffffff" text-anchor="middle">VoiceCode</text>
+  
+  <!-- Tagline -->
+  <text x="642" y="1639" font-family="Arial, sans-serif" font-size="24" 
+        fill="#ffffff" text-anchor="middle" opacity="0.9">Voice to Text, Powered by AI</text>
+</svg>

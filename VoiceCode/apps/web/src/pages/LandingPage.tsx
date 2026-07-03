@@ -1,5 +1,5 @@
 /**
- * VoiceFlow Pro - Marketing Landing Page
+ * VoiceCode - Marketing Landing Page
  * Complete redesign with marketing psychology, SEO optimization, and conversion focus
  */
 
@@ -258,7 +258,7 @@ export const LandingPage: React.FC = () => {
               color: '#ffffff',
               marginBottom: spacing.md,
             }}>
-              Download VoiceFlow Pro
+              Download VoiceCode
             </h2>
             <p style={{
               fontSize: typography.fontSize.xl,
@@ -589,7 +589,7 @@ export const LandingPage: React.FC = () => {
               fontSize: typography.fontSize.sm,
               color: 'rgba(255, 255, 255, 0.8)',
             }}>
-              Access VoiceFlow Pro directly from your browser on any device
+              Access VoiceCode directly from your browser on any device
             </p>
           </div>
         </div>
@@ -1093,7 +1093,7 @@ export const LandingPage: React.FC = () => {
               maxWidth: '800px',
               margin: '0 auto',
             }}>
-              You're not alone. Thousands have switched from overpriced competitors to VoiceFlow Pro.
+              You're not alone. Thousands have switched from overpriced competitors to VoiceCode.
             </p>
           </div>
 
@@ -1225,7 +1225,7 @@ export const LandingPage: React.FC = () => {
                       }}>
                         🎙️
                       </div>
-                      <div style={{ fontWeight: typography.fontWeight.bold, fontSize: typography.fontSize.lg }}>VoiceFlow Pro</div>
+                      <div style={{ fontWeight: typography.fontWeight.bold, fontSize: typography.fontSize.lg }}>VoiceCode</div>
                       <div style={{ fontSize: typography.fontSize.sm, opacity: 0.9 }}>$7.99/mo</div>
                       <div style={{
                         backgroundColor: '#10b981',
@@ -1484,7 +1484,7 @@ export const LandingPage: React.FC = () => {
               fontSize: typography.fontSize.xl,
               color: 'rgba(255, 255, 255, 0.9)',
             }}>
-              See how VoiceFlow Pro helps professionals in every industry
+              See how VoiceCode helps professionals in every industry
             </p>
           </div>
 
@@ -1536,7 +1536,7 @@ export const LandingPage: React.FC = () => {
                   Perfect for Students & Academics
                 </h3>
                 <p style={{ fontSize: typography.fontSize.lg, color: 'rgba(255, 255, 255, 0.9)', marginBottom: spacing.lg, lineHeight: 1.6 }}>
-                  "I used to spend hours transcribing lecture recordings. Now I just upload them to VoiceFlow Pro and get perfect transcripts in minutes. The academic mode even recognizes complex terminology!"
+                  "I used to spend hours transcribing lecture recordings. Now I just upload them to VoiceCode and get perfect transcripts in minutes. The academic mode even recognizes complex terminology!"
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: spacing.md }}>
                   <div style={{ display: 'flex', alignItems: 'start', gap: spacing.sm }}>
@@ -1565,7 +1565,7 @@ export const LandingPage: React.FC = () => {
                   HIPAA-Compliant for Healthcare
                 </h3>
                 <p style={{ fontSize: typography.fontSize.lg, color: 'rgba(255, 255, 255, 0.9)', marginBottom: spacing.lg, lineHeight: 1.6 }}>
-                  "As a physician, patient privacy is paramount. VoiceFlow Pro's offline mode means patient data never leaves my device. The medical vocabulary is incredibly accurate!"
+                  "As a physician, patient privacy is paramount. VoiceCode's offline mode means patient data never leaves my device. The medical vocabulary is incredibly accurate!"
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: spacing.md }}>
                   <div style={{ display: 'flex', alignItems: 'start', gap: spacing.sm }}>
@@ -1594,7 +1594,7 @@ export const LandingPage: React.FC = () => {
                   Secure for Legal Professionals
                 </h3>
                 <p style={{ fontSize: typography.fontSize.lg, color: 'rgba(255, 255, 255, 0.9)', marginBottom: spacing.lg, lineHeight: 1.6 }}>
-                  "Client confidentiality is non-negotiable. VoiceFlow Pro's local processing ensures attorney-client privilege is protected. The legal terminology recognition is spot-on!"
+                  "Client confidentiality is non-negotiable. VoiceCode's local processing ensures attorney-client privilege is protected. The legal terminology recognition is spot-on!"
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: spacing.md }}>
                   <div style={{ display: 'flex', alignItems: 'start', gap: spacing.sm }}>
@@ -1623,7 +1623,7 @@ export const LandingPage: React.FC = () => {
                   Productivity for Business Teams
                 </h3>
                 <p style={{ fontSize: typography.fontSize.lg, color: 'rgba(255, 255, 255, 0.9)', marginBottom: spacing.lg, lineHeight: 1.6 }}>
-                  "Our team saves 10+ hours per week on meeting notes. VoiceFlow Pro automatically generates summaries and action items. The ROI is incredible!"
+                  "Our team saves 10+ hours per week on meeting notes. VoiceCode automatically generates summaries and action items. The ROI is incredible!"
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: spacing.md }}>
                   <div style={{ display: 'flex', alignItems: 'start', gap: spacing.sm }}>
@@ -1652,7 +1652,7 @@ export const LandingPage: React.FC = () => {
                   Essential for Content Creators
                 </h3>
                 <p style={{ fontSize: typography.fontSize.lg, color: 'rgba(255, 255, 255, 0.9)', marginBottom: spacing.lg, lineHeight: 1.6 }}>
-                  "I create podcasts and YouTube videos. VoiceFlow Pro generates perfect subtitles in 4 formats and creates blog posts from my content. It's a game-changer!"
+                  "I create podcasts and YouTube videos. VoiceCode generates perfect subtitles in 4 formats and creates blog posts from my content. It's a game-changer!"
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: spacing.md }}>
                   <div style={{ display: 'flex', alignItems: 'start', gap: spacing.sm }}>
@@ -1820,7 +1820,7 @@ export const LandingPage: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
             {[
               {
-                q: 'Why is VoiceFlow Pro so affordable?',
+                q: 'Why is VoiceCode so affordable?',
                 a: 'We believe transcription should be accessible to everyone. By focusing on efficiency and cutting unnecessary costs, we can offer unlimited transcription for less than competitors charge for 300 minutes.',
               },
               {
@@ -1833,7 +1833,7 @@ export const LandingPage: React.FC = () => {
               },
               {
                 q: 'Can I use it offline?',
-                a: 'Absolutely! VoiceFlow Pro includes full offline mode. Your data never leaves your device, perfect for HIPAA compliance and privacy.',
+                a: 'Absolutely! VoiceCode includes full offline mode. Your data never leaves your device, perfect for HIPAA compliance and privacy.',
               },
               {
                 q: 'How do I migrate from Otter.ai or Rev.com?',
@@ -1900,7 +1900,7 @@ export const LandingPage: React.FC = () => {
             opacity: 0.95,
             lineHeight: 1.6,
           }}>
-            Join 50,000+ professionals who switched to VoiceFlow Pro for unlimited transcription at an unbeatable price.
+            Join 50,000+ professionals who switched to VoiceCode for unlimited transcription at an unbeatable price.
           </p>
 
           <div style={{

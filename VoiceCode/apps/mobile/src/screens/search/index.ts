@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Search Screens Barrel Export
+// VoiceCode Mobile - Search Screens Barrel Export
 
 export { SearchScreen } from './SearchScreen';
 export { TagManagementScreen } from './TagManagementScreen';

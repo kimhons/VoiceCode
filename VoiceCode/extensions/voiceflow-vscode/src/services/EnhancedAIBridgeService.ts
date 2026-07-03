@@ -6,6 +6,9 @@
 
 import * as vscode from 'vscode';
 import { MCPIntegrationService } from './MCPIntegrationService';
+import { CostTrackingService } from './CostTrackingService';
+import { CodebaseIndexService } from './CodebaseIndexService';
+import { RateLimiter, LRUCache } from '../utils/RateLimiter';
 
 // AI Provider Types
 export type AIProviderType = 'copilot' | 'cursor' | 'cline' | 'aider' | 'augment' | 'anthropic' | 'openai' | 'local';
@@ -74,6 +77,14 @@ export class EnhancedAIBridgeService {
   private mcpService: MCPIntegrationService;
   private providerStatus: Map<AIProviderType, ProviderStatus> = new Map();
   private preferredProvider: AIProviderType = 'copilot';
+  
+  // Optional enhanced services
+  private costTracking?: CostTrackingService;
+  private codebaseIndex?: CodebaseIndexService;
+
+  // Rate limiting and caching
+  private rateLimiter: RateLimiter;
+  private responseCache: LRUCache<string, AIResponse>;
 
   // Event emitters
   private readonly _onProviderChanged = new vscode.EventEmitter<AIProviderType>();
@@ -87,9 +98,27 @@ export class EnhancedAIBridgeService {
   public readonly onRequestCompleted = this._onRequestCompleted.event;
   public readonly onStreamChunk = this._onStreamChunk.event;
 
-  constructor(config?: vscode.WorkspaceConfiguration, mcpService?: MCPIntegrationService) {
+  constructor(
+    config?: vscode.WorkspaceConfiguration,
+    mcpService?: MCPIntegrationService,
+    costTracking?: CostTrackingService,
+    codebaseIndex?: CodebaseIndexService
+  ) {
     this.config = config || vscode.workspace.getConfiguration('voiceflow');
     this.mcpService = mcpService || new MCPIntegrationService(this.config);
+    this.costTracking = costTracking;
+    this.codebaseIndex = codebaseIndex;
+    
+    // Initialize rate limiter: 60 requests per minute, max 5 concurrent
+    this.rateLimiter = new RateLimiter({
+      maxRequests: 60,
+      windowMs: 60 * 1000,
+      maxConcurrent: 5,
+    });
+    
+    // Initialize response cache: 100 entries, 5 minute TTL
+    this.responseCache = new LRUCache<string, AIResponse>(100, 5 * 60 * 1000);
+    
     this.detectAvailableProviders();
   }
 
@@ -150,6 +179,28 @@ export class EnhancedAIBridgeService {
    */
   public async sendRequest(request: AIRequest): Promise<AIResponse> {
     const provider = request.options?.provider || this.preferredProvider;
+    const model = request.options?.model || this.getDefaultModel(provider);
+    
+    // Check budget if cost tracking is enabled
+    if (this.costTracking) {
+      const estimatedTokens = this.estimateTokens(request.prompt);
+      if (!this.costTracking.canAfford(model, estimatedTokens)) {
+        return {
+          success: false,
+          error: 'Budget limit exceeded. Please increase your budget or wait for reset.',
+          provider,
+        };
+      }
+    }
+    
+    // Enhance prompt with semantic context if available
+    if (this.codebaseIndex && this.codebaseIndex.isReady()) {
+      const relevantContext = await this.codebaseIndex.getRelevantContext(request.prompt, 1000);
+      if (relevantContext && request.context) {
+        request.context.code = (request.context.code || '') + '\n\n// Relevant codebase context:\n' + relevantContext;
+      }
+    }
+    
     this._onRequestStarted.fire(request);
 
     let response: AIResponse;
@@ -183,8 +234,38 @@ export class EnhancedAIBridgeService {
         response = { success: false, error: `Unknown provider: ${provider}`, provider };
     }
 
+    // Record usage if cost tracking is enabled
+    if (this.costTracking && response.success && response.usage) {
+      this.costTracking.recordUsage(
+        provider,
+        model,
+        response.usage.promptTokens,
+        response.usage.completionTokens,
+        request.type
+      );
+    }
+    
     this._onRequestCompleted.fire(response);
     return response;
+  }
+  
+  /**
+   * Get default model for provider
+   */
+  private getDefaultModel(provider: AIProviderType): string {
+    switch (provider) {
+      case 'openai': return 'gpt-4o-mini';
+      case 'anthropic': return 'claude-3-5-sonnet-20241022';
+      case 'copilot': return 'gpt-4o';
+      default: return 'gpt-4o-mini';
+    }
+  }
+  
+  /**
+   * Estimate token count
+   */
+  private estimateTokens(text: string): number {
+    return Math.ceil(text.length / 4);
   }
 
   /**

@@ -158,7 +158,7 @@ class MobileEnhancementsService {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: 'Recording in Progress',
-          body: 'VoiceFlow Pro is recording in the background',
+          body: 'VoiceCode is recording in the background',
           sticky: true,
         },
         trigger: null,
@@ -202,7 +202,7 @@ class MobileEnhancementsService {
         case 'selection':
           await Haptics.selectionAsync();
           break;
-        case 'impact':
+        case 'impact': {
           const intensity = this.hapticConfig.intensity === 'light'
             ? Haptics.ImpactFeedbackStyle.Light
             : this.hapticConfig.intensity === 'heavy'
@@ -210,6 +210,7 @@ class MobileEnhancementsService {
             : Haptics.ImpactFeedbackStyle.Medium;
           await Haptics.impactAsync(intensity);
           break;
+        }
       }
     } catch (error) {
       console.error('Failed to trigger haptic feedback:', error);
@@ -264,7 +265,7 @@ class MobileEnhancementsService {
 
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Authenticate to access VoiceFlow Pro',
+        promptMessage: 'Authenticate to access VoiceCode',
         fallbackLabel: this.biometricConfig.fallbackToPasscode ? 'Use Passcode' : undefined,
         disableDeviceFallback: !this.biometricConfig.fallbackToPasscode,
       });

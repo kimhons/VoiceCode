@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Collaboration Navigator
+// VoiceCode Mobile - Collaboration Navigator
 // Week 6: Real-time Collaboration Features
 
 import React from 'react';
@@ -39,7 +39,6 @@ export const CollaborationNavigator: React.FC = () => {
           letterSpacing: -0.4,
           color: theme.colors.textPrimary,
         },
-        headerBackTitleVisible: false,
         cardStyle: {
           backgroundColor: theme.colors.background,
         },

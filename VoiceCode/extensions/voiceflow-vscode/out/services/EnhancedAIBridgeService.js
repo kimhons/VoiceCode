@@ -31,6 +31,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnhancedAIBridgeService = void 0;
 const vscode = __importStar(require("vscode"));
 const MCPIntegrationService_1 = require("./MCPIntegrationService");
+const RateLimiter_1 = require("../utils/RateLimiter");
 /**
  * Enhanced AI Bridge Service
  * Provides unified access to multiple AI providers with deep response capture
@@ -40,6 +41,12 @@ class EnhancedAIBridgeService {
     mcpService;
     providerStatus = new Map();
     preferredProvider = 'copilot';
+    // Optional enhanced services
+    costTracking;
+    codebaseIndex;
+    // Rate limiting and caching
+    rateLimiter;
+    responseCache;
     // Event emitters
     _onProviderChanged = new vscode.EventEmitter();
     _onRequestStarted = new vscode.EventEmitter();
@@ -50,9 +57,19 @@ class EnhancedAIBridgeService {
     onRequestStarted = this._onRequestStarted.event;
     onRequestCompleted = this._onRequestCompleted.event;
     onStreamChunk = this._onStreamChunk.event;
-    constructor(config, mcpService) {
+    constructor(config, mcpService, costTracking, codebaseIndex) {
         this.config = config || vscode.workspace.getConfiguration('voiceflow');
         this.mcpService = mcpService || new MCPIntegrationService_1.MCPIntegrationService(this.config);
+        this.costTracking = costTracking;
+        this.codebaseIndex = codebaseIndex;
+        // Initialize rate limiter: 60 requests per minute, max 5 concurrent
+        this.rateLimiter = new RateLimiter_1.RateLimiter({
+            maxRequests: 60,
+            windowMs: 60 * 1000,
+            maxConcurrent: 5,
+        });
+        // Initialize response cache: 100 entries, 5 minute TTL
+        this.responseCache = new RateLimiter_1.LRUCache(100, 5 * 60 * 1000);
         this.detectAvailableProviders();
     }
     /**
@@ -108,6 +125,25 @@ class EnhancedAIBridgeService {
      */
     async sendRequest(request) {
         const provider = request.options?.provider || this.preferredProvider;
+        const model = request.options?.model || this.getDefaultModel(provider);
+        // Check budget if cost tracking is enabled
+        if (this.costTracking) {
+            const estimatedTokens = this.estimateTokens(request.prompt);
+            if (!this.costTracking.canAfford(model, estimatedTokens)) {
+                return {
+                    success: false,
+                    error: 'Budget limit exceeded. Please increase your budget or wait for reset.',
+                    provider,
+                };
+            }
+        }
+        // Enhance prompt with semantic context if available
+        if (this.codebaseIndex && this.codebaseIndex.isReady()) {
+            const relevantContext = await this.codebaseIndex.getRelevantContext(request.prompt, 1000);
+            if (relevantContext && request.context) {
+                request.context.code = (request.context.code || '') + '\n\n// Relevant codebase context:\n' + relevantContext;
+            }
+        }
         this._onRequestStarted.fire(request);
         let response;
         switch (provider) {
@@ -138,8 +174,29 @@ class EnhancedAIBridgeService {
             default:
                 response = { success: false, error: `Unknown provider: ${provider}`, provider };
         }
+        // Record usage if cost tracking is enabled
+        if (this.costTracking && response.success && response.usage) {
+            this.costTracking.recordUsage(provider, model, response.usage.promptTokens, response.usage.completionTokens, request.type);
+        }
         this._onRequestCompleted.fire(response);
         return response;
+    }
+    /**
+     * Get default model for provider
+     */
+    getDefaultModel(provider) {
+        switch (provider) {
+            case 'openai': return 'gpt-4o-mini';
+            case 'anthropic': return 'claude-3-5-sonnet-20241022';
+            case 'copilot': return 'gpt-4o';
+            default: return 'gpt-4o-mini';
+        }
+    }
+    /**
+     * Estimate token count
+     */
+    estimateTokens(text) {
+        return Math.ceil(text.length / 4);
     }
     /**
      * Send request to GitHub Copilot

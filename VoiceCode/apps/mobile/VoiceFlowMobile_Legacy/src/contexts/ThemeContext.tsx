@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Theme Context
+// VoiceCode Pro Mobile - Theme Context
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
@@ -15,7 +15,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = '@voiceflow_theme_mode';
+const THEME_STORAGE_KEY = '@VoiceCode_theme_mode';
 
 interface ThemeProviderProps {
   children: ReactNode;

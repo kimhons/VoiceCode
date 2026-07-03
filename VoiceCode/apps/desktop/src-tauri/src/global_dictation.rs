@@ -7,7 +7,6 @@ use tokio::sync::Mutex;
 use tauri::{AppHandle, GlobalShortcutManager, Manager};
 use clipboard::{ClipboardContext, ClipboardProvider};
 use enigo::{Enigo, Key, Settings, Keyboard, Direction};
-use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GlobalDictationConfig {

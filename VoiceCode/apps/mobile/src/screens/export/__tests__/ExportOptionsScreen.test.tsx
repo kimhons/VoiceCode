@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - ExportOptionsScreen Tests
+// VoiceCode Mobile - ExportOptionsScreen Tests
 
 import exportReducer, {
   getTemplates,

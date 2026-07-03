@@ -1,4 +1,4 @@
-// Theme Configuration and Context for VoiceFlow Pro
+// Theme Configuration and Context for VoiceCode
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { ThemeType, PlatformType, SettingsConfig } from '@/types';

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
 import './FloatingDictationButton.css';
 
 interface FloatingDictationButtonProps {
@@ -12,7 +11,9 @@ interface FloatingDictationButtonProps {
   enabled?: boolean;
 }
 
-export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = ({
+export const FloatingDictationButton: React.FC<
+  FloatingDictationButtonProps
+> = ({
   onStartDictation,
   onStopDictation,
   isRecording,
@@ -22,7 +23,10 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
   enabled = true,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [customPosition, setCustomPosition] = useState<{ x: number; y: number } | null>(null);
+  const [customPosition, setCustomPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -35,7 +39,7 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
     if (isRecording) {
       setRecordingTime(0);
       interval = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime((prev) => prev + 1);
       }, 1000);
     }
     return () => {
@@ -53,7 +57,7 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
   // Handle click/tap
   const handleClick = () => {
     if (isDragging) return;
-    
+
     if (isRecording) {
       onStopDictation();
     } else {
@@ -64,7 +68,7 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
   // Handle long press for menu
   const handleMouseDown = (e: React.MouseEvent) => {
     dragStartRef.current = { x: e.clientX, y: e.clientY };
-    
+
     longPressTimerRef.current = setTimeout(() => {
       setShowMenu(true);
     }, 500);
@@ -72,17 +76,17 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!dragStartRef.current) return;
-    
+
     const deltaX = Math.abs(e.clientX - dragStartRef.current.x);
     const deltaY = Math.abs(e.clientY - dragStartRef.current.y);
-    
+
     if (deltaX > 5 || deltaY > 5) {
       setIsDragging(true);
       if (longPressTimerRef.current) {
         clearTimeout(longPressTimerRef.current);
         longPressTimerRef.current = null;
       }
-      
+
       setCustomPosition({
         x: e.clientX - 24,
         y: e.clientY - 24,
@@ -95,7 +99,7 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
     }
-    
+
     setTimeout(() => {
       setIsDragging(false);
       dragStartRef.current = null;
@@ -105,9 +109,12 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
   // Get button size
   const getButtonSize = (): number => {
     switch (size) {
-      case 'small': return 40;
-      case 'large': return 56;
-      default: return 48;
+      case 'small':
+        return 40;
+      case 'large':
+        return 56;
+      default:
+        return 48;
     }
   };
 
@@ -180,7 +187,7 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
       >
         {/* Pulsing animation ring */}
         {isRecording && <div className="pulse-ring"></div>}
-        
+
         {/* Microphone icon */}
         <div className="mic-icon">
           <svg
@@ -203,9 +210,7 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
 
         {/* Recording timer */}
         {isRecording && showTimer && (
-          <div className="recording-timer">
-            {formatTime(recordingTime)}
-          </div>
+          <div className="recording-timer">{formatTime(recordingTime)}</div>
         )}
       </div>
 
@@ -256,4 +261,3 @@ export const FloatingDictationButton: React.FC<FloatingDictationButtonProps> = (
     </>
   );
 };
-

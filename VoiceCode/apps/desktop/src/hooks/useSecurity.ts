@@ -19,7 +19,7 @@ export interface UseSecurityReturn {
   disable2FA: (code: string) => Promise<boolean>;
 
   // Audit Logs
-  logAudit: (action: AuditAction, resource: string, resourceId?: string, metadata?: Record<string, any>) => Promise<void>;
+  logAudit: (action: AuditAction, resource: string, resourceId?: string, metadata?: Record<string, unknown>) => Promise<void>;
   getAuditLogs: (filters?: {
     action?: AuditAction;
     resource?: string;
@@ -129,7 +129,7 @@ export function useSecurity(options: UseSecurityOptions = {}): UseSecurityReturn
       action: AuditAction,
       resource: string,
       resourceId?: string,
-      metadata?: Record<string, any>
+      metadata?: Record<string, unknown>
     ) => {
       if (!userId) return;
       

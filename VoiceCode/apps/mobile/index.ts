@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Entry Point
+// VoiceCode Pro Mobile - Entry Point
 
 import { registerRootComponent } from 'expo';
 import App from './App';

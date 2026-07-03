@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Elevation System
+// VoiceCode Mobile - Elevation System
 // Apple-inspired depth and shadows
 
 import { Platform, ViewStyle } from 'react-native';

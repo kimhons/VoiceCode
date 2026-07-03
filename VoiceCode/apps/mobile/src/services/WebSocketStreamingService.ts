@@ -49,8 +49,8 @@ export class WebSocketStreamingService {
   private ws: WebSocket | null = null;
   private apiKey: string;
   private reconnectAttempts = 0;
-  private reconnectTimer: NodeJS.Timeout | null = null;
-  private pingTimer: NodeJS.Timeout | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private pingTimer: ReturnType<typeof setInterval> | null = null;
   private isConnecting = false;
   private isStreaming = false;
   private eventHandlers: Map<StreamingEventType, Set<StreamingEventHandler>> = new Map();

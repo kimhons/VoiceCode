@@ -203,8 +203,8 @@ const REPORT_TEMPLATES: ReportConfig[] = [
 ];
 
 const STORAGE_KEYS = {
-  REPORT_HISTORY: '@voiceflow_report_history',
-  SCHEDULED_REPORTS: '@voiceflow_scheduled_reports',
+  REPORT_HISTORY: '@VoiceCode_report_history',
+  SCHEDULED_REPORTS: '@VoiceCode_scheduled_reports',
 };
 
 // =====================================================
@@ -383,10 +383,11 @@ export default function ReportsScreen() {
         return new Date(now.getTime() + 24 * 60 * 60 * 1000);
       case 'weekly':
         return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      case 'monthly':
+      case 'monthly': {
         const nextMonth = new Date(now);
         nextMonth.setMonth(nextMonth.getMonth() + 1);
         return nextMonth;
+      }
       default:
         return new Date(now.getTime() + 24 * 60 * 60 * 1000);
     }
@@ -492,7 +493,7 @@ export default function ReportsScreen() {
     const templateConfig = REPORT_TEMPLATES.find(t => t.template === template);
     const title = templateConfig?.name || 'Report';
 
-    let content = `VoiceFlow Pro - ${title}\n\n`;
+    let content = `VoiceCode - ${title}\n\n`;
     content += `Report Period: ${formatDate(startDate)} - ${formatDate(endDate)}\n`;
     content += `Generated: ${formatDate(new Date())}\n\n`;
 

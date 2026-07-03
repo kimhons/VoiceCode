@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Permissions Hook
+// VoiceCode Pro Mobile - Permissions Hook
 
 import { useState, useEffect } from 'react';
 import { Audio } from 'expo-av';

@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Home Screen
+// VoiceCode Mobile - Home Screen
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   Alert,
   Switch,
+  StatusBar,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { HomeStackParamList } from '../../navigation/types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -19,7 +22,12 @@ import { RecordButton, AudioWaveform } from '../../components/recording';
 import { usePermissions } from '../../hooks';
 import { useRealtimeTranscription } from '../../hooks/useRealtimeTranscription';
 import { audioRecorder, RecordingQuality, RecordingStatus } from '../../services';
-import { startRecording, pauseRecording, resumeRecording, stopRecording } from '../../store/slices/recordingSlice';
+import {
+  startRecording,
+  pauseRecording,
+  resumeRecording,
+  stopRecording,
+} from '../../store/slices/recordingSlice';
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'HomeScreen'>;
 
@@ -51,12 +59,12 @@ export const HomeScreen: React.FC = () => {
     punctuate: true,
     interimResults: true,
     recordingQuality: RecordingQuality.MEDIUM,
-    onError: (error) => Alert.alert('Streaming Error', error),
+    onError: error => Alert.alert('Streaming Error', error),
   });
 
   // Update recording duration
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
 
     if (recordingStatus === RecordingStatus.RECORDING) {
       interval = setInterval(() => {
@@ -72,14 +80,17 @@ export const HomeScreen: React.FC = () => {
 
   // Update audio metering
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
 
     if (recordingStatus === RecordingStatus.RECORDING) {
       interval = setInterval(async () => {
         const metering = await audioRecorder.getMetering();
         if (metering) {
           // Convert dB to 0-100 scale
-          const normalized = Math.max(0, Math.min(100, (metering.averagePower + 160) / 160 * 100));
+          const normalized = Math.max(
+            0,
+            Math.min(100, ((metering.averagePower + 160) / 160) * 100)
+          );
           setAudioLevel(normalized);
 
           // Generate waveform data for visualization
@@ -153,17 +164,16 @@ export const HomeScreen: React.FC = () => {
         setRecordingStatus(RecordingStatus.STOPPED);
 
         // Show transcript
-        Alert.alert(
-          'Transcription Complete',
-          streamingTranscript || 'No transcript available',
-          [
-            { text: 'OK', onPress: () => {
+        Alert.alert('Transcription Complete', streamingTranscript || 'No transcript available', [
+          {
+            text: 'OK',
+            onPress: () => {
               setRecordingStatus(RecordingStatus.IDLE);
               setRecordingDuration(0);
               setAudioLevel(0);
-            }}
-          ]
-        );
+            },
+          },
+        ]);
       } else {
         // Stop traditional recording
         const { uri, metadata } = await audioRecorder.stopRecording();
@@ -176,11 +186,14 @@ export const HomeScreen: React.FC = () => {
           'Recording Saved',
           `Duration: ${(metadata.duration / 1000).toFixed(1)}s\nSize: ${(metadata.fileSize / 1024).toFixed(1)} KB`,
           [
-            { text: 'OK', onPress: () => {
-              setRecordingStatus(RecordingStatus.IDLE);
-              setRecordingDuration(0);
-              setAudioLevel(0);
-            }}
+            {
+              text: 'OK',
+              onPress: () => {
+                setRecordingStatus(RecordingStatus.IDLE);
+                setRecordingDuration(0);
+                setAudioLevel(0);
+              },
+            },
           ]
         );
       }
@@ -217,58 +230,104 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.background} />
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text variant="h2" color={theme.colors.textPrimary}>
-              Welcome back{user?.name ? `, ${user.name}` : ''}!
-            </Text>
-            <Text variant="body" color={theme.colors.textSecondary} style={styles.subtitle}>
-              Ready to capture your thoughts?
-            </Text>
-          </View>
-          <Button
-            onPress={() => navigation.navigate('AudioTest')}
-            variant="outline"
-            size="small"
-          >
-            Test Audio
-          </Button>
-        </View>
-
-        {/* Streaming Toggle */}
-        <Card style={styles.streamingCard} elevation={1}>
-          <View style={styles.streamingToggle}>
-            <View>
-              <Text variant="body" color={theme.colors.textPrimary} style={{ fontWeight: '600' }}>
-                🌐 Real-time Streaming
+          <View style={styles.headerLeft}>
+            <View style={styles.greeting}>
+              <Text style={[styles.welcomeText, { color: theme.colors.textSecondary }]}>
+                Welcome back
               </Text>
-              <Text variant="caption" color={theme.colors.textSecondary}>
-                {isStreamingConnected ? 'Connected' : 'Disconnected'} • Low latency transcription
+              <Text style={[styles.userName, { color: theme.colors.textPrimary }]}>
+                {user?.name || 'there'} 👋
               </Text>
             </View>
-            <Switch
-              value={useStreaming}
-              onValueChange={setUseStreaming}
-              disabled={recordingStatus !== RecordingStatus.IDLE}
-              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-              thumbColor={useStreaming ? theme.colors.background : theme.colors.textSecondary}
-            />
           </View>
-        </Card>
+          <TouchableOpacity
+            style={[styles.settingsButton, { backgroundColor: theme.colors.surface }]}
+            onPress={() => navigation.navigate('AudioTest')}
+          >
+            <Ionicons name="settings-outline" size={22} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Streaming Mode Card */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => recordingStatus === RecordingStatus.IDLE && setUseStreaming(!useStreaming)}
+          disabled={recordingStatus !== RecordingStatus.IDLE}
+        >
+          <LinearGradient
+            colors={
+              useStreaming ? ['#667eea', '#764ba2'] : [theme.colors.surface, theme.colors.surface]
+            }
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.streamingCard}
+          >
+            <View style={styles.streamingContent}>
+              <View
+                style={[
+                  styles.streamingIconContainer,
+                  {
+                    backgroundColor: useStreaming
+                      ? 'rgba(255,255,255,0.2)'
+                      : theme.colors.background,
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={useStreaming ? 'radio' : 'radio-outline'}
+                  size={24}
+                  color={useStreaming ? '#FFFFFF' : theme.colors.textSecondary}
+                />
+              </View>
+              <View style={styles.streamingTextContainer}>
+                <Text
+                  style={[
+                    styles.streamingTitle,
+                    { color: useStreaming ? '#FFFFFF' : theme.colors.textPrimary },
+                  ]}
+                >
+                  Real-time Streaming
+                </Text>
+                <Text
+                  style={[
+                    styles.streamingSubtitle,
+                    { color: useStreaming ? 'rgba(255,255,255,0.8)' : theme.colors.textSecondary },
+                  ]}
+                >
+                  {isStreamingConnected ? '● Connected' : '○ Tap to enable'} • AI transcription
+                </Text>
+              </View>
+              <Switch
+                value={useStreaming}
+                onValueChange={setUseStreaming}
+                disabled={recordingStatus !== RecordingStatus.IDLE}
+                trackColor={{ false: theme.colors.border, true: 'rgba(255,255,255,0.3)' }}
+                thumbColor={useStreaming ? '#FFFFFF' : theme.colors.textSecondary}
+              />
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
         {/* Live Transcript (Streaming Mode) */}
         {useStreaming && (streamingTranscript || interimTranscript) && (
           <Card style={styles.transcriptCard} elevation={1}>
-            <Text variant="body" color={theme.colors.textPrimary} style={{ fontWeight: '600', marginBottom: 8 }}>
+            <Text
+              variant="body"
+              color={theme.colors.textPrimary}
+              style={{ fontWeight: '600', marginBottom: 8 }}
+            >
               📝 Live Transcript
             </Text>
             <Text variant="body" color={theme.colors.textPrimary}>
               {streamingTranscript}
               {interimTranscript && (
                 <Text style={{ opacity: 0.5, fontStyle: 'italic' }}>
-                  {streamingTranscript ? ' ' : ''}{interimTranscript}
+                  {streamingTranscript ? ' ' : ''}
+                  {interimTranscript}
                 </Text>
               )}
             </Text>
@@ -276,148 +335,200 @@ export const HomeScreen: React.FC = () => {
         )}
 
         {/* Recording Section */}
-        <Card style={styles.recordingCard} elevation={2}>
+        <View style={[styles.recordingCard, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.recordingContent}>
-            {recordingStatus === RecordingStatus.RECORDING || recordingStatus === RecordingStatus.PAUSED ? (
+            {recordingStatus === RecordingStatus.RECORDING ||
+            recordingStatus === RecordingStatus.PAUSED ? (
               <>
-                <Text variant="h3" align="center" color={theme.colors.textPrimary}>
-                  {recordingStatus === RecordingStatus.PAUSED ? 'Paused' : useStreaming ? 'Streaming...' : 'Recording...'}
-                </Text>
-                <Text
-                  variant="h1"
-                  align="center"
-                  color={theme.colors.primary}
-                  style={styles.duration}
-                >
+                <View style={styles.recordingStatusBadge}>
+                  <View
+                    style={[
+                      styles.recordingDot,
+                      {
+                        backgroundColor:
+                          recordingStatus === RecordingStatus.PAUSED
+                            ? theme.colors.warning
+                            : '#EF4444',
+                      },
+                    ]}
+                  />
+                  <Text style={[styles.recordingStatusText, { color: theme.colors.textSecondary }]}>
+                    {recordingStatus === RecordingStatus.PAUSED
+                      ? 'PAUSED'
+                      : useStreaming
+                        ? 'STREAMING'
+                        : 'RECORDING'}
+                  </Text>
+                </View>
+                <Text style={[styles.durationText, { color: theme.colors.textPrimary }]}>
                   {formatDuration(Math.floor(recordingDuration / 1000))}
                 </Text>
                 <AudioWaveform
                   audioData={Array.from({ length: 30 }, () => audioLevel)}
                   isActive={recordingStatus === RecordingStatus.RECORDING}
-                  height={80}
+                  height={60}
                   barCount={30}
                 />
               </>
             ) : (
               <>
-                <Text variant="h3" align="center" color={theme.colors.textPrimary}>
-                  Start Recording
-                </Text>
-                <Text
-                  variant="body"
-                  align="center"
-                  color={theme.colors.textSecondary}
-                  style={styles.recordingHint}
-                >
-                  Tap the button below to begin
-                </Text>
+                <View style={styles.recordingIdleContent}>
+                  <Ionicons name="mic-outline" size={32} color={theme.colors.textSecondary} />
+                  <Text style={[styles.recordingTitle, { color: theme.colors.textPrimary }]}>
+                    Ready to Record
+                  </Text>
+                  <Text style={[styles.recordingHint, { color: theme.colors.textSecondary }]}>
+                    Tap the button to start capturing
+                  </Text>
+                </View>
               </>
             )}
 
             <View style={styles.recordButtonContainer}>
               <RecordButton
-                isRecording={recordingStatus === RecordingStatus.RECORDING || recordingStatus === RecordingStatus.PAUSED}
+                isRecording={
+                  recordingStatus === RecordingStatus.RECORDING ||
+                  recordingStatus === RecordingStatus.PAUSED
+                }
                 isPaused={recordingStatus === RecordingStatus.PAUSED}
-                onPress={recordingStatus === RecordingStatus.IDLE ? handleStartRecording : handleStopRecording}
-                size={100}
+                onPress={
+                  recordingStatus === RecordingStatus.IDLE
+                    ? handleStartRecording
+                    : handleStopRecording
+                }
+                size={88}
               />
             </View>
 
-            {(recordingStatus === RecordingStatus.RECORDING || recordingStatus === RecordingStatus.PAUSED) && (
+            {(recordingStatus === RecordingStatus.RECORDING ||
+              recordingStatus === RecordingStatus.PAUSED) && (
               <View style={styles.recordingActions}>
-                <Button
-                  variant="outline"
-                  size="small"
-                  onPress={recordingStatus === RecordingStatus.PAUSED ? handleResumeRecording : handlePauseRecording}
+                <TouchableOpacity
+                  style={[styles.actionButton, { backgroundColor: theme.colors.background }]}
+                  onPress={
+                    recordingStatus === RecordingStatus.PAUSED
+                      ? handleResumeRecording
+                      : handlePauseRecording
+                  }
                 >
-                  {recordingStatus === RecordingStatus.PAUSED ? 'Resume' : 'Pause'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="small"
+                  <Ionicons
+                    name={recordingStatus === RecordingStatus.PAUSED ? 'play' : 'pause'}
+                    size={20}
+                    color={theme.colors.textPrimary}
+                  />
+                  <Text style={[styles.actionButtonText, { color: theme.colors.textPrimary }]}>
+                    {recordingStatus === RecordingStatus.PAUSED ? 'Resume' : 'Pause'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.stopButton]}
                   onPress={handleStopRecording}
                 >
-                  Stop
-                </Button>
+                  <Ionicons name="stop" size={20} color="#FFFFFF" />
+                  <Text style={[styles.actionButtonText, { color: '#FFFFFF' }]}>Stop</Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>
-        </Card>
+        </View>
 
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
-          <Card style={styles.statCard} elevation={1}>
-            <Text variant="h2" color={theme.colors.primary} align="center">
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
+            <View style={[styles.statIconContainer, { backgroundColor: '#EEF2FF' }]}>
+              <Ionicons name="folder-outline" size={20} color="#6366F1" />
+            </View>
+            <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
               {recordings.length}
             </Text>
-            <Text variant="caption" color={theme.colors.textSecondary} align="center">
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
               Recordings
             </Text>
-          </Card>
+          </View>
 
-          <Card style={styles.statCard} elevation={1}>
-            <Text variant="h2" color={theme.colors.secondary} align="center">
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
+            <View style={[styles.statIconContainer, { backgroundColor: '#FEF3C7' }]}>
+              <Ionicons name="time-outline" size={20} color="#F59E0B" />
+            </View>
+            <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
               {recordings.reduce((sum, r) => sum + r.duration, 0)}m
             </Text>
-            <Text variant="caption" color={theme.colors.textSecondary} align="center">
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
               Total Time
             </Text>
-          </Card>
+          </View>
 
-          <Card style={styles.statCard} elevation={1}>
-            <Text variant="h2" color={theme.colors.success} align="center">
-              {recordings.filter(r => r.createdAt.startsWith(new Date().toISOString().split('T')[0])).length}
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
+            <View style={[styles.statIconContainer, { backgroundColor: '#D1FAE5' }]}>
+              <Ionicons name="today-outline" size={20} color="#10B981" />
+            </View>
+            <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
+              {
+                recordings.filter(r =>
+                  r.createdAt.startsWith(new Date().toISOString().split('T')[0])
+                ).length
+              }
             </Text>
-            <Text variant="caption" color={theme.colors.textSecondary} align="center">
-              Today
-            </Text>
-          </Card>
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Today</Text>
+          </View>
         </View>
 
         {/* Recent Recordings */}
         <View style={styles.recentSection}>
           <View style={styles.sectionHeader}>
-            <Text variant="h3" color={theme.colors.textPrimary}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>
               Recent Recordings
             </Text>
-            <TouchableOpacity>
-              <Text variant="caption" color={theme.colors.primary}>
-                View All
-              </Text>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={[styles.viewAllText, { color: theme.colors.primary }]}>View All</Text>
+              <Ionicons name="chevron-forward" size={16} color={theme.colors.primary} />
             </TouchableOpacity>
           </View>
 
           {recordings.length === 0 ? (
-            <Card style={styles.emptyCard}>
-              <Text variant="body" color={theme.colors.textSecondary} align="center">
-                No recordings yet. Start your first recording above!
-              </Text>
-            </Card>
-          ) : (
-            recordings.slice(0, 5).map(recording => (
-              <Card
-                key={recording.id}
-                style={styles.recordingItem}
-                pressable
-                onPress={() => handleViewRecording(recording.id)}
-                elevation={1}
+            <View style={[styles.emptyCard, { backgroundColor: theme.colors.surface }]}>
+              <View
+                style={[styles.emptyIconContainer, { backgroundColor: theme.colors.background }]}
               >
-                <View style={styles.recordingItemContent}>
-                  <View style={styles.recordingItemLeft}>
-                    <Text variant="h6" color={theme.colors.textPrimary}>
-                      {recording.title}
-                    </Text>
-                    <Text variant="caption" color={theme.colors.textSecondary}>
-                      {formatDate(recording.createdAt)} • {formatDuration(recording.duration)}
-                    </Text>
-                  </View>
-                  <View style={styles.recordingItemRight}>
-                    <Text variant="caption" color={theme.colors.primary}>
-                      →
-                    </Text>
-                  </View>
+                <Ionicons name="mic-off-outline" size={32} color={theme.colors.textSecondary} />
+              </View>
+              <Text style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}>
+                No recordings yet
+              </Text>
+              <Text style={[styles.emptySubtitle, { color: theme.colors.textSecondary }]}>
+                Start your first recording using the button above
+              </Text>
+            </View>
+          ) : (
+            recordings.slice(0, 5).map((recording, index) => (
+              <TouchableOpacity
+                key={recording.id}
+                style={[styles.recordingItem, { backgroundColor: theme.colors.surface }]}
+                onPress={() => handleViewRecording(recording.id)}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    styles.recordingItemIcon,
+                    { backgroundColor: index % 2 === 0 ? '#EEF2FF' : '#FEF3C7' },
+                  ]}
+                >
+                  <Ionicons
+                    name="document-text"
+                    size={20}
+                    color={index % 2 === 0 ? '#6366F1' : '#F59E0B'}
+                  />
                 </View>
-              </Card>
+                <View style={styles.recordingItemContent}>
+                  <Text style={[styles.recordingItemTitle, { color: theme.colors.textPrimary }]}>
+                    {recording.title}
+                  </Text>
+                  <Text style={[styles.recordingItemMeta, { color: theme.colors.textSecondary }]}>
+                    {formatDate(recording.createdAt)} • {formatDuration(recording.duration)}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+              </TouchableOpacity>
             ))
           )}
         </View>
@@ -432,60 +543,160 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
+    paddingTop: 12,
   },
   header: {
-    marginBottom: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  subtitle: {
-    marginTop: 4,
-  },
-  streamingCard: {
-    marginBottom: 16,
-  },
-  streamingToggle: {
+    marginBottom: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  greeting: {
+    gap: 2,
+  },
+  welcomeText: {
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  settingsButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  streamingCard: {
+    marginBottom: 16,
+    borderRadius: 16,
+    padding: 16,
+  },
+  streamingContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  streamingIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  streamingTextContainer: {
+    flex: 1,
+  },
+  streamingTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  streamingSubtitle: {
+    fontSize: 13,
   },
   transcriptCard: {
     marginBottom: 16,
     maxHeight: 150,
   },
   recordingCard: {
-    marginBottom: 24,
+    marginBottom: 20,
+    borderRadius: 20,
+    padding: 24,
   },
   recordingContent: {
     alignItems: 'center',
-    paddingVertical: 20,
   },
-  duration: {
-    marginVertical: 16,
+  recordingIdleContent: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  recordingTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginTop: 12,
   },
   recordingHint: {
-    marginTop: 8,
-    marginBottom: 24,
+    fontSize: 14,
+    marginTop: 4,
+  },
+  recordingStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  recordingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  recordingStatusText: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1,
+  },
+  durationText: {
+    fontSize: 48,
+    fontWeight: '300',
+    marginBottom: 16,
   },
   recordButtonContainer: {
-    marginVertical: 24,
+    marginVertical: 20,
   },
   recordingActions: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 16,
+    marginTop: 8,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 8,
+  },
+  actionButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  stopButton: {
+    backgroundColor: '#EF4444',
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 24,
-    gap: 12,
+    gap: 10,
   },
   statCard: {
     flex: 1,
     paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  statIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  statLabel: {
+    fontSize: 12,
+    marginTop: 2,
   },
   recentSection: {
     marginBottom: 24,
@@ -496,22 +707,66 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  emptyCard: {
-    paddingVertical: 32,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
   },
-  recordingItem: {
-    marginBottom: 12,
-  },
-  recordingItemContent: {
+  viewAllButton: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 4,
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  emptyCard: {
+    paddingVertical: 40,
+    paddingHorizontal: 24,
+    borderRadius: 16,
     alignItems: 'center',
   },
-  recordingItemLeft: {
+  emptyIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  recordingItem: {
+    marginBottom: 10,
+    borderRadius: 14,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recordingItemIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  recordingItemContent: {
     flex: 1,
   },
-  recordingItemRight: {
-    marginLeft: 12,
+  recordingItemTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  recordingItemMeta: {
+    fontSize: 13,
   },
 });
-

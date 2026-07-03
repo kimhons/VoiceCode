@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Common Components Barrel Export
+// VoiceCode Pro Mobile - Common Components Barrel Export
 
 export { Text } from './Text';
 export { Button } from './Button';

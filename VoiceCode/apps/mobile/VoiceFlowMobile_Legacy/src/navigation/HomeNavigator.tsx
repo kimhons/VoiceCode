@@ -1,4 +1,4 @@
-// VoiceFlow Pro Mobile - Home Navigator
+// VoiceCode Pro Mobile - Home Navigator
 
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';

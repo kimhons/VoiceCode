@@ -78,7 +78,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
    */
   private loadSyncQueue(): void {
     try {
-      const stored = localStorage.getItem('voiceflow_sync_queue');
+      const stored = localStorage.getItem('voicecode_sync_queue');
       if (stored) {
         this.syncQueue = JSON.parse(stored);
       }
@@ -93,7 +93,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
    */
   private saveSyncQueue(): void {
     try {
-      localStorage.setItem('voiceflow_sync_queue', JSON.stringify(this.syncQueue));
+      localStorage.setItem('voicecode_sync_queue', JSON.stringify(this.syncQueue));
     } catch (error) {
       console.error('Failed to save sync queue:', error);
     }
@@ -249,7 +249,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
   private async processSyncItem(item: SyncQueueItem): Promise<void> {
     switch (item.action) {
       case 'create':
-        await this.supabase.saveTranscript(item.data as any);
+        await this.supabase.saveTranscript(item.data as Transcript);
         break;
       case 'update':
         if (item.data.id) {
@@ -316,7 +316,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
    */
   private saveLocalTranscript(transcript: Transcript): void {
     try {
-      const stored = localStorage.getItem('voiceflow_transcripts');
+      const stored = localStorage.getItem('voicecode_transcripts');
       const transcripts: Transcript[] = stored ? JSON.parse(stored) : [];
       
       const index = transcripts.findIndex(t => t.id === transcript.id);
@@ -326,7 +326,7 @@ export class SyncService extends EventEmitter<SyncEvents> {
         transcripts.push(transcript);
       }
 
-      localStorage.setItem('voiceflow_transcripts', JSON.stringify(transcripts));
+      localStorage.setItem('voicecode_transcripts', JSON.stringify(transcripts));
     } catch (error) {
       console.error('Failed to save local transcript:', error);
     }

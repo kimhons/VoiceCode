@@ -1,5 +1,5 @@
 /**
- * Case Studies Page - Real-world success stories from VoiceFlow Pro users
+ * Case Studies Page - Real-world success stories from VoiceCode users
  */
 
 import React from 'react';
@@ -19,14 +19,14 @@ export const CaseStudiesPage: React.FC = () => {
       industry: 'Legal',
       icon: '⚖️',
       challenge: 'Spending 25+ hours per week on manual transcription of client meetings and court proceedings',
-      solution: 'Implemented VoiceFlow Pro with Legal Professional Mode for accurate legal terminology',
+      solution: 'Implemented VoiceCode with Legal Professional Mode for accurate legal terminology',
       results: [
         { metric: 'Time Saved', value: '20 hours/week', icon: Clock },
         { metric: 'Cost Reduction', value: '$3,200/month', icon: DollarSign },
         { metric: 'Accuracy Improvement', value: '98.5%', icon: TrendingUp },
         { metric: 'Team Satisfaction', value: '95%', icon: Users },
       ],
-      testimonial: 'VoiceFlow Pro has transformed our practice. We can now focus on serving clients instead of typing notes.',
+      testimonial: 'VoiceCode has transformed our practice. We can now focus on serving clients instead of typing notes.',
       author: 'Michael Rodriguez, Senior Partner',
       color: '#ef4444',
     },
@@ -36,7 +36,7 @@ export const CaseStudiesPage: React.FC = () => {
       industry: 'Healthcare',
       icon: '⚕️',
       challenge: 'HIPAA-compliant documentation taking physicians away from patient care',
-      solution: 'Deployed VoiceFlow Pro with Medical Professional Mode and offline capability for privacy',
+      solution: 'Deployed VoiceCode with Medical Professional Mode and offline capability for privacy',
       results: [
         { metric: 'Patient Time', value: '+30% more', icon: Users },
         { metric: 'Documentation Time', value: '-60%', icon: Clock },
@@ -53,14 +53,14 @@ export const CaseStudiesPage: React.FC = () => {
       industry: 'Content Creation',
       icon: '🎙️',
       challenge: 'Producing 50+ podcast episodes monthly with tight turnaround times',
-      solution: 'Integrated VoiceFlow Pro for automated transcription and content repurposing',
+      solution: 'Integrated VoiceCode for automated transcription and content repurposing',
       results: [
         { metric: 'Production Speed', value: '3x faster', icon: TrendingUp },
         { metric: 'Cost Savings', value: '$5,000/month', icon: DollarSign },
         { metric: 'Content Output', value: '+150%', icon: Users },
         { metric: 'Quality Score', value: '4.9/5', icon: CheckCircle },
       ],
-      testimonial: 'We went from 2 episodes per week to 6. VoiceFlow Pro made it possible to scale without hiring more staff.',
+      testimonial: 'We went from 2 episodes per week to 6. VoiceCode made it possible to scale without hiring more staff.',
       author: 'Emma Thompson, Podcast Host & Producer',
       color: '#667eea',
     },
@@ -88,7 +88,7 @@ export const CaseStudiesPage: React.FC = () => {
             opacity: 0.95,
             marginBottom: spacing.md,
           }}>
-            See how organizations are transforming their workflows with VoiceFlow Pro
+            See how organizations are transforming their workflows with VoiceCode
           </p>
           <div style={{
             display: 'flex',
@@ -326,7 +326,7 @@ export const CaseStudiesPage: React.FC = () => {
             opacity: 0.95,
             marginBottom: spacing.xl,
           }}>
-            Join thousands of professionals who are saving time and money with VoiceFlow Pro
+            Join thousands of professionals who are saving time and money with VoiceCode
           </p>
           <Link
             to="/signup"

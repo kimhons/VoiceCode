@@ -187,6 +187,90 @@ vitest_1.vi.mock('vscode', () => {
             const gitTool = tools.find(t => t.name === 'git_operations');
             (0, vitest_1.expect)(gitTool).toBeDefined();
         });
+        (0, vitest_1.it)('should have all 26 built-in tools registered', () => {
+            const tools = service.listTools();
+            const expectedTools = [
+                'execute_voice_command',
+                'file_operations',
+                'analyze_code',
+                'search_codebase',
+                'run_terminal_command',
+                'git_operations',
+                'editor_navigate',
+                'refactor_code',
+                'debug_operations',
+                'run_tests',
+                'snippets',
+                'workspace_manage',
+                'documentation',
+                'format_code',
+                'diagnostics',
+                'selection',
+                'comments',
+                'clipboard',
+                'window_manage',
+                'extensions',
+                'project_generate',
+                'folding',
+                'multi_cursor',
+                'language_server',
+                'tasks',
+                'diff_merge',
+            ];
+            (0, vitest_1.expect)(tools.length).toBe(26);
+            for (const toolName of expectedTools) {
+                const tool = tools.find(t => t.name === toolName);
+                (0, vitest_1.expect)(tool).toBeDefined();
+            }
+        });
+        (0, vitest_1.it)('should have built-in editor_navigate tool', () => {
+            const tools = service.listTools();
+            const tool = tools.find(t => t.name === 'editor_navigate');
+            (0, vitest_1.expect)(tool).toBeDefined();
+            (0, vitest_1.expect)(tool?.inputSchema.properties.action).toBeDefined();
+        });
+        (0, vitest_1.it)('should have built-in debug_operations tool', () => {
+            const tools = service.listTools();
+            const tool = tools.find(t => t.name === 'debug_operations');
+            (0, vitest_1.expect)(tool).toBeDefined();
+            (0, vitest_1.expect)(tool?.inputSchema.properties.action.enum).toContain('start');
+            (0, vitest_1.expect)(tool?.inputSchema.properties.action.enum).toContain('toggle_breakpoint');
+        });
+        (0, vitest_1.it)('should have built-in run_tests tool', () => {
+            const tools = service.listTools();
+            const tool = tools.find(t => t.name === 'run_tests');
+            (0, vitest_1.expect)(tool).toBeDefined();
+            (0, vitest_1.expect)(tool?.inputSchema.properties.scope.enum).toContain('all');
+            (0, vitest_1.expect)(tool?.inputSchema.properties.scope.enum).toContain('coverage');
+        });
+        (0, vitest_1.it)('should have built-in format_code tool', () => {
+            const tools = service.listTools();
+            const tool = tools.find(t => t.name === 'format_code');
+            (0, vitest_1.expect)(tool).toBeDefined();
+            (0, vitest_1.expect)(tool?.inputSchema.properties.scope.enum).toContain('document');
+            (0, vitest_1.expect)(tool?.inputSchema.properties.scope.enum).toContain('organize_imports');
+        });
+        (0, vitest_1.it)('should have built-in window_manage tool', () => {
+            const tools = service.listTools();
+            const tool = tools.find(t => t.name === 'window_manage');
+            (0, vitest_1.expect)(tool).toBeDefined();
+            (0, vitest_1.expect)(tool?.inputSchema.properties.action.enum).toContain('split_editor');
+            (0, vitest_1.expect)(tool?.inputSchema.properties.action.enum).toContain('toggle_terminal');
+        });
+        (0, vitest_1.it)('should have built-in project_generate tool', () => {
+            const tools = service.listTools();
+            const tool = tools.find(t => t.name === 'project_generate');
+            (0, vitest_1.expect)(tool).toBeDefined();
+            (0, vitest_1.expect)(tool?.inputSchema.properties.template.enum).toContain('react');
+            (0, vitest_1.expect)(tool?.inputSchema.properties.template.enum).toContain('typescript');
+        });
+        (0, vitest_1.it)('should have built-in diff_merge tool', () => {
+            const tools = service.listTools();
+            const tool = tools.find(t => t.name === 'diff_merge');
+            (0, vitest_1.expect)(tool).toBeDefined();
+            (0, vitest_1.expect)(tool?.inputSchema.properties.action.enum).toContain('diff_files');
+            (0, vitest_1.expect)(tool?.inputSchema.properties.action.enum).toContain('accept_incoming');
+        });
     });
     // ============================================================
     // RESOURCE REGISTRATION TESTS
@@ -307,6 +391,84 @@ vitest_1.vi.mock('vscode', () => {
                     command: 'npm test',
                 });
                 (0, vitest_1.expect)(result.success).toBe(true);
+            });
+            (0, vitest_1.it)('should execute format_code tool', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('format_code', {
+                    scope: 'document',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.action.formatDocument');
+            });
+            (0, vitest_1.it)('should execute debug_operations start', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('debug_operations', {
+                    action: 'start',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('workbench.action.debug.start');
+            });
+            (0, vitest_1.it)('should execute window_manage toggle_terminal', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('window_manage', {
+                    action: 'toggle_terminal',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('workbench.action.terminal.toggleTerminal');
+            });
+            (0, vitest_1.it)('should execute clipboard copy', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('clipboard', {
+                    action: 'copy',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.action.clipboardCopyAction');
+            });
+            (0, vitest_1.it)('should execute folding fold_all', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('folding', {
+                    action: 'fold_all',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.foldAll');
+            });
+            (0, vitest_1.it)('should execute multi_cursor add_cursor_below', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('multi_cursor', {
+                    action: 'add_cursor_below',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('editor.action.insertCursorBelow');
+            });
+            (0, vitest_1.it)('should execute tasks run_build', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('tasks', {
+                    action: 'run_build',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('workbench.action.tasks.build');
+            });
+            (0, vitest_1.it)('should execute project_generate with react template', async () => {
+                const mockTerminal = {
+                    show: vitest_1.vi.fn(),
+                    sendText: vitest_1.vi.fn(),
+                    dispose: vitest_1.vi.fn(),
+                };
+                vscode.window.createTerminal.mockReturnValue(mockTerminal);
+                const result = await service.executeTool('project_generate', {
+                    template: 'react',
+                    name: 'my-app',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(mockTerminal.sendText).toHaveBeenCalledWith('npx create-react-app my-app');
+            });
+            (0, vitest_1.it)('should execute run_tests with coverage', async () => {
+                vscode.commands.executeCommand.mockResolvedValue(undefined);
+                const result = await service.executeTool('run_tests', {
+                    scope: 'coverage',
+                });
+                (0, vitest_1.expect)(result.success).toBe(true);
+                (0, vitest_1.expect)(vscode.commands.executeCommand).toHaveBeenCalledWith('testing.coverageAll');
             });
         });
     });

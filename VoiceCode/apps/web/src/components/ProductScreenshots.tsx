@@ -84,7 +84,7 @@ export const ProductScreenshots: React.FC<ProductScreenshotsProps> = ({ isMobile
                 🎙️
               </div>
               <div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>VoiceFlow Pro</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>VoiceCode</div>
                 <div style={{ fontSize: '14px', opacity: 0.9 }}>Professional Voice Transcription</div>
               </div>
             </div>
@@ -215,7 +215,7 @@ export const ProductScreenshots: React.FC<ProductScreenshotsProps> = ({ isMobile
               </div>
               <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>
                 <p style={{ margin: '0 0 0.5rem 0' }}>
-                  <span style={{ color: '#667eea', fontWeight: '600' }}>[00:00:12]</span> Welcome to VoiceFlow Pro, 
+                  <span style={{ color: '#667eea', fontWeight: '600' }}>[00:00:12]</span> Welcome to VoiceCode, 
                   the most advanced voice transcription platform available today.
                 </p>
                 <p style={{ margin: '0 0 0.5rem 0' }}>
@@ -278,7 +278,7 @@ export const ProductScreenshots: React.FC<ProductScreenshotsProps> = ({ isMobile
                 padding: '1rem',
                 color: '#ffffff',
               }}>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '0.5rem' }}>VoiceFlow Pro</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '0.5rem' }}>VoiceCode</div>
                 <div style={{ fontSize: '12px', opacity: 0.9 }}>Mobile Recording</div>
               </div>
 
@@ -347,7 +347,7 @@ export const ProductScreenshots: React.FC<ProductScreenshotsProps> = ({ isMobile
                   textAlign: 'left',
                   lineHeight: '1.5',
                 }}>
-                  Welcome to VoiceFlow Pro, the most advanced voice transcription platform...
+                  Welcome to VoiceCode, the most advanced voice transcription platform...
                 </div>
               </div>
             </div>
@@ -389,7 +389,7 @@ export const ProductScreenshots: React.FC<ProductScreenshotsProps> = ({ isMobile
                   fontSize: '12px',
                   fontWeight: 'bold',
                 }}>
-                  VoiceFlow Pro Desktop
+                  VoiceCode Desktop
                 </div>
                 <div style={{ padding: '1rem', backgroundColor: '#f9fafb', height: '100%' }}>
                   <div style={{

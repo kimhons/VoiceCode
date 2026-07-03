@@ -1,6 +1,6 @@
 {
-  "name": "voiceflow-pro-ui",
-  "description": "Cross-platform React/TypeScript UI component library for voice recording applications",
+  "name": "@voicecode/web",
+  "description": "VoiceCode Web - AI-powered voice transcription and coding assistant",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -18,8 +18,16 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "size": "npx size-limit"
   },
+  "size-limit": [
+    {
+      "path": "dist/assets/index-*.js",
+      "limit": "250 KB",
+      "gzip": true
+    }
+  ],
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.2",
@@ -58,6 +66,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "date-fns": "^3.0.0",
+    "dompurify": "^3.2.4",
     "docx": "^9.5.1",
     "embla-carousel-react": "^8.5.2",
     "eventemitter3": "^5.0.1",

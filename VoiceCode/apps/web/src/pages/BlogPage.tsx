@@ -1,5 +1,5 @@
 /**
- * Blog Page - SEO-optimized blog with articles about transcription, productivity, and VoiceFlow Pro
+ * Blog Page - SEO-optimized blog with articles about transcription, productivity, and VoiceCode
  */
 
 import React, { useState } from 'react';
@@ -52,8 +52,8 @@ export const BlogPage: React.FC = () => {
     },
     {
       id: 4,
-      title: 'Getting Started with VoiceFlow Pro: A Beginner\'s Tutorial',
-      excerpt: 'Step-by-step guide to setting up and using VoiceFlow Pro for the first time.',
+      title: 'Getting Started with VoiceCode: A Beginner\'s Tutorial',
+      excerpt: 'Step-by-step guide to setting up and using VoiceCode for the first time.',
       author: 'James Rodriguez',
       date: '2024-01-08',
       readTime: '10 min read',
@@ -63,7 +63,7 @@ export const BlogPage: React.FC = () => {
     },
     {
       id: 5,
-      title: 'Case Study: How Law Firm Saved 20 Hours/Week with VoiceFlow Pro',
+      title: 'Case Study: How Law Firm Saved 20 Hours/Week with VoiceCode',
       excerpt: 'Real-world success story of a law firm that transformed their documentation process.',
       author: 'Lisa Park',
       date: '2024-01-05',
@@ -107,7 +107,7 @@ export const BlogPage: React.FC = () => {
             fontWeight: typography.fontWeight.bold,
             marginBottom: spacing.md,
           }}>
-            VoiceFlow Pro Blog
+            VoiceCode Blog
           </h1>
           <p style={{
             fontSize: typography.fontSize.xl,
