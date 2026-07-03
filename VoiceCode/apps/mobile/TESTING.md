@@ -1,8 +1,8 @@
-# VoiceFlow Pro Mobile - Testing Guide
+# VoiceCode Pro Mobile - Testing Guide
 
 ## Overview
 
-This document describes the testing infrastructure and best practices for the VoiceFlow Pro Mobile app.
+This document describes the testing infrastructure and best practices for the VoiceCode Pro Mobile app.
 
 ## Testing Stack
 
