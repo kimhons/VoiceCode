@@ -72,3 +72,6 @@ coverage/
 # Turbo
 .turbo/
 **/.turbo/
+
+# Local E2E scratch (nested repo, not a submodule)
+ui-e2e-work/
