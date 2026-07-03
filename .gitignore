@@ -75,3 +75,8 @@ coverage/
 
 # Local E2E scratch (nested repo, not a submodule)
 ui-e2e-work/
+
+# ABS local build-loop state (not shared)
+.claude/.abs-active
+.claude/.spec-lock
+.claude/abs-config.json
