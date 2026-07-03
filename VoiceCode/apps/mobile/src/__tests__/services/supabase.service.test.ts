@@ -1,340 +1,242 @@
 // VoiceCode Mobile - Supabase Service Tests
-// Comprehensive tests for Supabase integration
+// Tests the real SupabaseService class API (auth + transcript CRUD + search).
+// The service reads env vars at construction; since they are absent in tests we
+// inject a controllable mock client onto the instance.
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { getSupabaseService } from '../../services/supabase.service';
-import { mockUsers, mockTranscripts, mockErrors } from '../setup/mockData';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { getSupabaseService } from '../../services/supabaseService';
 
-const supabaseService = getSupabaseService();
+const service = getSupabaseService();
 
-// Mock Supabase client
-jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => ({
+// A chainable query-builder whose terminal call resolves to `result`.
+// Covers both `.single()` terminals and directly-awaited chains (`.range()`, `.eq()`, `.limit()`).
+function queryResult(result: { data: any; error: any }) {
+  const qb: any = {};
+  ['select', 'insert', 'update', 'upsert', 'delete', 'eq', 'neq', 'or', 'order', 'range', 'limit'].forEach(
+    (m) => {
+      qb[m] = jest.fn(() => qb);
+    }
+  );
+  qb.single = jest.fn(() => Promise.resolve(result));
+  qb.then = (resolve: any, reject: any) => Promise.resolve(result).then(resolve, reject);
+  return qb;
+}
+
+function mockClient() {
+  return {
     auth: {
-      signInWithPassword: jest.fn(),
       signUp: jest.fn(),
-      signOut: jest.fn(),
-      getSession: jest.fn(),
+      signInWithPassword: jest.fn(),
+      signOut: jest.fn(() => Promise.resolve({ error: null })),
       onAuthStateChange: jest.fn(),
-      resetPasswordForEmail: jest.fn(),
     },
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-      order: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
-    })),
-    storage: {
-      from: jest.fn(() => ({
-        upload: jest.fn(),
-        download: jest.fn(),
-        remove: jest.fn(),
-        getPublicUrl: jest.fn(),
-      })),
-    },
-  })),
-}));
+    from: jest.fn(() => queryResult({ data: null, error: null })),
+  } as any;
+}
 
 describe('SupabaseService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (service as any).client = null;
+    (service as any).currentUser = null;
+    (service as any).isInitialized = false;
   });
 
   describe('Authentication', () => {
-    it('should sign in with email and password', async () => {
-      const mockResponse = {
-        data: {
-          user: mockUsers.standard,
-          session: { access_token: 'mock-token' },
-        },
-        error: null,
-      };
+    it('signs in, returns the session, and stores the current user', async () => {
+      const session = { access_token: 'mock-token', user: { id: 'u1' } };
+      const client = mockClient();
+      client.auth.signInWithPassword = jest
+        .fn()
+        .mockResolvedValue({ data: { user: { id: 'u1' }, session }, error: null });
+      (service as any).client = client;
 
-      // Mock implementation
-      const signInMock = jest.fn().mockResolvedValue(mockResponse);
-      (supabaseService as any).client.auth.signInWithPassword = signInMock;
+      const result = await service.signIn('test@example.com', 'password123');
 
-      const result = await supabaseService.signIn('test@example.com', 'password123');
-
-      expect(signInMock).toHaveBeenCalledWith({
+      expect(client.auth.signInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
       });
-      expect(result.data?.user).toEqual(mockUsers.standard);
+      expect(result).toEqual(session);
+      expect(service.getCurrentUser()).toEqual({ id: 'u1' });
     });
 
-    it('should handle sign in errors', async () => {
-      const mockResponse = {
-        data: null,
-        error: mockErrors.auth,
-      };
+    it('throws when sign in returns an auth error', async () => {
+      const client = mockClient();
+      client.auth.signInWithPassword = jest
+        .fn()
+        .mockResolvedValue({ data: {}, error: new Error('Invalid login credentials') });
+      (service as any).client = client;
 
-      const signInMock = jest.fn().mockResolvedValue(mockResponse);
-      (supabaseService as any).client.auth.signInWithPassword = signInMock;
-
-      const result = await supabaseService.signIn('test@example.com', 'wrong-password');
-
-      expect(result.error).toEqual(mockErrors.auth);
-      expect(result.data).toBeNull();
+      await expect(service.signIn('test@example.com', 'wrong')).rejects.toThrow(
+        'Invalid login credentials'
+      );
     });
 
-    it('should sign up new user', async () => {
-      const mockResponse = {
-        data: {
-          user: mockUsers.standard,
-          session: { access_token: 'mock-token' },
-        },
-        error: null,
-      };
+    it('throws when sign in succeeds but no session is returned', async () => {
+      const client = mockClient();
+      client.auth.signInWithPassword = jest
+        .fn()
+        .mockResolvedValue({ data: { user: null, session: null }, error: null });
+      (service as any).client = client;
 
-      const signUpMock = jest.fn().mockResolvedValue(mockResponse);
-      (supabaseService as any).client.auth.signUp = signUpMock;
-
-      const result = await supabaseService.signUp('new@example.com', 'password123');
-
-      expect(signUpMock).toHaveBeenCalledWith({
-        email: 'new@example.com',
-        password: 'password123',
-      });
-      expect(result.data?.user).toEqual(mockUsers.standard);
+      await expect(service.signIn('test@example.com', 'password123')).rejects.toThrow(
+        'Failed to create session'
+      );
     });
 
-    it('should sign out user', async () => {
-      const signOutMock = jest.fn().mockResolvedValue({ error: null });
-      (supabaseService as any).client.auth.signOut = signOutMock;
+    it('signs up a new user and creates their profile', async () => {
+      const client = mockClient();
+      client.auth.signUp = jest
+        .fn()
+        .mockResolvedValue({ data: { user: { id: 'u1' } }, error: null });
+      (service as any).client = client;
 
-      await supabaseService.signOut();
+      const user = await service.signUp('new@example.com', 'password123', 'Neo');
 
-      expect(signOutMock).toHaveBeenCalled();
+      expect(client.auth.signUp).toHaveBeenCalled();
+      expect(user).toEqual({ id: 'u1' });
+      expect(client.from).toHaveBeenCalledWith('user_profiles');
     });
 
-    it('should get current session', async () => {
-      const mockSession = {
-        access_token: 'mock-token',
-        user: mockUsers.standard,
-      };
+    it('throws when sign up returns an auth error', async () => {
+      const client = mockClient();
+      client.auth.signUp = jest
+        .fn()
+        .mockResolvedValue({ data: {}, error: new Error('Email already registered') });
+      (service as any).client = client;
 
-      const getSessionMock = jest.fn().mockResolvedValue({
-        data: { session: mockSession },
-        error: null,
-      });
-      (supabaseService as any).client.auth.getSession = getSessionMock;
-
-      const result = await supabaseService.getSession();
-
-      expect(result.data?.session).toEqual(mockSession);
+      await expect(service.signUp('new@example.com', 'password123')).rejects.toThrow(
+        'Email already registered'
+      );
     });
 
-    it('should reset password', async () => {
-      const resetMock = jest.fn().mockResolvedValue({
-        data: {},
-        error: null,
-      });
-      (supabaseService as any).client.auth.resetPasswordForEmail = resetMock;
+    it('signs out and clears the current user', async () => {
+      const client = mockClient();
+      client.auth.signOut = jest.fn().mockResolvedValue({ error: null });
+      (service as any).client = client;
+      (service as any).currentUser = { id: 'u1' };
 
-      await supabaseService.resetPassword('test@example.com');
+      await service.signOut();
 
-      expect(resetMock).toHaveBeenCalledWith('test@example.com');
+      expect(client.auth.signOut).toHaveBeenCalled();
+      expect(service.getCurrentUser()).toBeNull();
+    });
+
+    it('reports availability based on initialization state', () => {
+      (service as any).client = mockClient();
+      (service as any).isInitialized = true;
+      expect(service.isAvailable()).toBe(true);
+
+      (service as any).isInitialized = false;
+      expect(service.isAvailable()).toBe(false);
     });
   });
 
-  describe('Database Operations', () => {
-    it('should fetch transcripts for user', async () => {
-      const mockResponse = {
-        data: mockTranscripts,
-        error: null,
-      };
+  describe('User profile', () => {
+    it('fetches a user profile by id', async () => {
+      const profile = { id: 'u1', email: 'test@example.com' };
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: profile, error: null }));
+      (service as any).client = client;
 
-      const fromMock = jest.fn(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        order: jest.fn().mockResolvedValue(mockResponse),
-      }));
-      (supabaseService as any).client.from = fromMock;
+      const result = await service.getUserProfile('u1');
 
-      const result = await supabaseService.getTranscripts('user-1');
-
-      expect(fromMock).toHaveBeenCalledWith('transcripts');
-      expect(result.data).toEqual(mockTranscripts);
+      expect(client.from).toHaveBeenCalledWith('user_profiles');
+      expect(result).toEqual(profile);
     });
 
-    it('should create new transcript', async () => {
-      const newTranscript = {
-        user_id: 'user-1',
-        title: 'New Recording',
-        content: 'Transcript content',
-        duration: 120,
-      };
+    it('throws when no user id is available', async () => {
+      (service as any).client = mockClient();
+      (service as any).currentUser = null;
 
-      const mockResponse = {
-        data: { ...newTranscript, id: 'new-id' },
-        error: null,
-      };
-
-      const fromMock = jest.fn(() => ({
-        insert: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue(mockResponse),
-      }));
-      (supabaseService as any).client.from = fromMock;
-
-      const result = await supabaseService.createTranscript(newTranscript);
-
-      expect(result.data).toHaveProperty('id');
-      expect(result.data?.title).toBe('New Recording');
-    });
-
-    it('should update transcript', async () => {
-      const updates = {
-        title: 'Updated Title',
-        content: 'Updated content',
-      };
-
-      const mockResponse = {
-        data: { ...mockTranscripts[0], ...updates },
-        error: null,
-      };
-
-      const fromMock = jest.fn(() => ({
-        update: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue(mockResponse),
-      }));
-      (supabaseService as any).client.from = fromMock;
-
-      const result = await supabaseService.updateTranscript('transcript-1', updates);
-
-      expect(result.data?.title).toBe('Updated Title');
-    });
-
-    it('should delete transcript', async () => {
-      const mockResponse = {
-        data: null,
-        error: null,
-      };
-
-      const fromMock = jest.fn(() => ({
-        delete: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue(mockResponse),
-      }));
-      (supabaseService as any).client.from = fromMock;
-
-      const result = await supabaseService.deleteTranscript('transcript-1');
-
-      expect(result.error).toBeNull();
-    });
-
-    it('should handle database errors', async () => {
-      const mockResponse = {
-        data: null,
-        error: mockErrors.server,
-      };
-
-      const fromMock = jest.fn(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        order: jest.fn().mockResolvedValue(mockResponse),
-      }));
-      (supabaseService as any).client.from = fromMock;
-
-      const result = await supabaseService.getTranscripts('user-1');
-
-      expect(result.error).toEqual(mockErrors.server);
-      expect(result.data).toBeNull();
+      await expect(service.getUserProfile()).rejects.toThrow('No user ID provided');
     });
   });
 
-  describe('Storage Operations', () => {
-    it('should upload audio file', async () => {
-      const mockFile = {
-        uri: 'file://path/to/audio.m4a',
-        name: 'audio.m4a',
-        type: 'audio/m4a',
-      };
+  describe('Transcript operations', () => {
+    it('saves a transcript for the current user', async () => {
+      const saved = { id: 't1', title: 'New Recording', user_id: 'u1' };
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: saved, error: null }));
+      (service as any).client = client;
+      (service as any).currentUser = { id: 'u1' };
 
-      const mockResponse = {
-        data: { path: 'uploads/audio.m4a' },
-        error: null,
-      };
+      const result = await service.saveTranscript({ title: 'New Recording', content: 'x' } as any);
 
-      const storageMock = {
-        from: jest.fn(() => ({
-          upload: jest.fn().mockResolvedValue(mockResponse),
-        })),
-      };
-      (supabaseService as any).client.storage = storageMock;
-
-      const result = await supabaseService.uploadAudio(mockFile, 'user-1');
-
-      expect(result.data?.path).toBe('uploads/audio.m4a');
+      expect(client.from).toHaveBeenCalledWith('transcripts');
+      expect(result).toEqual(saved);
     });
 
-    it('should get public URL for file', async () => {
-      const mockResponse = {
-        data: { publicUrl: 'https://example.com/file.m4a' },
-      };
+    it('throws when saving a transcript with no user logged in', async () => {
+      (service as any).client = mockClient();
+      (service as any).currentUser = null;
 
-      const storageMock = {
-        from: jest.fn(() => ({
-          getPublicUrl: jest.fn().mockReturnValue(mockResponse),
-        })),
-      };
-      (supabaseService as any).client.storage = storageMock;
-
-      const url = await supabaseService.getPublicUrl('uploads/audio.m4a');
-
-      expect(url).toBe('https://example.com/file.m4a');
+      await expect(service.saveTranscript({} as any)).rejects.toThrow('No user logged in');
     });
 
-    it('should delete file from storage', async () => {
-      const mockResponse = {
-        data: null,
-        error: null,
-      };
+    it('lists transcripts for the current user', async () => {
+      const rows = [{ id: 't1' }, { id: 't2' }];
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: rows, error: null }));
+      (service as any).client = client;
+      (service as any).currentUser = { id: 'u1' };
 
-      const storageMock = {
-        from: jest.fn(() => ({
-          remove: jest.fn().mockResolvedValue(mockResponse),
-        })),
-      };
-      (supabaseService as any).client.storage = storageMock;
+      const result = await service.getTranscripts();
 
-      const result = await supabaseService.deleteFile('uploads/audio.m4a');
-
-      expect(result.error).toBeNull();
-    });
-  });
-
-  describe('Real-time Subscriptions', () => {
-    it('should subscribe to transcript changes', () => {
-      const callback = jest.fn();
-      const mockSubscription = {
-        on: jest.fn().mockReturnThis(),
-        subscribe: jest.fn(),
-      };
-
-      const fromMock = jest.fn(() => mockSubscription);
-      (supabaseService as any).client.from = fromMock;
-
-      supabaseService.subscribeToTranscripts('user-1', callback);
-
-      expect(fromMock).toHaveBeenCalledWith('transcripts');
-      expect(mockSubscription.on).toHaveBeenCalled();
+      expect(client.from).toHaveBeenCalledWith('transcripts');
+      expect(result).toEqual(rows);
     });
 
-    it('should unsubscribe from changes', () => {
-      const mockSubscription = {
-        unsubscribe: jest.fn(),
-      };
+    it('fetches a single transcript by id', async () => {
+      const row = { id: 't1', title: 'Hello' };
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: row, error: null }));
+      (service as any).client = client;
 
-      supabaseService.unsubscribe(mockSubscription as any);
+      const result = await service.getTranscript('t1');
 
-      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
+      expect(result).toEqual(row);
+    });
+
+    it('throws when fetching a transcript hits a database error', async () => {
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: null, error: new Error('DB unavailable') }));
+      (service as any).client = client;
+
+      await expect(service.getTranscript('t1')).rejects.toThrow('DB unavailable');
+    });
+
+    it('updates a transcript and returns the updated row', async () => {
+      const updated = { id: 't1', title: 'Updated Title' };
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: updated, error: null }));
+      (service as any).client = client;
+
+      const result = await service.updateTranscript('t1', { title: 'Updated Title' });
+
+      expect(result).toEqual(updated);
+    });
+
+    it('soft-deletes a transcript without throwing', async () => {
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: null, error: null }));
+      (service as any).client = client;
+
+      await expect(service.deleteTranscript('t1')).resolves.toBeUndefined();
+      expect(client.from).toHaveBeenCalledWith('transcripts');
+    });
+
+    it('searches transcripts for the current user', async () => {
+      const rows = [{ id: 't1', title: 'meeting notes' }];
+      const client = mockClient();
+      client.from = jest.fn(() => queryResult({ data: rows, error: null }));
+      (service as any).client = client;
+      (service as any).currentUser = { id: 'u1' };
+
+      const result = await service.searchTranscripts('meeting');
+
+      expect(result).toEqual(rows);
     });
   });
 });

@@ -1,190 +1,157 @@
 // VoiceCode Mobile - Sync Service Tests
+// Tests the real SyncService API: queue management, sync execution, events,
+// status reporting and conflict resolution.
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterAll } from '@jest/globals';
 import { getSyncService } from '../../services/syncService';
-import { supabase } from '../../services/supabaseService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-jest.mock('../../services/supabaseService');
-jest.mock('@react-native-async-storage/async-storage');
+const syncService = getSyncService();
 
 describe('SyncService', () => {
-  const syncService = getSyncService();
-  const mockUserId = 'user-123';
-
   beforeEach(() => {
     jest.clearAllMocks();
+    // Keep tests deterministic: no background timer, no auto-trigger on enqueue.
+    syncService.stopAutoSync();
+    syncService.setAutoSync(false);
+    syncService.clearQueue();
+    (syncService as any).isSyncing = false;
   });
 
-  describe('syncToCloud', () => {
-    it('should sync local data to cloud', async () => {
-      const localTranscripts = [
-        { id: 'local-1', title: 'Local Transcript', synced: false },
-      ];
+  afterAll(() => {
+    syncService.stopAutoSync();
+  });
 
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
-        JSON.stringify(localTranscripts)
-      );
-
-      (supabase.from as jest.Mock).mockReturnValue({
-        upsert: jest.fn().mockResolvedValue({ data: localTranscripts, error: null }),
+  describe('getStatus', () => {
+    it('reports an idle status with no pending items initially', () => {
+      const status = syncService.getStatus();
+      expect(status).toMatchObject({
+        isSyncing: false,
+        pendingItems: 0,
+        autoSync: false,
       });
-
-      const result = await syncService.syncToCloud(mockUserId);
-
-      expect(result.synced).toBe(1);
-      expect(result.failed).toBe(0);
-    });
-
-    it('should handle sync failures gracefully', async () => {
-      const localTranscripts = [
-        { id: 'local-1', title: 'Local Transcript', synced: false },
-      ];
-
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
-        JSON.stringify(localTranscripts)
-      );
-
-      (supabase.from as jest.Mock).mockReturnValue({
-        upsert: jest.fn().mockResolvedValue({ data: null, error: new Error('Sync failed') }),
-      });
-
-      const result = await syncService.syncToCloud(mockUserId);
-
-      expect(result.failed).toBe(1);
     });
   });
 
-  describe('syncFromCloud', () => {
-    it('should sync cloud data to local', async () => {
-      const cloudTranscripts = [
-        { id: 'cloud-1', title: 'Cloud Transcript', updated_at: '2024-01-15T10:00:00Z' },
-      ];
+  describe('addToQueue / getPendingCount', () => {
+    it('increments the pending count when auto-sync is disabled', () => {
+      syncService.addToQueue('create', { id: 't1', title: 'A' });
+      expect(syncService.getPendingCount()).toBe(1);
+    });
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            gt: jest.fn().mockResolvedValue({ data: cloudTranscripts, error: null }),
-          }),
-        }),
-      });
-
-      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
-
-      const result = await syncService.syncFromCloud(mockUserId);
-
-      expect(result.downloaded).toBe(1);
+    it('tracks multiple queued actions in the status report', () => {
+      syncService.addToQueue('create', { id: 't1' });
+      syncService.addToQueue('update', { id: 't2' });
+      expect(syncService.getPendingCount()).toBe(2);
+      expect(syncService.getStatus().pendingItems).toBe(2);
     });
   });
 
-  describe('getLastSyncTime', () => {
-    it('should return last sync timestamp', async () => {
-      const lastSync = '2024-01-15T10:00:00Z';
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(lastSync);
-
-      const result = await syncService.getLastSyncTime();
-
-      expect(result).toBe(lastSync);
-    });
-
-    it('should return null if never synced', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
-
-      const result = await syncService.getLastSyncTime();
-
-      expect(result).toBeNull();
+  describe('clearQueue', () => {
+    it('removes all pending items from the queue', () => {
+      syncService.addToQueue('create', { id: 't1' });
+      syncService.addToQueue('create', { id: 't2' });
+      syncService.clearQueue();
+      expect(syncService.getPendingCount()).toBe(0);
     });
   });
 
-  describe('setLastSyncTime', () => {
-    it('should store sync timestamp', async () => {
-      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
+  describe('sync', () => {
+    it('processes queued items, empties the queue, and reports the uploaded count', async () => {
+      syncService.addToQueue('create', { id: 't1', title: 'A' });
 
-      await syncService.setLastSyncTime();
+      const result = await syncService.sync();
 
-      expect(AsyncStorage.setItem).toHaveBeenCalled();
+      expect(result.uploaded).toBe(1);
+      expect(result.errors).toBe(0);
+      expect(result).toHaveProperty('duration');
+      expect(syncService.getPendingCount()).toBe(0);
+    });
+
+    it('emits sync:start and sync:complete events during a sync', async () => {
+      const onStart = jest.fn();
+      const onComplete = jest.fn();
+      syncService.on('sync:start', onStart);
+      syncService.on('sync:complete', onComplete);
+
+      await syncService.sync();
+
+      expect(onStart).toHaveBeenCalledTimes(1);
+      expect(onComplete).toHaveBeenCalledTimes(1);
+
+      syncService.off('sync:start', onStart);
+      syncService.off('sync:complete', onComplete);
+    });
+
+    it('rejects when a sync is already in progress', async () => {
+      (syncService as any).isSyncing = true;
+
+      await expect(syncService.sync()).rejects.toThrow('Sync already in progress');
+
+      (syncService as any).isSyncing = false;
+    });
+
+    it('keeps a failing item queued for retry and reports zero uploads', async () => {
+      const originalSupabase = (syncService as any).supabase;
+      (syncService as any).supabase = {
+        from: jest.fn(() => ({
+          insert: jest.fn(() => Promise.reject(new Error('network error'))),
+        })),
+      };
+
+      syncService.addToQueue('create', { id: 't-fail' });
+      const result = await syncService.sync();
+
+      expect(result.uploaded).toBe(0);
+      expect(syncService.getPendingCount()).toBe(1);
+
+      (syncService as any).supabase = originalSupabase;
+      syncService.clearQueue();
     });
   });
 
-  describe('getPendingChanges', () => {
-    it('should return unsynced local changes', async () => {
-      const pendingChanges = [
-        { id: 'local-1', title: 'Unsynced', synced: false },
-      ];
+  describe('syncNow', () => {
+    it('delegates to sync and resolves with a result for an empty queue', async () => {
+      const result = await syncService.syncNow();
 
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
-        JSON.stringify(pendingChanges)
-      );
+      expect(result.uploaded).toBe(0);
+      expect(result).toHaveProperty('duration');
+    });
+  });
 
-      const result = await syncService.getPendingChanges();
+  describe('setAutoSync', () => {
+    it('reflects the auto-sync flag in the status report', () => {
+      syncService.setAutoSync(true);
+      expect(syncService.getStatus().autoSync).toBe(true);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].synced).toBe(false);
+      syncService.setAutoSync(false);
+      expect(syncService.getStatus().autoSync).toBe(false);
     });
   });
 
   describe('resolveConflict', () => {
-    it('should resolve conflict with local version', async () => {
-      const localVersion = { id: '1', title: 'Local', updated_at: '2024-01-15T12:00:00Z' };
-      const cloudVersion = { id: '1', title: 'Cloud', updated_at: '2024-01-15T10:00:00Z' };
+    it('writes the resolved transcript to the remote transcriptions table', async () => {
+      const fromSpy = (syncService as any).supabase.from;
+      const conflict = {
+        id: '1',
+        local: {
+          id: '1',
+          title: 'Local',
+          content: 'Local content',
+          updated_at: '2024-01-15T12:00:00Z',
+          metadata: {},
+        },
+        remote: {
+          id: '1',
+          title: 'Remote',
+          content: 'Remote content',
+          updated_at: '2024-01-15T10:00:00Z',
+          metadata: {},
+        },
+      };
 
-      const result = await syncService.resolveConflict(localVersion, cloudVersion, 'local');
+      await syncService.resolveConflict(conflict as any, 'local');
 
-      expect(result.title).toBe('Local');
-    });
-
-    it('should resolve conflict with cloud version', async () => {
-      const localVersion = { id: '1', title: 'Local', updated_at: '2024-01-15T10:00:00Z' };
-      const cloudVersion = { id: '1', title: 'Cloud', updated_at: '2024-01-15T12:00:00Z' };
-
-      const result = await syncService.resolveConflict(localVersion, cloudVersion, 'cloud');
-
-      expect(result.title).toBe('Cloud');
-    });
-
-    it('should auto-resolve using latest version', async () => {
-      const localVersion = { id: '1', title: 'Local', updated_at: '2024-01-15T10:00:00Z' };
-      const cloudVersion = { id: '1', title: 'Cloud', updated_at: '2024-01-15T12:00:00Z' };
-
-      const result = await syncService.resolveConflict(localVersion, cloudVersion, 'latest');
-
-      expect(result.title).toBe('Cloud'); // Cloud is more recent
-    });
-  });
-
-  describe('fullSync', () => {
-    it('should perform full bidirectional sync', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue('[]');
-      
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            gt: jest.fn().mockResolvedValue({ data: [], error: null }),
-          }),
-        }),
-        upsert: jest.fn().mockResolvedValue({ data: [], error: null }),
-      });
-
-      const result = await syncService.fullSync(mockUserId);
-
-      expect(result.success).toBe(true);
-    });
-  });
-
-  describe('enableAutoSync', () => {
-    it('should enable automatic sync', async () => {
-      await syncService.enableAutoSync(mockUserId, 5 * 60 * 1000); // 5 minutes
-
-      expect(syncService.isAutoSyncEnabled()).toBe(true);
-    });
-  });
-
-  describe('disableAutoSync', () => {
-    it('should disable automatic sync', async () => {
-      await syncService.enableAutoSync(mockUserId, 5 * 60 * 1000);
-      await syncService.disableAutoSync();
-
-      expect(syncService.isAutoSyncEnabled()).toBe(false);
+      expect(fromSpy).toHaveBeenCalledWith('transcriptions');
     });
   });
 });
