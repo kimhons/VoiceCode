@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import FeedbackScreen from '../../screens/general/FeedbackScreen';
 
 describe('FeedbackScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('FeedbackScreen', () => {
   describe('Rendering', () => {
     it('should render feedback screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('feedback-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('FeedbackScreen', () => {
 
     it('should display feedback form', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('feedback-form')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('FeedbackScreen', () => {
   describe('Feedback Type', () => {
     it('should select bug report', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('type-bug'));
@@ -44,7 +45,7 @@ describe('FeedbackScreen', () => {
 
     it('should select feature request', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('type-feature'));
@@ -52,7 +53,7 @@ describe('FeedbackScreen', () => {
 
     it('should select general feedback', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('type-general'));
@@ -62,7 +63,7 @@ describe('FeedbackScreen', () => {
   describe('Rating', () => {
     it('should select rating', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('rating-5'));
@@ -72,7 +73,7 @@ describe('FeedbackScreen', () => {
   describe('Message', () => {
     it('should enter feedback message', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('feedback-message'), 'Great app!');
@@ -80,7 +81,7 @@ describe('FeedbackScreen', () => {
 
     it('should validate required message', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('submit-feedback'));
@@ -93,7 +94,7 @@ describe('FeedbackScreen', () => {
   describe('Attachments', () => {
     it('should attach screenshot', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('attach-screenshot'));
@@ -104,7 +105,7 @@ describe('FeedbackScreen', () => {
 
     it('should remove attachment', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('attach-screenshot'));
@@ -119,7 +120,7 @@ describe('FeedbackScreen', () => {
   describe('Submit', () => {
     it('should submit feedback', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockFeedbackScreen navigation={mockNavigation as any} />
+        <FeedbackScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('feedback-message'), 'Great app!');
@@ -130,8 +131,3 @@ describe('FeedbackScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockFeedbackScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

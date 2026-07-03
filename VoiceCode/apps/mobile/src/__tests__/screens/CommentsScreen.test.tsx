@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import CommentsScreen from '../../screens/collaboration/CommentsScreen';
 
 describe('CommentsScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('CommentsScreen', () => {
   describe('Rendering', () => {
     it('should render comments screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('comments-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('CommentsScreen', () => {
 
     it('should display comment list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('comment-list')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('CommentsScreen', () => {
   describe('Add Comment', () => {
     it('should add new comment', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('comment-input'), 'New comment');
@@ -52,7 +53,7 @@ describe('CommentsScreen', () => {
 
     it('should add comment at position', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('transcript-word-5'));
@@ -67,7 +68,7 @@ describe('CommentsScreen', () => {
   describe('Reply', () => {
     it('should reply to comment', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('reply-button-1'));
@@ -82,7 +83,7 @@ describe('CommentsScreen', () => {
   describe('Edit Comment', () => {
     it('should edit own comment', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('edit-comment-1'));
@@ -94,7 +95,7 @@ describe('CommentsScreen', () => {
   describe('Delete Comment', () => {
     it('should delete own comment', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('delete-comment-1'));
@@ -109,7 +110,7 @@ describe('CommentsScreen', () => {
   describe('Resolve', () => {
     it('should resolve comment thread', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('resolve-thread-1'));
@@ -117,7 +118,7 @@ describe('CommentsScreen', () => {
 
     it('should unresolve comment thread', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('unresolve-thread-1'));
@@ -127,15 +128,10 @@ describe('CommentsScreen', () => {
   describe('Filter', () => {
     it('should filter by resolved status', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockCommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CommentsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('filter-resolved'));
     });
   });
 });
-
-// Mock component
-const MockCommentsScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

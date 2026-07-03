@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import VocabularyScreen from '../../screens/vocabulary/VocabularyScreen';
 
 describe('VocabularyScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('VocabularyScreen', () => {
   describe('Rendering', () => {
     it('should render vocabulary screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('vocabulary-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('VocabularyScreen', () => {
 
     it('should display vocabulary list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('vocabulary-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('VocabularyScreen', () => {
   describe('Add Word', () => {
     it('should open add word modal', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('add-word'));
@@ -47,7 +48,7 @@ describe('VocabularyScreen', () => {
 
     it('should add new word', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('add-word'));
@@ -62,7 +63,7 @@ describe('VocabularyScreen', () => {
   describe('Edit Word', () => {
     it('should edit word', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('edit-word-1'));
@@ -75,7 +76,7 @@ describe('VocabularyScreen', () => {
   describe('Delete Word', () => {
     it('should delete word', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('delete-word-1'));
@@ -89,7 +90,7 @@ describe('VocabularyScreen', () => {
   describe('Import/Export', () => {
     it('should import vocabulary', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('import-vocabulary'));
@@ -100,7 +101,7 @@ describe('VocabularyScreen', () => {
 
     it('should export vocabulary', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('export-vocabulary'));
@@ -113,7 +114,7 @@ describe('VocabularyScreen', () => {
   describe('Search', () => {
     it('should search vocabulary', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockVocabularyScreen navigation={mockNavigation as any} />
+        <VocabularyScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('search-input'), 'word');
@@ -123,8 +124,3 @@ describe('VocabularyScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockVocabularyScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

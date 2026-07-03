@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import ShareScreen from '../../screens/collaboration/ShareScreen';
 
 describe('ShareScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('ShareScreen', () => {
   describe('Rendering', () => {
     it('should render share screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('share-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('ShareScreen', () => {
 
     it('should display share options', () => {
       const { getByText } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/email/i)).toBeTruthy();
@@ -41,7 +42,7 @@ describe('ShareScreen', () => {
   describe('Email Share', () => {
     it('should enter email address', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('email-input'), 'user@example.com');
@@ -49,7 +50,7 @@ describe('ShareScreen', () => {
 
     it('should validate email format', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('email-input'), 'invalid');
@@ -61,7 +62,7 @@ describe('ShareScreen', () => {
 
     it('should select permission level', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('permission-selector'));
@@ -70,7 +71,7 @@ describe('ShareScreen', () => {
 
     it('should send share invitation', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('email-input'), 'user@example.com');
@@ -84,7 +85,7 @@ describe('ShareScreen', () => {
   describe('Link Share', () => {
     it('should generate shareable link', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('generate-link'));
@@ -95,7 +96,7 @@ describe('ShareScreen', () => {
 
     it('should copy link to clipboard', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('copy-link'));
@@ -106,7 +107,7 @@ describe('ShareScreen', () => {
 
     it('should set link expiration', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('expiration-selector'));
@@ -117,7 +118,7 @@ describe('ShareScreen', () => {
   describe('Manage Shares', () => {
     it('should display existing shares', () => {
       const { getByTestId } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('shares-list')).toBeTruthy();
@@ -125,7 +126,7 @@ describe('ShareScreen', () => {
 
     it('should remove share', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ShareScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('remove-share-1'));
@@ -137,8 +138,3 @@ describe('ShareScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockShareScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

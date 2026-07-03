@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import StatisticsScreen from '../../screens/analytics/StatisticsScreen';
 
 describe('StatisticsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('StatisticsScreen', () => {
   describe('Rendering', () => {
     it('should render statistics screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('statistics-screen')).toBeTruthy();
@@ -28,7 +29,7 @@ describe('StatisticsScreen', () => {
   describe('Overall Stats', () => {
     it('should display total transcripts', () => {
       const { getByText } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/total transcripts/i)).toBeTruthy();
@@ -36,7 +37,7 @@ describe('StatisticsScreen', () => {
 
     it('should display total recording time', () => {
       const { getByText } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/recording time/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('StatisticsScreen', () => {
 
     it('should display total words', () => {
       const { getByText } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/words/i)).toBeTruthy();
@@ -54,7 +55,7 @@ describe('StatisticsScreen', () => {
   describe('Time Period', () => {
     it('should filter by week', async () => {
       const { getByText } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/week/i));
@@ -62,7 +63,7 @@ describe('StatisticsScreen', () => {
 
     it('should filter by month', async () => {
       const { getByText } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/month/i));
@@ -70,7 +71,7 @@ describe('StatisticsScreen', () => {
 
     it('should filter by year', async () => {
       const { getByText } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/year/i));
@@ -80,7 +81,7 @@ describe('StatisticsScreen', () => {
   describe('Charts', () => {
     it('should display usage chart', () => {
       const { getByTestId } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('usage-chart')).toBeTruthy();
@@ -88,7 +89,7 @@ describe('StatisticsScreen', () => {
 
     it('should display category breakdown', () => {
       const { getByTestId } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('category-chart')).toBeTruthy();
@@ -98,7 +99,7 @@ describe('StatisticsScreen', () => {
   describe('Export', () => {
     it('should export statistics report', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockStatisticsScreen navigation={mockNavigation as any} />
+        <StatisticsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('export-stats'));
@@ -109,7 +110,3 @@ describe('StatisticsScreen', () => {
   });
 });
 
-// Mock component
-const MockStatisticsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

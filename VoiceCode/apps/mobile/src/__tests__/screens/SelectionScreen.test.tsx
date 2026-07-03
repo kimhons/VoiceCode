@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import SelectionScreen from '../../screens/library/SelectionScreen';
 
 describe('SelectionScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('SelectionScreen', () => {
   describe('Rendering', () => {
     it('should render selection screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('selection-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('SelectionScreen', () => {
 
     it('should display selected count', () => {
       const { getByText } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/2 selected/i)).toBeTruthy();
@@ -40,7 +41,7 @@ describe('SelectionScreen', () => {
   describe('Select Items', () => {
     it('should select item', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('item-3'));
@@ -48,7 +49,7 @@ describe('SelectionScreen', () => {
 
     it('should deselect item', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('item-1'));
@@ -56,7 +57,7 @@ describe('SelectionScreen', () => {
 
     it('should select all', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('select-all'));
@@ -64,7 +65,7 @@ describe('SelectionScreen', () => {
 
     it('should deselect all', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('deselect-all'));
@@ -74,7 +75,7 @@ describe('SelectionScreen', () => {
   describe('Bulk Actions', () => {
     it('should move selected', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('action-move'));
@@ -85,7 +86,7 @@ describe('SelectionScreen', () => {
 
     it('should delete selected', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('action-delete'));
@@ -96,7 +97,7 @@ describe('SelectionScreen', () => {
 
     it('should export selected', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('action-export'));
@@ -104,7 +105,7 @@ describe('SelectionScreen', () => {
 
     it('should tag selected', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('action-tag'));
@@ -117,7 +118,7 @@ describe('SelectionScreen', () => {
   describe('Cancel', () => {
     it('should cancel selection', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SelectionScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('cancel-selection'));
@@ -126,8 +127,3 @@ describe('SelectionScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockSelectionScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

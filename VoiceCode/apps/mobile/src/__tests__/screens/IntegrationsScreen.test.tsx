@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import IntegrationsScreen from '../../screens/integrations/IntegrationsScreen';
 
 describe('IntegrationsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('IntegrationsScreen', () => {
   describe('Rendering', () => {
     it('should render integrations screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('integrations-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('IntegrationsScreen', () => {
 
     it('should display integrations list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('integrations-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('IntegrationsScreen', () => {
   describe('Available Integrations', () => {
     it('should display Google Drive', () => {
       const { getByText } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/google drive/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('IntegrationsScreen', () => {
 
     it('should display Dropbox', () => {
       const { getByText } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/dropbox/i)).toBeTruthy();
@@ -52,7 +53,7 @@ describe('IntegrationsScreen', () => {
 
     it('should display Notion', () => {
       const { getByText } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/notion/i)).toBeTruthy();
@@ -62,7 +63,7 @@ describe('IntegrationsScreen', () => {
   describe('Connect Integration', () => {
     it('should connect to integration', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('connect-google-drive'));
@@ -75,7 +76,7 @@ describe('IntegrationsScreen', () => {
   describe('Disconnect Integration', () => {
     it('should disconnect integration', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('disconnect-google-drive'));
@@ -88,7 +89,7 @@ describe('IntegrationsScreen', () => {
   describe('Integration Settings', () => {
     it('should open integration settings', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('settings-google-drive'));
@@ -101,7 +102,7 @@ describe('IntegrationsScreen', () => {
   describe('Connection Status', () => {
     it('should show connected status', () => {
       const { getByTestId } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('status-connected')).toBeTruthy();
@@ -109,15 +110,10 @@ describe('IntegrationsScreen', () => {
 
     it('should show disconnected status', () => {
       const { getByTestId } = renderWithProviders(
-        <MockIntegrationsScreen navigation={mockNavigation as any} />
+        <IntegrationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('status-disconnected')).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockIntegrationsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

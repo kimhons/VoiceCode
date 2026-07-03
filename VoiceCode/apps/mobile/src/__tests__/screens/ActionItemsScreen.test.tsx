@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import ActionItemsScreen from '../../screens/ai/ActionItemsScreen';
 
 describe('ActionItemsScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('ActionItemsScreen', () => {
   describe('Rendering', () => {
     it('should render action items screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('action-items-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('ActionItemsScreen', () => {
 
     it('should display action items list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('action-items-list')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('ActionItemsScreen', () => {
   describe('Complete Action', () => {
     it('should mark action item complete', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('complete-item-1'));
@@ -48,7 +49,7 @@ describe('ActionItemsScreen', () => {
 
     it('should unmark action item', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('complete-item-1'));
@@ -59,7 +60,7 @@ describe('ActionItemsScreen', () => {
   describe('Due Date', () => {
     it('should set due date', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('set-due-date-1'));
@@ -70,7 +71,7 @@ describe('ActionItemsScreen', () => {
 
     it('should clear due date', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('clear-due-date-1'));
@@ -80,7 +81,7 @@ describe('ActionItemsScreen', () => {
   describe('Assign', () => {
     it('should assign to user', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('assign-item-1'));
@@ -91,7 +92,7 @@ describe('ActionItemsScreen', () => {
   describe('Export', () => {
     it('should export to task manager', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('export-actions'));
@@ -99,7 +100,7 @@ describe('ActionItemsScreen', () => {
 
     it('should copy as text', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('copy-actions'));
@@ -112,7 +113,7 @@ describe('ActionItemsScreen', () => {
   describe('Filter', () => {
     it('should filter by status', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('filter-incomplete'));
@@ -120,7 +121,7 @@ describe('ActionItemsScreen', () => {
 
     it('should filter by assignee', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('filter-assignee'));
@@ -130,7 +131,7 @@ describe('ActionItemsScreen', () => {
   describe('Navigation', () => {
     it('should navigate to action item in transcript', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ActionItemsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('action-item-1'));
@@ -139,8 +140,3 @@ describe('ActionItemsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockActionItemsScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

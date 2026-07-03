@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import PlaybackScreen from '../../screens/recording/PlaybackScreen';
 
 describe('PlaybackScreen', () => {
   const mockNavigation = {
@@ -25,7 +26,7 @@ describe('PlaybackScreen', () => {
   describe('Rendering', () => {
     it('should render playback screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('playback-screen')).toBeTruthy();
@@ -33,7 +34,7 @@ describe('PlaybackScreen', () => {
 
     it('should display waveform', () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('waveform')).toBeTruthy();
@@ -41,7 +42,7 @@ describe('PlaybackScreen', () => {
 
     it('should display transcript text', () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('transcript-text')).toBeTruthy();
@@ -51,7 +52,7 @@ describe('PlaybackScreen', () => {
   describe('Playback Controls', () => {
     it('should play audio', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('play-button'));
@@ -59,7 +60,7 @@ describe('PlaybackScreen', () => {
 
     it('should pause audio', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('play-button'));
@@ -68,7 +69,7 @@ describe('PlaybackScreen', () => {
 
     it('should seek forward', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('forward-button'));
@@ -76,7 +77,7 @@ describe('PlaybackScreen', () => {
 
     it('should seek backward', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('backward-button'));
@@ -86,7 +87,7 @@ describe('PlaybackScreen', () => {
   describe('Speed Control', () => {
     it('should change playback speed', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('speed-button'));
@@ -97,7 +98,7 @@ describe('PlaybackScreen', () => {
   describe('Progress', () => {
     it('should display current time', () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('current-time')).toBeTruthy();
@@ -105,7 +106,7 @@ describe('PlaybackScreen', () => {
 
     it('should display duration', () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('duration')).toBeTruthy();
@@ -113,7 +114,7 @@ describe('PlaybackScreen', () => {
 
     it('should seek via progress bar', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       // Simulate slider change
@@ -124,7 +125,7 @@ describe('PlaybackScreen', () => {
   describe('Sync with Transcript', () => {
     it('should highlight current word', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('highlighted-word')).toBeTruthy();
@@ -132,15 +133,10 @@ describe('PlaybackScreen', () => {
 
     it('should seek to word on tap', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <PlaybackScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('word-0'));
     });
   });
 });
-
-// Mock component
-const MockPlaybackScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

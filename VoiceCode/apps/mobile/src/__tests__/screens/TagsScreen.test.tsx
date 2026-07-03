@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import TagsScreen from '../../screens/library/TagsScreen';
 
 describe('TagsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('TagsScreen', () => {
   describe('Rendering', () => {
     it('should render tags screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('tags-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('TagsScreen', () => {
 
     it('should display tag list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('tag-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('TagsScreen', () => {
   describe('Tag Management', () => {
     it('should create new tag', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('add-tag'));
@@ -48,7 +49,7 @@ describe('TagsScreen', () => {
 
     it('should edit tag name', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('tag-1'));
@@ -61,7 +62,7 @@ describe('TagsScreen', () => {
 
     it('should change tag color', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('tag-1'));
@@ -73,7 +74,7 @@ describe('TagsScreen', () => {
 
     it('should delete tag', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('tag-1'));
@@ -89,7 +90,7 @@ describe('TagsScreen', () => {
   describe('Tag Stats', () => {
     it('should display transcript count per tag', () => {
       const { getByText } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/transcripts/i)).toBeTruthy();
@@ -99,7 +100,7 @@ describe('TagsScreen', () => {
   describe('Navigation', () => {
     it('should filter library by tag on tap', () => {
       const { getByTestId } = renderWithProviders(
-        <MockTagsScreen navigation={mockNavigation as any} />
+        <TagsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('tag-1'));
@@ -113,8 +114,3 @@ describe('TagsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockTagsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

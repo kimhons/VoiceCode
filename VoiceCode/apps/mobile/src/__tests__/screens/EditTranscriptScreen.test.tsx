@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import EditTranscriptScreen from '../../screens/editing/EditTranscriptScreen';
 
 describe('EditTranscriptScreen', () => {
   const mockNavigation = {
@@ -23,7 +24,7 @@ describe('EditTranscriptScreen', () => {
   describe('Rendering', () => {
     it('should render edit screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('edit-transcript-screen')).toBeTruthy();
@@ -31,7 +32,7 @@ describe('EditTranscriptScreen', () => {
 
     it('should display transcript text', () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('transcript-editor')).toBeTruthy();
@@ -41,7 +42,7 @@ describe('EditTranscriptScreen', () => {
   describe('Editing', () => {
     it('should enable text editing', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const editor = getByTestId('transcript-editor');
@@ -50,7 +51,7 @@ describe('EditTranscriptScreen', () => {
 
     it('should track unsaved changes', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('transcript-editor'), 'Updated');
@@ -59,7 +60,7 @@ describe('EditTranscriptScreen', () => {
 
     it('should support undo', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('undo-button'));
@@ -67,7 +68,7 @@ describe('EditTranscriptScreen', () => {
 
     it('should support redo', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('redo-button'));
@@ -77,7 +78,7 @@ describe('EditTranscriptScreen', () => {
   describe('Save', () => {
     it('should save changes', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('transcript-editor'), 'Updated');
@@ -90,7 +91,7 @@ describe('EditTranscriptScreen', () => {
 
     it('should show save confirmation', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('save-button'));
@@ -103,7 +104,7 @@ describe('EditTranscriptScreen', () => {
   describe('Cancel', () => {
     it('should confirm discard changes', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('transcript-editor'), 'Updated');
@@ -115,7 +116,7 @@ describe('EditTranscriptScreen', () => {
 
     it('should go back without confirm if no changes', () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('cancel-button'));
@@ -127,15 +128,10 @@ describe('EditTranscriptScreen', () => {
   describe('Title Editing', () => {
     it('should edit transcript title', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <EditTranscriptScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('title-input'), 'New Title');
     });
   });
 });
-
-// Mock component
-const MockEditTranscriptScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

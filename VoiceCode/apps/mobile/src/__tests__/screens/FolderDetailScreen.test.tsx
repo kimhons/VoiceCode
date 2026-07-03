@@ -5,6 +5,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
 import { supabase } from '../../services/supabaseService';
+import FolderDetailScreen from '../../screens/library/FolderDetailScreen';
 
 jest.mock('../../services/supabaseService');
 
@@ -50,7 +51,7 @@ describe('FolderDetailScreen', () => {
   describe('Rendering', () => {
     it('should render folder detail screen', async () => {
       const { findByText } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const name = await findByText('Work');
@@ -59,7 +60,7 @@ describe('FolderDetailScreen', () => {
 
     it('should display folder color', async () => {
       const { findByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const header = await findByTestId('folder-header');
@@ -68,7 +69,7 @@ describe('FolderDetailScreen', () => {
 
     it('should display transcript count', async () => {
       const { findByText } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const count = await findByText(/5 transcripts/i);
@@ -79,7 +80,7 @@ describe('FolderDetailScreen', () => {
   describe('Transcripts List', () => {
     it('should display transcripts in folder', async () => {
       const { findByText } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const transcript = await findByText('Meeting 1');
@@ -88,7 +89,7 @@ describe('FolderDetailScreen', () => {
 
     it('should navigate to transcript detail', async () => {
       const { findByText } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const transcript = await findByText('Meeting 1');
@@ -103,7 +104,7 @@ describe('FolderDetailScreen', () => {
   describe('Folder Actions', () => {
     it('should rename folder', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('rename-folder'));
@@ -118,7 +119,7 @@ describe('FolderDetailScreen', () => {
 
     it('should change folder color', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('change-color'));
@@ -128,7 +129,7 @@ describe('FolderDetailScreen', () => {
 
     it('should delete folder', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('delete-folder'));
@@ -143,7 +144,7 @@ describe('FolderDetailScreen', () => {
   describe('Add Transcripts', () => {
     it('should add transcripts to folder', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('add-transcripts'));
@@ -155,7 +156,7 @@ describe('FolderDetailScreen', () => {
   describe('Remove Transcripts', () => {
     it('should remove transcript from folder', async () => {
       const { findByText, getByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const transcript = await findByText('Meeting 1');
@@ -172,7 +173,7 @@ describe('FolderDetailScreen', () => {
   describe('Sorting', () => {
     it('should sort transcripts by date', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('sort-by-date'));
@@ -180,15 +181,10 @@ describe('FolderDetailScreen', () => {
 
     it('should sort transcripts by name', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FolderDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('sort-by-name'));
     });
   });
 });
-
-// Mock component
-const MockFolderDetailScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

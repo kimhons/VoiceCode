@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import UsageScreen from '../../screens/profile/UsageScreen';
 
 describe('UsageScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('UsageScreen', () => {
   describe('Rendering', () => {
     it('should render usage screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('usage-screen')).toBeTruthy();
@@ -28,7 +29,7 @@ describe('UsageScreen', () => {
   describe('Current Usage', () => {
     it('should display transcription minutes used', () => {
       const { getByText } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/minutes/i)).toBeTruthy();
@@ -36,7 +37,7 @@ describe('UsageScreen', () => {
 
     it('should display storage used', () => {
       const { getByText } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/storage/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('UsageScreen', () => {
 
     it('should display AI features used', () => {
       const { getByText } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/ai/i)).toBeTruthy();
@@ -54,7 +55,7 @@ describe('UsageScreen', () => {
   describe('Limits', () => {
     it('should show plan limits', () => {
       const { getByTestId } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('plan-limits')).toBeTruthy();
@@ -62,7 +63,7 @@ describe('UsageScreen', () => {
 
     it('should show usage progress bars', () => {
       const { getByTestId } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('usage-progress')).toBeTruthy();
@@ -72,7 +73,7 @@ describe('UsageScreen', () => {
   describe('History', () => {
     it('should display usage history', () => {
       const { getByTestId } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('usage-history')).toBeTruthy();
@@ -80,7 +81,7 @@ describe('UsageScreen', () => {
 
     it('should filter by time period', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('period-selector'));
@@ -91,7 +92,7 @@ describe('UsageScreen', () => {
   describe('Upgrade', () => {
     it('should show upgrade prompt when near limit', () => {
       const { getByText } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/upgrade/i)).toBeTruthy();
@@ -99,7 +100,7 @@ describe('UsageScreen', () => {
 
     it('should navigate to subscription', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('upgrade-button'));
@@ -111,15 +112,10 @@ describe('UsageScreen', () => {
   describe('Reset Date', () => {
     it('should show usage reset date', () => {
       const { getByText } = renderWithProviders(
-        <MockUsageScreen navigation={mockNavigation as any} />
+        <UsageScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/resets/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockUsageScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

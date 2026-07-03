@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import WelcomeScreen from '../../screens/onboarding/WelcomeScreen';
 
 describe('WelcomeScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('WelcomeScreen', () => {
   describe('Rendering', () => {
     it('should render welcome screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('welcome-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('WelcomeScreen', () => {
 
     it('should display app logo', () => {
       const { getByTestId } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('app-logo')).toBeTruthy();
@@ -34,7 +35,7 @@ describe('WelcomeScreen', () => {
 
     it('should display welcome message', () => {
       const { getByText } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/welcome/i)).toBeTruthy();
@@ -42,7 +43,7 @@ describe('WelcomeScreen', () => {
 
     it('should display app tagline', () => {
       const { getByText } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/voice/i)).toBeTruthy();
@@ -52,7 +53,7 @@ describe('WelcomeScreen', () => {
   describe('Actions', () => {
     it('should navigate to login', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('login-button'));
@@ -62,7 +63,7 @@ describe('WelcomeScreen', () => {
 
     it('should navigate to signup', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('signup-button'));
@@ -72,7 +73,7 @@ describe('WelcomeScreen', () => {
 
     it('should continue as guest', async () => {
       const { getByText } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/continue as guest/i));
@@ -84,7 +85,7 @@ describe('WelcomeScreen', () => {
   describe('Social Login', () => {
     it('should login with Google', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('google-login'));
@@ -92,15 +93,10 @@ describe('WelcomeScreen', () => {
 
     it('should login with Apple', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockWelcomeScreen navigation={mockNavigation as any} />
+        <WelcomeScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('apple-login'));
     });
   });
 });
-
-// Mock component
-const MockWelcomeScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

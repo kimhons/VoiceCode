@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import AccountSettingsScreen from '../../screens/settings/AccountSettingsScreen';
 
 describe('AccountSettingsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('AccountSettingsScreen', () => {
   describe('Rendering', () => {
     it('should render account settings', () => {
       const { getByTestId } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('account-settings-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('AccountSettingsScreen', () => {
 
     it('should display user email', () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/email/i)).toBeTruthy();
@@ -36,7 +37,7 @@ describe('AccountSettingsScreen', () => {
   describe('Profile', () => {
     it('should navigate to edit profile', async () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/edit profile/i));
@@ -48,7 +49,7 @@ describe('AccountSettingsScreen', () => {
   describe('Password', () => {
     it('should navigate to change password', async () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/change password/i));
@@ -60,7 +61,7 @@ describe('AccountSettingsScreen', () => {
   describe('Connected Accounts', () => {
     it('should show connected accounts', () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/connected accounts/i)).toBeTruthy();
@@ -68,7 +69,7 @@ describe('AccountSettingsScreen', () => {
 
     it('should navigate to connected accounts', async () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/connected accounts/i));
@@ -80,7 +81,7 @@ describe('AccountSettingsScreen', () => {
   describe('Subscription', () => {
     it('should show subscription status', () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/subscription/i)).toBeTruthy();
@@ -88,7 +89,7 @@ describe('AccountSettingsScreen', () => {
 
     it('should navigate to subscription', async () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/manage subscription/i));
@@ -100,7 +101,7 @@ describe('AccountSettingsScreen', () => {
   describe('Logout', () => {
     it('should logout', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('logout-button'));
@@ -113,7 +114,7 @@ describe('AccountSettingsScreen', () => {
   describe('Delete Account', () => {
     it('should navigate to delete account', async () => {
       const { getByText } = renderWithProviders(
-        <MockAccountSettingsScreen navigation={mockNavigation as any} />
+        <AccountSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/delete account/i));
@@ -122,8 +123,3 @@ describe('AccountSettingsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockAccountSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

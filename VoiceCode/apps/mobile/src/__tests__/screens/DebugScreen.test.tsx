@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import DebugScreen from '../../screens/developer/DebugScreen';
 
 describe('DebugScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('DebugScreen', () => {
   describe('Rendering', () => {
     it('should render debug screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('debug-screen')).toBeTruthy();
@@ -28,7 +29,7 @@ describe('DebugScreen', () => {
   describe('Device Info', () => {
     it('should display device info', () => {
       const { getByText } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/device/i)).toBeTruthy();
@@ -36,7 +37,7 @@ describe('DebugScreen', () => {
 
     it('should display OS version', () => {
       const { getByText } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/os/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('DebugScreen', () => {
 
     it('should display app version', () => {
       const { getByText } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/version/i)).toBeTruthy();
@@ -54,7 +55,7 @@ describe('DebugScreen', () => {
   describe('Logs', () => {
     it('should display logs', () => {
       const { getByTestId } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('logs-section')).toBeTruthy();
@@ -62,7 +63,7 @@ describe('DebugScreen', () => {
 
     it('should export logs', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('export-logs'));
@@ -73,7 +74,7 @@ describe('DebugScreen', () => {
 
     it('should clear logs', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-logs'));
@@ -86,7 +87,7 @@ describe('DebugScreen', () => {
   describe('Cache', () => {
     it('should display cache size', () => {
       const { getByText } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/cache/i)).toBeTruthy();
@@ -94,7 +95,7 @@ describe('DebugScreen', () => {
 
     it('should clear cache', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-cache'));
@@ -107,15 +108,10 @@ describe('DebugScreen', () => {
   describe('Test Crash', () => {
     it('should trigger test crash', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockDebugScreen navigation={mockNavigation as any} />
+        <DebugScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('test-crash'));
     });
   });
 });
-
-// Mock component
-const MockDebugScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

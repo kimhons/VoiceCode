@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import SpeakersScreen from '../../screens/editing/SpeakersScreen';
 
 describe('SpeakersScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('SpeakersScreen', () => {
   describe('Rendering', () => {
     it('should render speakers screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('speakers-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('SpeakersScreen', () => {
 
     it('should display speaker list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('speaker-list')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('SpeakersScreen', () => {
   describe('Speaker Management', () => {
     it('should rename speaker', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('speaker-1'));
@@ -53,7 +54,7 @@ describe('SpeakersScreen', () => {
 
     it('should change speaker color', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('speaker-1'));
@@ -65,7 +66,7 @@ describe('SpeakersScreen', () => {
 
     it('should merge speakers', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('speaker-1'));
@@ -78,7 +79,7 @@ describe('SpeakersScreen', () => {
   describe('Speaker Stats', () => {
     it('should display speaking time', () => {
       const { getByText } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/speaking time/i)).toBeTruthy();
@@ -86,7 +87,7 @@ describe('SpeakersScreen', () => {
 
     it('should display word count', () => {
       const { getByText } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/words/i)).toBeTruthy();
@@ -96,7 +97,7 @@ describe('SpeakersScreen', () => {
   describe('Navigation', () => {
     it('should navigate to speaker detail', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SpeakersScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('speaker-1'));
@@ -106,7 +107,3 @@ describe('SpeakersScreen', () => {
   });
 });
 
-// Mock component
-const MockSpeakersScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

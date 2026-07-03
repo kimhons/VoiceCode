@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import NotificationSettingsScreen from '../../screens/settings/NotificationSettingsScreen';
 
 describe('NotificationSettingsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('NotificationSettingsScreen', () => {
   describe('Rendering', () => {
     it('should render notification settings', () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('notification-settings-screen')).toBeTruthy();
@@ -28,7 +29,7 @@ describe('NotificationSettingsScreen', () => {
   describe('Push Notifications', () => {
     it('should toggle push notifications', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('push-toggle'), 'valueChange', false);
@@ -36,7 +37,7 @@ describe('NotificationSettingsScreen', () => {
 
     it('should show permission prompt when enabling', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('push-toggle'), 'valueChange', true);
@@ -49,7 +50,7 @@ describe('NotificationSettingsScreen', () => {
   describe('Notification Types', () => {
     it('should toggle transcription complete', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('transcription-complete-toggle'), 'valueChange', true);
@@ -57,7 +58,7 @@ describe('NotificationSettingsScreen', () => {
 
     it('should toggle share notifications', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('share-toggle'), 'valueChange', true);
@@ -65,7 +66,7 @@ describe('NotificationSettingsScreen', () => {
 
     it('should toggle comment notifications', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('comment-toggle'), 'valueChange', true);
@@ -73,7 +74,7 @@ describe('NotificationSettingsScreen', () => {
 
     it('should toggle sync notifications', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('sync-toggle'), 'valueChange', true);
@@ -83,7 +84,7 @@ describe('NotificationSettingsScreen', () => {
   describe('Quiet Hours', () => {
     it('should enable quiet hours', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('quiet-hours-toggle'), 'valueChange', true);
@@ -91,7 +92,7 @@ describe('NotificationSettingsScreen', () => {
 
     it('should set start time', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('start-time-picker'));
@@ -102,7 +103,7 @@ describe('NotificationSettingsScreen', () => {
 
     it('should set end time', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('end-time-picker'));
@@ -115,7 +116,7 @@ describe('NotificationSettingsScreen', () => {
   describe('Sound', () => {
     it('should change notification sound', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockNotificationSettingsScreen navigation={mockNavigation as any} />
+        <NotificationSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('sound-selector'));
@@ -123,8 +124,3 @@ describe('NotificationSettingsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockNotificationSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

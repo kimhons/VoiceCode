@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import HelpScreen from '../../screens/settings/HelpScreen';
 
 describe('HelpScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('HelpScreen', () => {
   describe('Rendering', () => {
     it('should render help screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('help-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('HelpScreen', () => {
 
     it('should display FAQ section', () => {
       const { getByText } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/frequently asked questions/i)).toBeTruthy();
@@ -34,7 +35,7 @@ describe('HelpScreen', () => {
 
     it('should display contact options', () => {
       const { getByText } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/contact support/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('HelpScreen', () => {
   describe('FAQ', () => {
     it('should expand FAQ item on tap', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('faq-item-1'));
@@ -53,7 +54,7 @@ describe('HelpScreen', () => {
 
     it('should collapse FAQ item on second tap', () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('faq-item-1'));
@@ -66,7 +67,7 @@ describe('HelpScreen', () => {
   describe('Search', () => {
     it('should search help topics', () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('search-input'), 'recording');
@@ -77,7 +78,7 @@ describe('HelpScreen', () => {
   describe('Contact', () => {
     it('should open email support', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('email-support'));
@@ -85,7 +86,7 @@ describe('HelpScreen', () => {
 
     it('should open chat support', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('chat-support'));
@@ -95,7 +96,7 @@ describe('HelpScreen', () => {
   describe('Guides', () => {
     it('should navigate to getting started guide', () => {
       const { getByText } = renderWithProviders(
-        <MockHelpScreen navigation={mockNavigation as any} />
+        <HelpScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/getting started/i));
@@ -104,8 +105,3 @@ describe('HelpScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockHelpScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

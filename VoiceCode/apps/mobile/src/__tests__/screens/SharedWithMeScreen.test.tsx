@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import SharedWithMeScreen from '../../screens/collaboration/SharedWithMeScreen';
 
 describe('SharedWithMeScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('SharedWithMeScreen', () => {
   describe('Rendering', () => {
     it('should render shared with me screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('shared-with-me-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('SharedWithMeScreen', () => {
 
     it('should display shared transcripts list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('shared-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('SharedWithMeScreen', () => {
   describe('Shared Items', () => {
     it('should display transcript title', () => {
       const { getByText } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/shared transcript/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('SharedWithMeScreen', () => {
 
     it('should display sharer name', () => {
       const { getByText } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/shared by/i)).toBeTruthy();
@@ -52,7 +53,7 @@ describe('SharedWithMeScreen', () => {
 
     it('should display permission level', () => {
       const { getByText } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/view|edit/i)).toBeTruthy();
@@ -62,7 +63,7 @@ describe('SharedWithMeScreen', () => {
   describe('Navigation', () => {
     it('should open shared transcript', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('shared-item-1'));
@@ -74,7 +75,7 @@ describe('SharedWithMeScreen', () => {
   describe('Actions', () => {
     it('should leave shared transcript', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('leave-share-1'));
@@ -87,7 +88,7 @@ describe('SharedWithMeScreen', () => {
   describe('Empty State', () => {
     it('should show empty state when no shares', () => {
       const { getByText } = renderWithProviders(
-        <MockSharedWithMeScreen navigation={mockNavigation as any} />
+        <SharedWithMeScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/no shared/i)).toBeTruthy();
@@ -95,7 +96,3 @@ describe('SharedWithMeScreen', () => {
   });
 });
 
-// Mock component
-const MockSharedWithMeScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

@@ -6,6 +6,7 @@ import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+import ExportScreen from '../../screens/export/ExportScreen';
 
 jest.mock('expo-sharing');
 jest.mock('expo-file-system');
@@ -29,7 +30,7 @@ describe('ExportScreen', () => {
   describe('Rendering', () => {
     it('should render export screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('export-screen')).toBeTruthy();
@@ -37,7 +38,7 @@ describe('ExportScreen', () => {
 
     it('should display format options', () => {
       const { getByText } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/pdf/i)).toBeTruthy();
@@ -50,7 +51,7 @@ describe('ExportScreen', () => {
   describe('Format Selection', () => {
     it('should select PDF format', () => {
       const { getByText, getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/pdf/i));
@@ -59,7 +60,7 @@ describe('ExportScreen', () => {
 
     it('should select DOCX format', () => {
       const { getByText, getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/docx/i));
@@ -68,7 +69,7 @@ describe('ExportScreen', () => {
 
     it('should select TXT format', () => {
       const { getByText, getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/txt/i));
@@ -77,7 +78,7 @@ describe('ExportScreen', () => {
 
     it('should select SRT format', () => {
       const { getByText, getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/srt/i));
@@ -88,7 +89,7 @@ describe('ExportScreen', () => {
   describe('Export Options', () => {
     it('should toggle include summary', () => {
       const { getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const toggle = getByTestId('include-summary-toggle');
@@ -98,7 +99,7 @@ describe('ExportScreen', () => {
 
     it('should toggle include timestamps', () => {
       const { getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const toggle = getByTestId('include-timestamps-toggle');
@@ -107,7 +108,7 @@ describe('ExportScreen', () => {
 
     it('should toggle include speaker labels', () => {
       const { getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       const toggle = getByTestId('include-speakers-toggle');
@@ -118,7 +119,7 @@ describe('ExportScreen', () => {
   describe('Export Actions', () => {
     it('should export to PDF', async () => {
       const { getByText, getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/pdf/i));
@@ -131,7 +132,7 @@ describe('ExportScreen', () => {
 
     it('should show loading during export', async () => {
       const { getByText, getByTestId, findByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/pdf/i));
@@ -143,7 +144,7 @@ describe('ExportScreen', () => {
 
     it('should show success message', async () => {
       const { getByText, getByTestId, findByText } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/pdf/i));
@@ -159,7 +160,7 @@ describe('ExportScreen', () => {
       (Sharing.shareAsync as jest.Mock).mockResolvedValue(undefined);
 
       const { getByText, getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/pdf/i));
@@ -180,7 +181,7 @@ describe('ExportScreen', () => {
       (Sharing.isAvailableAsync as jest.Mock).mockResolvedValue(false);
 
       const { queryByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(queryByTestId('share-button')).toBeNull();
@@ -190,7 +191,7 @@ describe('ExportScreen', () => {
   describe('Save to Cloud', () => {
     it('should save to cloud storage', async () => {
       const { getByText, getByTestId } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/pdf/i));
@@ -210,7 +211,7 @@ describe('ExportScreen', () => {
       (FileSystem.writeAsStringAsync as jest.Mock).mockRejectedValue(new Error('Write failed'));
 
       const { getByText, getByTestId, findByText } = renderWithProviders(
-        <MockExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ExportScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/pdf/i));
@@ -221,8 +222,3 @@ describe('ExportScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockExportScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import MoveToFolderScreen from '../../screens/library/MoveToFolderScreen';
 
 describe('MoveToFolderScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('MoveToFolderScreen', () => {
   describe('Rendering', () => {
     it('should render move to folder screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('move-to-folder-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('MoveToFolderScreen', () => {
 
     it('should display folder list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('folder-list')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('MoveToFolderScreen', () => {
   describe('Select Folder', () => {
     it('should select folder', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('folder-1'));
@@ -48,7 +49,7 @@ describe('MoveToFolderScreen', () => {
 
     it('should navigate into folder', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('folder-expand-1'));
@@ -56,7 +57,7 @@ describe('MoveToFolderScreen', () => {
 
     it('should show current folder', () => {
       const { getByText } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/current location/i)).toBeTruthy();
@@ -66,7 +67,7 @@ describe('MoveToFolderScreen', () => {
   describe('Move Action', () => {
     it('should move to selected folder', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('folder-1'));
@@ -78,7 +79,7 @@ describe('MoveToFolderScreen', () => {
 
     it('should go back after move', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('folder-1'));
@@ -93,7 +94,7 @@ describe('MoveToFolderScreen', () => {
   describe('Create Folder', () => {
     it('should create new folder', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('create-folder'));
@@ -106,7 +107,7 @@ describe('MoveToFolderScreen', () => {
   describe('Cancel', () => {
     it('should cancel and go back', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockMoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MoveToFolderScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('cancel-button'));
@@ -115,8 +116,3 @@ describe('MoveToFolderScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockMoveToFolderScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

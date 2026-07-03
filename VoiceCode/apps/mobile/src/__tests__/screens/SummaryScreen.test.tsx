@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import SummaryScreen from '../../screens/ai/SummaryScreen';
 
 describe('SummaryScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('SummaryScreen', () => {
   describe('Rendering', () => {
     it('should render summary screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('summary-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('SummaryScreen', () => {
 
     it('should display summary text', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('summary-text')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('SummaryScreen', () => {
   describe('Summary Types', () => {
     it('should show brief summary', async () => {
       const { getByText } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/brief/i));
@@ -48,7 +49,7 @@ describe('SummaryScreen', () => {
 
     it('should show detailed summary', async () => {
       const { getByText } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/detailed/i));
@@ -56,7 +57,7 @@ describe('SummaryScreen', () => {
 
     it('should show bullet points', async () => {
       const { getByText } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/bullets/i));
@@ -66,7 +67,7 @@ describe('SummaryScreen', () => {
   describe('Actions', () => {
     it('should copy summary', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('copy-summary'));
@@ -77,7 +78,7 @@ describe('SummaryScreen', () => {
 
     it('should share summary', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('share-summary'));
@@ -85,7 +86,7 @@ describe('SummaryScreen', () => {
 
     it('should regenerate summary', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('regenerate'));
@@ -98,7 +99,7 @@ describe('SummaryScreen', () => {
   describe('Edit', () => {
     it('should edit summary', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('edit-summary'));
@@ -109,7 +110,7 @@ describe('SummaryScreen', () => {
 
     it('should save edited summary', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SummaryScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('edit-summary'));
@@ -119,7 +120,3 @@ describe('SummaryScreen', () => {
   });
 });
 
-// Mock component
-const MockSummaryScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

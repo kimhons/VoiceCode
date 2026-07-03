@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import KeyPointsScreen from '../../screens/ai/KeyPointsScreen';
 
 describe('KeyPointsScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('KeyPointsScreen', () => {
   describe('Rendering', () => {
     it('should render key points screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockKeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <KeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('key-points-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('KeyPointsScreen', () => {
 
     it('should display key points list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockKeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <KeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('key-points-list')).toBeTruthy();
@@ -38,7 +39,7 @@ describe('KeyPointsScreen', () => {
 
     it('should show key point importance', () => {
       const { getByTestId } = renderWithProviders(
-        <MockKeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <KeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('importance-indicator-1')).toBeTruthy();
@@ -48,7 +49,7 @@ describe('KeyPointsScreen', () => {
   describe('Navigation', () => {
     it('should navigate to key point in transcript', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockKeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <KeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('key-point-1'));
@@ -60,7 +61,7 @@ describe('KeyPointsScreen', () => {
   describe('Export', () => {
     it('should copy key points', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockKeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <KeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('copy-key-points'));
@@ -71,7 +72,7 @@ describe('KeyPointsScreen', () => {
 
     it('should share key points', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockKeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <KeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('share-key-points'));
@@ -81,7 +82,7 @@ describe('KeyPointsScreen', () => {
   describe('Regenerate', () => {
     it('should regenerate key points', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockKeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <KeyPointsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('regenerate'));
@@ -91,8 +92,3 @@ describe('KeyPointsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockKeyPointsScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

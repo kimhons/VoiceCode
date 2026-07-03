@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import RemindersScreen from '../../screens/general/RemindersScreen';
 
 describe('RemindersScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('RemindersScreen', () => {
   describe('Rendering', () => {
     it('should render reminders screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('reminders-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('RemindersScreen', () => {
 
     it('should display reminders list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('reminders-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('RemindersScreen', () => {
   describe('Reminder Items', () => {
     it('should display reminder title', () => {
       const { getByText } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/reminder/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('RemindersScreen', () => {
 
     it('should display reminder time', () => {
       const { getByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('reminder-time-1')).toBeTruthy();
@@ -54,7 +55,7 @@ describe('RemindersScreen', () => {
   describe('Create Reminder', () => {
     it('should open create reminder modal', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('create-reminder'));
@@ -67,7 +68,7 @@ describe('RemindersScreen', () => {
   describe('Actions', () => {
     it('should complete reminder', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('complete-reminder-1'));
@@ -79,7 +80,7 @@ describe('RemindersScreen', () => {
 
     it('should snooze reminder', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('snooze-reminder-1'));
@@ -90,7 +91,7 @@ describe('RemindersScreen', () => {
 
     it('should delete reminder', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('delete-reminder-1'));
@@ -104,7 +105,7 @@ describe('RemindersScreen', () => {
   describe('Navigate to Transcript', () => {
     it('should navigate to associated transcript', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('reminder-transcript-1'));
@@ -116,15 +117,10 @@ describe('RemindersScreen', () => {
   describe('Empty State', () => {
     it('should show empty state', () => {
       const { getByText } = renderWithProviders(
-        <MockRemindersScreen navigation={mockNavigation as any} />
+        <RemindersScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/no reminders/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockRemindersScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

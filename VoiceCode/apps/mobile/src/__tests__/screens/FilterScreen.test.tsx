@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import FilterScreen from '../../screens/search/FilterScreen';
 
 describe('FilterScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('FilterScreen', () => {
   describe('Rendering', () => {
     it('should render filter screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('filter-screen')).toBeTruthy();
@@ -28,7 +29,7 @@ describe('FilterScreen', () => {
   describe('Date Filter', () => {
     it('should select date range', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('date-range-picker'));
@@ -39,7 +40,7 @@ describe('FilterScreen', () => {
 
     it('should select preset date range', async () => {
       const { getByText } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/last 7 days/i));
@@ -49,7 +50,7 @@ describe('FilterScreen', () => {
   describe('Tag Filter', () => {
     it('should select tags', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('tag-work'));
@@ -57,7 +58,7 @@ describe('FilterScreen', () => {
 
     it('should select multiple tags', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('tag-work'));
@@ -68,7 +69,7 @@ describe('FilterScreen', () => {
   describe('Folder Filter', () => {
     it('should select folder', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('folder-selector'));
@@ -79,7 +80,7 @@ describe('FilterScreen', () => {
   describe('Duration Filter', () => {
     it('should set duration range', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('duration-slider'), 'onValueChange', [0, 60]);
@@ -89,7 +90,7 @@ describe('FilterScreen', () => {
   describe('Apply Filters', () => {
     it('should apply filters', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('apply-filters'));
@@ -101,7 +102,7 @@ describe('FilterScreen', () => {
   describe('Clear Filters', () => {
     it('should clear all filters', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-filters'));
@@ -111,7 +112,7 @@ describe('FilterScreen', () => {
   describe('Save Preset', () => {
     it('should save filter preset', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockFilterScreen navigation={mockNavigation as any} />
+        <FilterScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('save-preset'));
@@ -121,8 +122,3 @@ describe('FilterScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockFilterScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};
