@@ -57,7 +57,7 @@ export default defineConfig({
         // Ensure consistent chunk names
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
-            ? chunkInfo.facadeModuleId.split('/').pop().replace('.tsx', '').replace('.ts', '')
+            ? (chunkInfo.facadeModuleId.split('/').pop() ?? 'chunk').replace('.tsx', '').replace('.ts', '')
             : 'chunk';
           return `js/${facadeModuleId}-[hash].js`;
         },
@@ -91,8 +91,6 @@ export default defineConfig({
     } : undefined
   },
   server: {
-    // Enable compression for dev server
-    compress: true,
     // Optimize HMR
     hmr: {
       overlay: true

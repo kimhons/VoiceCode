@@ -16,8 +16,15 @@ interface ThemeContextType {
   };
   colors: Record<string, string>;
   spacing: Record<string, string>;
-  typography: Record<string, string>;
+  typography: TypographyTokens;
   borderRadius: Record<string, string>;
+}
+
+interface TypographyTokens {
+  fontFamily: string;
+  fontSize: Record<string, string>;
+  fontWeight: Record<string, number>;
+  lineHeight: Record<string, string>;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -175,10 +182,10 @@ const getTypography = (platform: PlatformType) => {
       '3xl': '30px',
     },
     fontWeight: {
-      normal: '400',
-      medium: '500',
-      semibold: '600',
-      bold: '700',
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
     },
     lineHeight: {
       tight: '1.25',

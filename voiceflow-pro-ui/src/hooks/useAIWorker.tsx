@@ -30,7 +30,7 @@ export const useAIWorker = (options: UseAIWorkerOptions = {}) => {
 
       switch (type) {
         case 'INIT_STATUS':
-          options.onInit?.(data);
+          options.onInit?.({ status: data.status, progress: data.progress, message: data.message });
           if (data.status === 'complete') {
             setIsReady(true);
           }

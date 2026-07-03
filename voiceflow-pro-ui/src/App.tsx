@@ -135,11 +135,6 @@ const AppContent: React.FC = () => {
     }
   };
 
-  // Handle voice recording state changes
-  const handleRecordingStateChange = (newState: any) => {
-    setRecordingState(newState);
-  };
-
   // Handle audio visualization data updates
   const handleAudioDataUpdate = (data: AudioVisualizationData) => {
     setAudioData(prev => [...prev.slice(-99), data]); // Keep last 100 data points
@@ -572,6 +567,7 @@ const AppContent: React.FC = () => {
         }}
       />
     </div>
+    </ErrorBoundary>
   );
 };
 
