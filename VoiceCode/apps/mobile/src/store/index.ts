@@ -1,6 +1,6 @@
 // VoiceCode Mobile - Redux Store
 
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 // Import slices
@@ -32,34 +32,36 @@ import subscriptionReducer from './slices/subscriptionSlice';
 // Import API (will be created later)
 // import { baseApi } from './api/baseApi';
 
+export const rootReducer = combineReducers({
+  auth: authReducer,
+  recording: recordingReducer,
+  settings: settingsReducer,
+  ai: aiReducer,
+  search: searchReducer,
+  export: exportReducer,
+  organization: organizationReducer,
+  workspace: workspaceReducer,
+  security: securityReducer,
+  compliance: complianceReducer,
+  analytics: analyticsReducer,
+  report: reportReducer,
+  aiModel: aiModelReducer,
+  aiTraining: aiTrainingReducer,
+  realTimeAI: realTimeAIReducer,
+  contextEngine: contextEngineReducer,
+  automation: automationReducer,
+  workflowOptimization: workflowOptimizationReducer,
+  aiQuality: aiQualityReducer,
+  productivity: productivityReducer,
+  teamPerformance: teamPerformanceReducer,
+  subscription: subscriptionReducer,
+  // transcription: transcriptionReducer,
+  // sync: syncReducer,
+  // [baseApi.reducerPath]: baseApi.reducer,
+});
+
 export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    recording: recordingReducer,
-    settings: settingsReducer,
-    ai: aiReducer,
-    search: searchReducer,
-    export: exportReducer,
-    organization: organizationReducer,
-    workspace: workspaceReducer,
-    security: securityReducer,
-    compliance: complianceReducer,
-    analytics: analyticsReducer,
-    report: reportReducer,
-    aiModel: aiModelReducer,
-    aiTraining: aiTrainingReducer,
-    realTimeAI: realTimeAIReducer,
-    contextEngine: contextEngineReducer,
-    automation: automationReducer,
-    workflowOptimization: workflowOptimizationReducer,
-    aiQuality: aiQualityReducer,
-    productivity: productivityReducer,
-    teamPerformance: teamPerformanceReducer,
-    subscription: subscriptionReducer,
-    // transcription: transcriptionReducer,
-    // sync: syncReducer,
-    // [baseApi.reducerPath]: baseApi.reducer,
-  },
+  reducer: rootReducer,
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {

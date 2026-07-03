@@ -101,7 +101,8 @@ describe('FolderService', () => {
 
       const result = await FolderService.moveFolder('folder-1', 'folder-2');
 
-      expect(result.parent_id).toBe('folder-2');
+      // FolderService maps DB snake_case → domain camelCase; assert the domain field
+      expect(result.parentId).toBe('folder-2');
     });
   });
 });
