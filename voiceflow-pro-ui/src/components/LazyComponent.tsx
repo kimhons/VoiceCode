@@ -43,8 +43,8 @@ const DefaultErrorFallback: React.FC<{ error: Error; resetError: () => void }> =
 );
 
 // Main lazy component wrapper
-export const LazyComponent: React.FC<LazyComponentProps & { 
-  component: React.LazyExoticComponent<React.ComponentType<any>>;
+export const LazyComponent: React.FC<LazyComponentProps & {
+  component: React.ComponentType<any>;
 }> = ({
   component: LazyComponent,
   children,
@@ -57,7 +57,6 @@ export const LazyComponent: React.FC<LazyComponentProps & {
   const WrappedComponent = enableErrorBoundary 
     ? (props: any) => (
         <SimpleErrorBoundary
-          fallback={ErrorFallback}
           className={className}
         >
           <LazyComponent {...props} />
@@ -106,7 +105,7 @@ export const createLazyComponent = (
   };
 
   // Component wrapper with error boundary and loading states
-  const WrappedLazyComponent: React.FC<LazyComponentProps & { [key: string]: any }> = ({
+  const WrappedLazyComponent: React.FC<LazyComponentProps & { [key: string]: any }> & { preload?: () => void } = ({
     children,
     fallback,
     errorFallback = options.errorFallback,
@@ -135,35 +134,35 @@ export const createLazyComponent = (
 
 // Specific lazy components for VoiceFlow Pro
 export const LazyVoiceRecording = createLazyComponent(
-  () => import('@/components/VoiceRecording'),
+  () => import('@/components/VoiceRecording').then(m => ({ default: m.VoiceRecording })),
   {
     fallback: <DefaultLoadingFallback message="Loading voice recording..." type="recording" />
   }
 );
 
 export const LazyTranscriptionDisplay = createLazyComponent(
-  () => import('@/components/TranscriptionDisplay'),
+  () => import('@/components/TranscriptionDisplay').then(m => ({ default: m.TranscriptionDisplay })),
   {
     fallback: <DefaultLoadingFallback message="Loading transcription..." type="general" />
   }
 );
 
 export const LazyLanguageSelector = createLazyComponent(
-  () => import('@/components/LanguageSelector'),
+  () => import('@/components/LanguageSelector').then(m => ({ default: m.LanguageSelector })),
   {
     fallback: <DefaultLoadingFallback message="Loading language options..." type="language-detection" />
   }
 );
 
 export const LazyAudioVisualization = createLazyComponent(
-  () => import('@/components/AudioVisualization'),
+  () => import('@/components/AudioVisualization').then(m => ({ default: m.AudioVisualization })),
   {
     fallback: <DefaultLoadingFallback message="Loading audio visualization..." type="audio-enhancement" />
   }
 );
 
 export const LazySettingsPanel = createLazyComponent(
-  () => import('@/components/SettingsPanel'),
+  () => import('@/components/SettingsPanel').then(m => ({ default: m.SettingsPanel })),
   {
     fallback: <DefaultLoadingFallback message="Loading settings..." type="general" />
   }
@@ -239,7 +238,8 @@ export const useComponentPreloader = () => {
 // Route-based code splitting helper
 export const useRouteBasedPreloading = () => {
   const [currentRoute, setCurrentRoute] = React.useState('');
-  
+  const { preloadComponents } = useComponentPreloader();
+
   React.useEffect(() => {
     // Preload components based on current route
     const preloadByRoute = () => {

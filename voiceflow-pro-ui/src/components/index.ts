@@ -15,3 +15,17 @@ export {
   LoadingOverlay 
 } from './LoadingState';
 export { ErrorBoundary, SimpleErrorBoundary, useErrorHandler } from './ErrorBoundary';
+
+// Export lazy-loading utilities and components
+export {
+  LazyComponent,
+  createLazyComponent,
+  LazyVoiceRecording,
+  LazyTranscriptionDisplay,
+  LazyLanguageSelector,
+  LazyAudioVisualization,
+  LazySettingsPanel,
+  preloadAllComponents,
+  useComponentPreloader,
+  useRouteBasedPreloading,
+} from './LazyComponent';

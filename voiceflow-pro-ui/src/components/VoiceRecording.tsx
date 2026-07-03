@@ -139,7 +139,7 @@ export const VoiceRecording: React.FC<VoiceRecordingProps> = ({
     if (hrs > 0) {
       return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
-    return `${mins}:${secs.toString().padFocusStyles(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Enhanced recording functions with mobile optimization and AI integration
@@ -326,7 +326,7 @@ export const VoiceRecording: React.FC<VoiceRecordingProps> = ({
     minWidth: size === 'small' ? '80px' : size === 'large' ? '120px' : '100px',
   };
 
-  const variantStyles: React.CSSProperties = {
+  const variantStyles: Record<string, React.CSSProperties> = {
     primary: {
       backgroundColor: state.isRecording ? colors.error : colors.primary,
       color: '#ffffff',

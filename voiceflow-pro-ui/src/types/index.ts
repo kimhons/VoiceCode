@@ -1,6 +1,8 @@
 // Core Types for VoiceFlow Pro UI Components
 
-export type PlatformType = 'mac' | 'windows' | 'linux';
+import type { CSSProperties } from 'react';
+
+export type PlatformType = 'mac' | 'windows' | 'linux' | 'web';
 export type ThemeType = 'light' | 'dark' | 'auto';
 
 export interface VoiceRecordingState {
@@ -73,17 +75,17 @@ export interface AccessibilityProps {
 }
 
 export interface ComponentSize {
-  small: string;
-  medium: string;
-  large: string;
+  small: CSSProperties;
+  medium: CSSProperties;
+  large: CSSProperties;
 }
 
 export interface ComponentVariants {
-  primary: string;
-  secondary: string;
-  outline: string;
-  ghost: string;
-  destructive: string;
+  primary: CSSProperties;
+  secondary: CSSProperties;
+  outline: CSSProperties;
+  ghost: CSSProperties;
+  destructive: CSSProperties;
 }
 
 export interface PlatformConfig {

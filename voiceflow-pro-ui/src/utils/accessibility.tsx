@@ -1,6 +1,7 @@
 // Accessibility Utilities for VoiceFlow Pro
 
-import { AccessibilityProps, ComponentSize, ComponentVariants } from '@/types';
+import React from 'react';
+import { AccessibilityProps, ComponentSize, ComponentVariants, PlatformType } from '@/types';
 
 // Generate accessible color combinations
 export const generateAccessibleColors = (
@@ -46,7 +47,7 @@ const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
 
 // Generate accessible focus styles
 export const getFocusStyles = (
-  platform: 'mac' | 'windows' | 'linux',
+  platform: PlatformType,
   highContrast = false
 ): React.CSSProperties => {
   const baseStyles: React.CSSProperties = {

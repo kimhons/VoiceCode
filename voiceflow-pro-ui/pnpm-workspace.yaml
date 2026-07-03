@@ -1,0 +1,5 @@
+# esbuild (via vite) runs a build script. pnpm 11 blocks unapproved build scripts and
+# exits non-zero (ERR_PNPM_IGNORED_BUILDS); approving esbuild here lets `pnpm install`
+# succeed in CI without an interactive `pnpm approve-builds`.
+allowBuilds:
+  esbuild: true
