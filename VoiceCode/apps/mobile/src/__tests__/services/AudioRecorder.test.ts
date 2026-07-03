@@ -1,72 +1,113 @@
 // VoiceCode Mobile - Audio Recorder Service Tests
+// Tests the real AudioRecorder API against the mocked expo-av / expo-file-system.
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import { AudioRecorder } from '../../services/AudioRecorder';
+import { RecordingStatus, RecordingQuality } from '../../types/recording';
 
 describe('AudioRecorder', () => {
   let recorder: AudioRecorder;
 
   beforeEach(() => {
-    recorder = new AudioRecorder();
     jest.clearAllMocks();
+    (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({ exists: true, size: 2048 });
+    recorder = new AudioRecorder();
   });
 
-  describe('Permissions', () => {
-    it('should request microphone permissions', async () => {
-      const result = await recorder.requestPermissions();
-      expect(result).toBeDefined();
-    });
-
-    it('should check if permissions are granted', async () => {
-      const hasPermissions = await recorder.hasPermissions();
-      expect(typeof hasPermissions).toBe('boolean');
+  describe('status', () => {
+    it('starts in the IDLE state', () => {
+      expect(recorder.getStatus()).toBe(RecordingStatus.IDLE);
     });
   });
 
-  describe('Recording', () => {
-    it('should start recording', async () => {
-      await recorder.requestPermissions();
-      const result = await recorder.startRecording();
-      expect(result).toHaveProperty('uri');
+  describe('startRecording', () => {
+    it('creates a recording and transitions to RECORDING', async () => {
+      await recorder.startRecording(RecordingQuality.HIGH);
+
+      expect(Audio.Recording.createAsync).toHaveBeenCalled();
+      expect(recorder.getStatus()).toBe(RecordingStatus.RECORDING);
     });
 
-    it('should stop recording', async () => {
-      await recorder.startRecording();
-      const result = await recorder.stopRecording();
-      expect(result).toHaveProperty('uri');
-      expect(result).toHaveProperty('duration');
-    });
+    it('throws when microphone permission is denied', async () => {
+      (Audio.requestPermissionsAsync as jest.Mock).mockResolvedValueOnce({
+        granted: false,
+        status: 'denied',
+      });
 
-    it('should pause recording', async () => {
+      await expect(recorder.startRecording()).rejects.toThrow('Microphone permission not granted');
+    });
+  });
+
+  describe('pause / resume', () => {
+    it('transitions to PAUSED when pausing an active recording', async () => {
       await recorder.startRecording();
       await recorder.pauseRecording();
-      const status = await recorder.getRecordingStatus();
-      expect(status).toBe('paused');
+
+      expect(recorder.getStatus()).toBe(RecordingStatus.PAUSED);
     });
 
-    it('should resume recording', async () => {
+    it('transitions back to RECORDING when resuming a paused recording', async () => {
       await recorder.startRecording();
       await recorder.pauseRecording();
       await recorder.resumeRecording();
-      const status = await recorder.getRecordingStatus();
-      expect(status).toBe('recording');
-    });
 
-    it('should get recording duration', async () => {
-      await recorder.startRecording();
-      const duration = await recorder.getRecordingDuration();
-      expect(typeof duration).toBe('number');
-      expect(duration).toBeGreaterThanOrEqual(0);
+      expect(recorder.getStatus()).toBe(RecordingStatus.RECORDING);
     });
   });
 
-  describe('Error Handling', () => {
-    it('should handle recording without permissions', async () => {
-      await expect(recorder.startRecording()).rejects.toThrow();
+  describe('stopRecording', () => {
+    it('returns the uri and metadata and transitions to STOPPED', async () => {
+      await recorder.startRecording();
+
+      const result = await recorder.stopRecording();
+
+      expect(result.uri).toBe('file://mock-recording.m4a');
+      expect(typeof result.metadata.duration).toBe('number');
+      expect(result.metadata.fileSize).toBe(2048);
+      expect(recorder.getStatus()).toBe(RecordingStatus.STOPPED);
     });
 
-    it('should handle stopping when not recording', async () => {
-      await expect(recorder.stopRecording()).rejects.toThrow();
+    it('throws when there is no active recording', async () => {
+      await expect(recorder.stopRecording()).rejects.toThrow('No active recording');
+    });
+  });
+
+  describe('getDuration', () => {
+    it('returns 0 while idle', () => {
+      expect(recorder.getDuration()).toBe(0);
+    });
+
+    it('returns a non-negative duration while recording', async () => {
+      await recorder.startRecording();
+      expect(recorder.getDuration()).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('getMetering', () => {
+    it('returns metering levels while recording', async () => {
+      await recorder.startRecording();
+
+      const metering = await recorder.getMetering();
+
+      expect(metering).not.toBeNull();
+      expect(metering?.averagePower).toBe(-30);
+    });
+
+    it('returns null when not recording', async () => {
+      const metering = await recorder.getMetering();
+      expect(metering).toBeNull();
+    });
+  });
+
+  describe('cancelRecording', () => {
+    it('discards the recording and returns to IDLE', async () => {
+      await recorder.startRecording();
+
+      await recorder.cancelRecording();
+
+      expect(recorder.getStatus()).toBe(RecordingStatus.IDLE);
     });
   });
 });

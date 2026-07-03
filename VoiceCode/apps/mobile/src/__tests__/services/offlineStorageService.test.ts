@@ -1,158 +1,175 @@
 // VoiceCode Mobile - Offline Storage Service Tests
+// The real service is IndexedDB-backed. The node test environment has no
+// IndexedDB, so we provide a minimal in-memory shim (put/get/clear are the only
+// primitives exercised) and test the real OfflineStorageService against it.
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { describe, it, expect, beforeEach } from '@jest/globals';
+import { OfflineStorageService } from '../../services/offlineStorageService';
 
-jest.mock('@react-native-async-storage/async-storage');
+class FakeRequest {
+  result: any = undefined;
+  error: any = null;
+  onsuccess: ((ev: any) => void) | null = null;
+  onerror: ((ev: any) => void) | null = null;
+  onupgradeneeded: ((ev: any) => void) | null = null;
+}
+
+function succeed(req: FakeRequest, result?: any) {
+  req.result = result;
+  queueMicrotask(() => req.onsuccess && req.onsuccess({ target: req }));
+}
+
+class FakeObjectStore {
+  constructor(public keyPath: string, public data: Map<string, any>) {}
+  createIndex() {}
+  put(value: any) {
+    const req = new FakeRequest();
+    this.data.set(value[this.keyPath], value);
+    succeed(req, value[this.keyPath]);
+    return req;
+  }
+  get(key: string) {
+    const req = new FakeRequest();
+    succeed(req, this.data.get(key));
+    return req;
+  }
+  clear() {
+    const req = new FakeRequest();
+    this.data.clear();
+    succeed(req);
+    return req;
+  }
+  index() {
+    return { openCursor: () => new FakeRequest() };
+  }
+}
+
+class FakeTransaction {
+  oncomplete: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  error: any = null;
+  constructor(private db: FakeDB) {
+    queueMicrotask(() => this.oncomplete && this.oncomplete());
+  }
+  objectStore(name: string) {
+    return this.db.stores[name];
+  }
+}
+
+class FakeDB {
+  stores: Record<string, FakeObjectStore> = {};
+  objectStoreNames = { contains: (n: string) => n in this.stores };
+  createObjectStore(name: string, opts: { keyPath: string }) {
+    const store = new FakeObjectStore(opts.keyPath, new Map());
+    this.stores[name] = store;
+    return store;
+  }
+  transaction() {
+    return new FakeTransaction(this);
+  }
+}
+
+(global as any).indexedDB = {
+  open() {
+    const req = new FakeRequest();
+    const db = new FakeDB();
+    queueMicrotask(() => {
+      req.onupgradeneeded && req.onupgradeneeded({ target: { result: db } });
+      req.result = db;
+      req.onsuccess && req.onsuccess({ target: req });
+    });
+    return req;
+  },
+};
+(global as any).IDBKeyRange = { only: (v: any) => v };
+
+const makeTranscript = (id: string) =>
+  ({
+    id,
+    user_id: 'u1',
+    audio_url: '',
+    text: 'World',
+    content: 'World',
+    title: 'Hello',
+    duration: 10,
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+  }) as any;
 
 describe('OfflineStorageService', () => {
+  let storage: OfflineStorageService;
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    storage = new OfflineStorageService();
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
+  describe('saveTranscript / getTranscript', () => {
+    it('round-trips a saved transcript', async () => {
+      const transcript = makeTranscript('t1');
+
+      await storage.saveTranscript(transcript);
+      const result = await storage.getTranscript('t1');
+
+      expect(result).toEqual(transcript);
+    });
+
+    it('returns null for a non-existent transcript', async () => {
+      const result = await storage.getTranscript('does-not-exist');
+      expect(result).toBeNull();
+    });
   });
 
-  describe('saveTranscript', () => {
-    it('should save transcript to local storage', async () => {
-      const transcript = {
-        id: 'transcript-1',
-        title: 'Test Transcript',
-        text: 'Hello world',
-        createdAt: '2024-01-15T10:00:00Z',
-      };
+  describe('updateTranscript', () => {
+    it('merges updates onto an existing transcript', async () => {
+      await storage.saveTranscript(makeTranscript('t1'));
 
-      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
+      await storage.updateTranscript('t1', { title: 'Changed' });
+      const result = await storage.getTranscript('t1');
 
-      // Call would be: await offlineStorageService.saveTranscript(transcript);
+      expect(result?.title).toBe('Changed');
+      expect(result?.content).toBe('World');
+    });
 
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        'transcript_transcript-1',
-        JSON.stringify(transcript)
+    it('throws when updating a transcript that does not exist', async () => {
+      await expect(storage.updateTranscript('ghost', { title: 'x' })).rejects.toThrow(
+        'Transcript not found'
       );
-    });
-
-    it('should handle storage errors', async () => {
-      (AsyncStorage.setItem as jest.Mock).mockRejectedValue(new Error('Storage full'));
-
-      // await expect(offlineStorageService.saveTranscript({})).rejects.toThrow('Storage full');
-      expect(true).toBe(true); // Placeholder
-    });
-  });
-
-  describe('getTranscript', () => {
-    it('should retrieve transcript from storage', async () => {
-      const transcript = { id: 'transcript-1', title: 'Test' };
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(transcript));
-
-      // const result = await offlineStorageService.getTranscript('transcript-1');
-      // expect(result).toEqual(transcript);
-      expect(true).toBe(true);
-    });
-
-    it('should return null for non-existent transcript', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
-
-      // const result = await offlineStorageService.getTranscript('non-existent');
-      // expect(result).toBeNull();
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('getAllTranscripts', () => {
-    it('should retrieve all transcripts', async () => {
-      const keys = ['transcript_1', 'transcript_2', 'other_key'];
-      const transcripts = [
-        { id: '1', title: 'First' },
-        { id: '2', title: 'Second' },
-      ];
-
-      (AsyncStorage.getAllKeys as jest.Mock).mockResolvedValue(keys);
-      (AsyncStorage.multiGet as jest.Mock).mockResolvedValue([
-        ['transcript_1', JSON.stringify(transcripts[0])],
-        ['transcript_2', JSON.stringify(transcripts[1])],
-      ]);
-
-      // const result = await offlineStorageService.getAllTranscripts();
-      // expect(result).toHaveLength(2);
-      expect(true).toBe(true);
     });
   });
 
   describe('deleteTranscript', () => {
-    it('should delete transcript from storage', async () => {
-      (AsyncStorage.removeItem as jest.Mock).mockResolvedValue(undefined);
+    it('soft-deletes by setting is_deleted', async () => {
+      await storage.saveTranscript(makeTranscript('t1'));
 
-      // await offlineStorageService.deleteTranscript('transcript-1');
-      // expect(AsyncStorage.removeItem).toHaveBeenCalledWith('transcript_transcript-1');
-      expect(true).toBe(true);
+      await storage.deleteTranscript('t1');
+      const result = await storage.getTranscript('t1');
+
+      expect(result?.is_deleted).toBe(true);
     });
   });
 
-  describe('saveAudio', () => {
-    it('should save audio file reference', async () => {
-      const audioRef = {
-        id: 'audio-1',
-        uri: 'file:///audio.m4a',
-        size: 1024000,
-      };
+  describe('metadata', () => {
+    it('round-trips saved metadata', async () => {
+      await storage.saveMetadata('lastSync', { at: 123 });
+      const value = await storage.getMetadata('lastSync');
 
-      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
-
-      // await offlineStorageService.saveAudio(audioRef);
-      expect(true).toBe(true);
+      expect(value).toEqual({ at: 123 });
     });
-  });
 
-  describe('getStorageUsage', () => {
-    it('should calculate total storage usage', async () => {
-      const keys = ['transcript_1', 'transcript_2'];
-      (AsyncStorage.getAllKeys as jest.Mock).mockResolvedValue(keys);
-      (AsyncStorage.multiGet as jest.Mock).mockResolvedValue([
-        ['transcript_1', JSON.stringify({ id: '1', text: 'A'.repeat(1000) })],
-        ['transcript_2', JSON.stringify({ id: '2', text: 'B'.repeat(2000) })],
-      ]);
-
-      // const usage = await offlineStorageService.getStorageUsage();
-      // expect(usage.bytes).toBeGreaterThan(0);
-      expect(true).toBe(true);
+    it('returns null for a missing metadata key', async () => {
+      const value = await storage.getMetadata('missing');
+      expect(value).toBeNull();
     });
   });
 
   describe('clearAll', () => {
-    it('should clear all offline data', async () => {
-      (AsyncStorage.clear as jest.Mock).mockResolvedValue(undefined);
+    it('removes stored transcripts', async () => {
+      await storage.saveTranscript(makeTranscript('t1'));
 
-      // await offlineStorageService.clearAll();
-      // expect(AsyncStorage.clear).toHaveBeenCalled();
-      expect(true).toBe(true);
-    });
-  });
+      await storage.clearAll();
+      const result = await storage.getTranscript('t1');
 
-  describe('getPendingUploads', () => {
-    it('should return transcripts pending upload', async () => {
-      const pending = [
-        { id: '1', synced: false },
-        { id: '2', synced: false },
-      ];
-
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(pending));
-
-      // const result = await offlineStorageService.getPendingUploads();
-      // expect(result).toHaveLength(2);
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('markAsSynced', () => {
-    it('should mark transcript as synced', async () => {
-      const transcript = { id: '1', synced: false };
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(transcript));
-      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
-
-      // await offlineStorageService.markAsSynced('1');
-      expect(true).toBe(true);
+      expect(result).toBeNull();
     });
   });
 });
