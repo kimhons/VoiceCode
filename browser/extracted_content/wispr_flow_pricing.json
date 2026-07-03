@@ -1,0 +1,155 @@
+📄 Extracted from page: Pricing | Wispr Flow
+URL: https://wisprflow.ai/pricing
+
+Extracted content:
+```json
+{
+  "title": "Pricing | Wispr Flow",
+  "url": "https://wisprflow.ai/pricing",
+  "summary": "Wispr Flow offers four main pricing plans: Basic (Free), Pro ($12-$15/month), Teams ($10-$12/user/month), and Enterprise (contact for pricing). There is also a special student discount. All plans include voice-typing, dictionary support, and multi-language support. Higher tiers introduce unlimited usage, advanced editing commands, team collaboration features, and enhanced security and compliance options. A 2-week free trial of the Pro plan is available upon account creation, after which users convert to the Basic plan.",
+  "key_points": [
+    "Wispr Flow offers a Free Basic plan with limited word usage.",
+    "A 2-week free trial of the Flow Pro plan is provided upon initial account creation.",
+    "Annual billing for Pro and Teams plans offers a discount (Pro: $12/month vs $15/month; Teams: $10/user/month vs $12/user/month).",
+    "The Flow Teams plan requires a minimum of 3 seats.",
+    "A student discount offers three months free and 50% off the Pro plan, also available for educators and non-profits.",
+    "No credit card is required to get started with the free plan or trial.",
+    "All plans support Desktop (Mac, Windows) and iPhone (iOS); Android is coming soon."
+  ],
+  "relevant_links": [
+    {
+      "text": "Get started (Basic/Trial)",
+      "url": "https://wisprflow.onelink.me/PguH/lw5h199m"
+    },
+    {
+      "text": "Get started (Pro Monthly)",
+      "url": "/get-started?plan=FLOW_PRO_MONTHLY"
+    },
+    {
+      "text": "Get started (Pro Annually)",
+      "url": "/get-started?plan=FLOW_PRO_YEARLY"
+    },
+    {
+      "text": "Get started (Teams)",
+      "url": "https://admin.wisprflow.ai/"
+    },
+    {
+      "text": "Talk to sales (Enterprise)",
+      "url": "/talk-to-sales"
+    },
+    {
+      "text": "Support email",
+      "url": "mailto:support@wisprflow.ai"
+    },
+    {
+      "text": "Students Discount",
+      "url": "/students"
+    },
+    {
+      "text": "Non-profits Discount",
+      "url": "/for-non-profits"
+    }
+  ],
+  "pricing_plans": [
+    {
+      "plan_name": "Flow Basic",
+      "price": "Free",
+      "billing_options": [],
+      "features": [
+        "Lightning fast voice-typing",
+        "Add words to dictionary",
+        "Support for 100+ languages",
+        "Privacy mode",
+        "Flow for iPhone",
+        "HIPAA-ready",
+        "Desktop (Mac)",
+        "Desktop (Windows)",
+        "iPhone (iOS)",
+        "Standard customer support"
+      ],
+      "limitations": [
+        "2,000 words per week (general usage)",
+        "1,000 words per week (Flow for iPhone)"
+      ],
+      "free_trial_eligible": true,
+      "notes": "The start of your productivity journey. No credit card required to get started. Converts from 2-week Pro trial."
+    },
+    {
+      "plan_name": "Flow Pro",
+      "price": {
+        "monthly": "$15/month",
+        "annually": "$12/month (billed annually, 20% discount)"
+      },
+      "billing_options": ["Monthly", "Annually"],
+      "features": [
+        "Everything in Flow Basic",
+        "Unlimited words per week",
+        "Command Mode for editing (integrates with ChatGPT, Claude, Perplexity)",
+        "Prioritized feature requests",
+        "Early access to new features",
+        "Unlimited mobile usage",
+        "Prioritized customer support"
+      ],
+      "limitations": [],
+      "free_trial_eligible": true,
+      "notes": "Use all of our features. Two-week free trial available."
+    },
+    {
+      "plan_name": "Flow Teams",
+      "price": {
+        "monthly": "$12/user/month",
+        "annually": "$10/user/month (billed annually)"
+      },
+      "billing_options": ["Monthly", "Annually"],
+      "features": [
+        "Everything in Flow Pro",
+        "Centralized billing",
+        "Administrative controls",
+        "Team dictionary",
+        "Shared snippets",
+        "Admin controls"
+      ],
+      "limitations": [
+        "Minimum 3 seats"
+      ],
+      "free_trial_eligible": false,
+      "notes": "Uplevel your entire team."
+    },
+    {
+      "plan_name": "Flow Enterprise",
+      "price": "Contact us",
+      "billing_options": [],
+      "features": [
+        "Everything in Flow Teams",
+        "Dedicated support",
+        "SOC 2 Type II compliance",
+        "Enforced HIPAA compliance",
+        "Enforced Zero Data Retention",
+        "SSO / SAML",
+        "Bulk pricing discounts",
+        "Security & data controls",
+        "MSA & DPA",
+        "Enforced Privacy mode"
+      ],
+      "limitations": [],
+      "free_trial_eligible": false,
+      "notes": "Tailored solutions for large organizations."
+    }
+  ],
+  "special_offers": [
+    {
+      "offer_name": "Student Discount",
+      "details": "Students get three months free and 50% off the Pro plan. Also available for educators and non-profit organisations.",
+      "eligibility": "Students, Educators, Non-profit organisations"
+    }
+  ],
+  "free_trial_info": {
+    "availability": "Yes",
+    "duration": "Two weeks",
+    "plan_offered": "Flow Pro",
+    "post_trial_conversion": "Converts to Flow Basic plan",
+    "credit_card_required": "No"
+  },
+  "file_name": "wispr_flow_pricing.json"
+}
+```

@@ -1,0 +1,36 @@
+📄 Extracted from page: Setting Up | AI/ML API Documentation
+URL: https://docs.aimlapi.com/quickstart/setting-up
+
+Extracted content:
+```json
+{
+  "title": "Setting Up | AI/ML API Documentation",
+  "url": "https://docs.aimlapi.com/quickstart/setting-up",
+  "summary": "This page provides a comprehensive guide for developers to get started with the AI/ML API. It outlines the essential setup steps: generating an API key, configuring the base URL, and making the first API call. The guide uses the OpenAI SDK for practical examples in Python and NodeJS, demonstrating how to interact with models like 'gpt-4o' for chat completions. It emphasizes the importance of using AIML API's specific base URL and API key, and offers a step-by-step code explanation for both languages.",
+  "key_points": [
+    "**API Documentation Structure:** Organized into Quickstart, API References (various model types), Solutions, Use Cases, Capabilities, FAQ, Errors and Messages, Glossary, and Integrations.",
+    "**Getting Started Steps (Quickstart):** Generate an AIML API Key, Configure the Base URL, Make an API Call.",
+    "**Generating an API Key:** Obtain from the user's account dashboard (aimlapi.com/app/keys) after creating an account. API keys are sensitive and specific to AIML API.",
+    "**Configuring Base URL:** The correct base URL for AIML API is `https://api.aimlapi.com` or `https://api.aimlapi.com/v1`. This is crucial when using SDKs (e.g., OpenAI SDK) that default to other servers.",
+    "**Making an API Call:** Demonstrated using OpenAI SDK for Python and NodeJS, compatible with AIML API. Raw HTTP queries are also an option.",
+    "**Technical Details (Code Example):** Illustrated with Python and NodeJS using the `openai` library.",
+    "**Key Parameters for API Call:** `api_key`, `base_url`, `model` (e.g., 'gpt-4o'), `messages` (with `system` and `user` roles), `temperature`, `max_tokens` for chat completions.",
+    "**Supported SDKs:** OpenAI SDK is explicitly mentioned and used in examples due to its compatibility.",
+    "**Example Use Case:** A simple travel agent chatbot is created to demonstrate model interaction.",
+    "**Prerequisites:** Python (with venv) or NodeJS installation for running examples."
+  ],
+  "relevant_links": [
+    "https://aimlapi.com/app/keys",
+    "https://aimlapi.com/app/sign-up",
+    "/api-references/model-database",
+    "/quickstart/supported-sdks",
+    "/api-references/text-models-llm/openai/gpt-4o",
+    "/faq/can-i-use-api-in-python",
+    "/faq/can-i-use-api-in-nodejs",
+    "/quickstart/setting-up#generating-an-api-key",
+    "/capabilities/completion-or-chat-models",
+    "/quickstart"
+  ],
+  "file_name": "aimlapi_setting_up_documentation.json"
+}
+```

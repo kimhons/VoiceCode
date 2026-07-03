@@ -1,0 +1,61 @@
+# Ensure certain file types are handled correctly by Git
+
+# Text files
+*.txt text
+*.md text
+*.json text
+*.yml text
+*.yaml text
+*.xml text
+*.toml text
+*.ini text
+*.cfg text
+*.conf text
+
+# Source code files
+*.rs text
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.py text
+*.go text
+*.c text
+*.cpp text
+*.h text
+*.hpp text
+
+# Configuration files
+package.json text
+Cargo.toml text
+vite.config.* text
+tsconfig.* text
+.eslintrc.* text
+
+# Binary files (should not be modified)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+
+# System files
+.DS_Store binary
+Thumbs.db binary
+
+# Lock files
+package-lock.json binary
+pnpm-lock.yaml text
+yarn.lock text
+Cargo.lock text
+
+# Large files (> 100MB) should use Git LFS
+# Uncomment if you need to track large files:
+# *.psd filter=lfs diff=lfs merge=lfs -text
+# *.ai filter=lfs diff=lfs merge=lfs -text
+# *.pdf filter=lfs diff=lfs merge=lfs -text

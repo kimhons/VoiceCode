@@ -1,0 +1,170 @@
+📄 Extracted from page: Explore best AI models, Mixtral 7B, Stable Diffusion, LLaMA | Best AI API
+URL: https://aimlapi.com/models
+
+Extracted content:
+```json
+{
+  "title": "Explore best AI models, Mixtral 7B, Stable Diffusion, LLaMA | Best AI API",
+  "url": "https://aimlapi.com/models",
+  "summary": "AI/ML API offers a comprehensive platform for accessing a wide range of AI models from various providers, categorized by task (e.g., video generation, text processing, voice generation). It includes popular and specialized models like OpenAI's Sora 2, Google's Veo 3.1, Anthropic's Claude, and DeepSeek's language models, with some technical specifications like context window sizes and language support detailed.",
+  "key_points": [
+    {
+      "category": "Model Categories (Tasks)",
+      "list": [
+        "Chat",
+        "Text-to-Text",
+        "Text-to-Code",
+        "Translation",
+        "Doc-to-Text",
+        "Image Generation (Text-to-Image, Image-to-Image)",
+        "Image-to-Text",
+        "Summarization",
+        "Instruction Following",
+        "Music Generation (Text-to-Audio, Audio-to-Audio)",
+        "Video Generation (Image-to-Video, Text-to-Video, Video-to-Video)",
+        "3D Generation (Text-to-3D, Image-to-3D)",
+        "AI Search / Search",
+        "Code Generation (Code-to-Code)",
+        "Embeddings (Text Embedding)",
+        "Safety & Moderation (Content Moderation)",
+        "Voice Models (Speech-to-Text, Text-to-Speech)",
+        "OCR (Image-Text-to-Text, PDF-to-Text)",
+        "Reasoning"
+      ]
+    },
+    {
+      "category": "Specific Models & Providers",
+      "list": [
+        {
+          "name": "Sora 2 Image-to-Video",
+          "provider": "OpenAI",
+          "type": "Video Generation",
+          "features": "Synchronized spatial audio, advanced physics simulations, realistic motion and soundscapes.",
+          "status": "Active"
+        },
+        {
+          "name": "Kandinsky 5 Distill / Standard",
+          "provider": "Sber AI",
+          "type": "Video Generation (Text-to-Video)",
+          "languages": "Multilingual, English, Chinese, French, German, Spanish, Arabic, Russian, Vietnamese, Ukrainian, Turkish, Thai, Swedish, Slovenian, Slovak, Serbian, Portuguese, Polish, Norwegian, Malay, Lithuanian, Latvian, Korean, Japanese, Italian, Indonesian, Hungarian, Hindi, Hebrew, Greek, Finnish, Estonian, Dutch, Danish, Czech, Croatian, Bulgarian, Bosnian",
+          "status": "Active"
+        },
+        {
+          "name": "TTS-1 / TTS-1 HD",
+          "provider": "OpenAI",
+          "type": "Voice Generation (Text-to-Speech)",
+          "languages": "English",
+          "status": "Active"
+        },
+        {
+          "name": "GPT-4o-mini-TTS",
+          "provider": "OpenAI",
+          "type": "Voice Generation (Text-to-Speech)",
+          "languages": "Multilingual (extensive list)",
+          "status": "Active"
+        },
+        {
+          "name": "Claude 4.5 Haiku",
+          "provider": "Anthropic",
+          "type": "Language",
+          "specifications": "200K context window",
+          "languages": "Portuguese, Korean, Japanese, Italian, Indonesian, Hindi, Arabic, Multilingual, English, Chinese, French, German, Spanish",
+          "tasks": ["Text-to-Code", "Code-to-Code", "Text-to-Text"],
+          "status": "Active"
+        },
+        {
+          "name": "Veo 3.1 (Fast First-Last Frame-to-Video, First-Last Frame-to-Video, Reference-to-Video, Image-to-Video, Fast Image-to-Video, Fast Text-to-Video, Text-to-Video)",
+          "provider": "Google",
+          "type": "Video Generation",
+          "languages": "English",
+          "status": "Active"
+        },
+        {
+          "name": "DeepSeek V3.1 Terminus (Non-Reasoning, Reasoning)",
+          "provider": "DeepSeek",
+          "type": "Chat",
+          "specifications": "128K context window",
+          "languages": "Chinese (Non-Reasoning), English, Chinese (Reasoning)",
+          "tasks": ["Search", "Text-to-Code", "Summarization", "Content Moderation", "Text-to-Text", "Reasoning (for 'Reasoning' model)"],
+          "status": "Active"
+        },
+        {
+          "name": "Qwen3-TTS-Flash Realtime",
+          "provider": "Alibaba Cloud",
+          "type": "Voice Generation (Text-to-Speech)",
+          "languages": "Multilingual (extensive list)",
+          "status": "Active"
+        },
+        {
+          "name": "VEED Fabric-1.0 Fast / 1.0",
+          "provider": "VEED",
+          "type": "Video Generation (Image-to-Video)",
+          "languages": "Multilingual (extensive list)",
+          "status": "Active"
+        },
+        {
+          "name": "GPT-5 Pro",
+          "provider": "OpenAI",
+          "type": "Chat",
+          "specifications": "400k context window",
+          "languages": "English",
+          "tasks": ["Text-to-Code", "Text-to-Text"],
+          "status": "Active"
+        },
+        {
+          "name": "Aura 2",
+          "provider": "Deepgram",
+          "type": "Voice Generation (Text-to-Speech)",
+          "languages": "English",
+          "status": "Active"
+        },
+        {
+          "name": "Mixtral 7B",
+          "provider": "Mistral AI (mentioned in title)"
+        },
+        {
+          "name": "Stable Diffusion",
+          "provider": "(mentioned in title, also 'Stable Diffusion API' listed)",
+          "type": "Image Generation"
+        },
+        {
+          "name": "LLaMA",
+          "provider": "Meta (mentioned in title, also 'Meta's Llama 3 API' and 'Llama 4 API' listed)",
+          "type": "Language Model"
+        },
+        {
+          "name": "Other listed models (from product/model lists)",
+          "list": [
+            "GPT-5 API", "Gemini 2.5 Flash-Lite", "Wan 2.2 API", "Claude 4 API", "Grok 4", "Imagen 4 Ultra",
+            "Kimi K-2", "Sonar by Perplexity", "Codestral API", "MiniMax M1", "Gemma 3n API", "Lyria RealTime API",
+            "DeepSeek Prover V2 API", "ChatGPT o4-mini API", "GPT-4.1 API", "RunWay Gen-4 API", "Mistral AI OCR API",
+            "OpenAI Assistants API", "QwQ-32B API", "ChatGPT 4.5 API", "Kling AI API", "Recraft v3 API", "FLUX.1 API",
+            "Luma AI API", "OpenAI GPT 4-o", "Suno AI API", "Qwen 3 API"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Platform Features",
+      "list": [
+        "API access to all listed models.",
+        "Filtering options by tasks, languages, and developers.",
+        "Continuously updated offerings, with a 'Model Not Found' option for scheduling consultations or joining Discord for requests."
+      ]
+    }
+  ],
+  "relevant_links": [
+    "https://aimlapi.com/models/sora-2-image-to-video",
+    "https://docs.aimlapi.com/quickstart/setting-up",
+    "https://aimlapi.com/ai-ml-api-pricing",
+    "https://aimlapi.com/models/kandinsky-5-distill",
+    "https://aimlapi.com/models/claude-4-5-haiku",
+    "https://aimlapi.com/models/gpt-5-pro",
+    "https://aimlapi.com/gpt-5",
+    "https://aimlapi.com/llama-4-api",
+    "https://aimlapi.com/stable-diffusions-image-generation-api",
+    "https://aimlapi.com/build-with-claude-3-opus-api"
+  ],
+  "file_name": "aimlapi_models_info.json"
+}
+```

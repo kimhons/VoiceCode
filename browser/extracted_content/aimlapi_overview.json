@@ -1,0 +1,37 @@
+📄 Extracted from page: Access 300+ AI Models with a Single AI API | AIMLAPI.com
+URL: https://aimlapi.com/
+
+Extracted content:
+```json
+{
+  "title": "Access 300+ AI Models with a Single AI API | AIMLAPI.com",
+  "url": "https://aimlapi.com/",
+  "summary": "AIMLAPI.com provides a single, unified API gateway to access over 300 diverse AI models, covering functionalities such as chat, reasoning, image, video, audio, voice, search, and 3D generation. The platform aims to simplify AI integration for developers and businesses by offering a comprehensive solution with features like fast inference, robust data security, high uptime, and scalable infrastructure. It serves as a central hub for various cutting-edge AI technologies under a single billing system.",
+  "key_points": [
+    "Offers a single API to access over 300 AI models across categories like Chat, Reasoning, Image, Video, Audio, Voice, Search, and 3D generation.",
+    "Provides fastest inference through top-tier serverless infrastructure, reducing deployment and maintenance costs.",
+    "Key features include #1 Data Security, 99% Uptime, and 24/7 Support.",
+    "Includes an AI Playground for testing models in a sandbox environment.",
+    "Promotes simple integration, allowing users to connect by merely changing API endpoints.",
+    "Ensures infinite scalability with low latency, instant deployment, and capabilities to surpass rate limits.",
+    "Supports a wide range of popular and advanced AI models from various providers (e.g., Sora 2, GPT-5 Pro, Veo 3.1, Claude 4.5 Sonnet, GLM-4.6, Imagen 4.0 Ultra).",
+    "Offers flexible pricing plans including a free Developer tier, 'Pay As You Go' Startup, fixed monthly Production and Scale plans, a Crypto payment option, and custom Enterprise solutions.",
+    "Provides comprehensive resources such as documentation, a help center, blog, academy for learning, and community access."
+  ],
+  "relevant_links": [
+    "https://aimlapi.com/models",
+    "https://docs.aimlapi.com/quickstart/setting-up",
+    "https://aimlapi.com/ai-ml-api-pricing",
+    "https://aimlapi.com/app/sign-up/",
+    "https://help.aimlapi.com/",
+    "https://aimlapi.com/blog",
+    "https://aimlapi.com/academy",
+    "https://aimlapi.com/community",
+    "https://aimlapi.com/affiliate",
+    "https://github.com/aimlapi",
+    "https://discord.gg/hvaUsJpVJf",
+    "https://aimlapi.com/contact-us"
+  ],
+  "file_name": "aimlapi_overview.json"
+}
+```

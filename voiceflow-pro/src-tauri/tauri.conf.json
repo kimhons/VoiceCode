@@ -1,0 +1,170 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "VoiceFlow Pro",
+    "version": "1.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
+      },
+      "tray": {
+        "all": true
+      },
+      "notification": {
+        "all": true
+      },
+      "globalShortcut": {
+        "all": true
+      },
+      "fs": {
+        "all": false,
+        "readFile": true,
+        "writeFile": true,
+        "readDir": true,
+        "copyFile": false,
+        "createDir": true,
+        "removeDir": false,
+        "removeFile": false,
+        "renameFile": false,
+        "exists": true,
+        "scope": ["app-config/**", "user-data/**", "audio-files/**"]
+      },
+      "path": {
+        "all": true
+      },
+      "dialog": {
+        "all": true,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
+      },
+      "os": {
+        "all": true
+      },
+      "process": {
+        "all": true
+      },
+      "protocol": {
+        "all": false,
+        "asset": true,
+        "assetScope": [
+          "app-config/**",
+          "user-data/**",
+          "audio-files/**",
+          "models/**",
+          "!*.exe",
+          "!*.dll",
+          "!*.so.*",
+          "!*.dylib"
+        ]
+      },
+      "audio": {
+        "all": true
+      },
+      "event": {
+        "all": true
+      },
+      "resources": {
+        "all": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.voiceflow.pro",
+      "publisher": "VoiceFlow Pro Team",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "resources": [
+        "resources/*",
+        "bin/*"
+      ],
+      "externalBin": [],
+      "copyright": "",
+      "category": "Productivity",
+      "shortDescription": "",
+      "longDescription": "",
+      "deb": {
+        "depends": ["libasound2", "libgtk-3-0", "libwebkit2gtk-4.0-37"]
+      },
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "",
+        "wix": {
+          "template": "main.wxs",
+          "language": ["en-US", "zh-CN"],
+          "artifactReferences": []
+        }
+      },
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      }
+    },
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; media-src 'self' blob: data:; font-src 'self';"
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 800,
+        "width": 1200,
+        "minWidth": 800,
+        "minHeight": 600,
+        "maxWidth": 1920,
+        "maxHeight": 1080,
+        "resizable": true,
+        "title": "VoiceFlow Pro",
+        "center": true,
+        "decorations": true,
+        "alwaysOnTop": false,
+        "skipTaskbar": false,
+        "visible": true,
+        "transparent": false,
+        "maximized": false,
+        "minimized": false
+      }
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    }
+  },
+  "plugins": {}
+}

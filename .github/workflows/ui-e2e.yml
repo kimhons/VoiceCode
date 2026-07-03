@@ -1,0 +1,23 @@
+name: UI E2E (voiceflow-pro-ui)
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  ui-e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: voiceflow-pro-ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: corepack enable
+      - run: pnpm install --no-frozen-lockfile
+      - run: npx audit-ci --high
+      - run: pnpm run build
+      - run: npx playwright install chromium
+      - run: npx playwright test e2e/smoke.spec.ts

@@ -1,0 +1,60 @@
+[package]
+name = "voiceflow-pro"
+version = "1.0.0"
+description = "VoiceFlow Pro - Cross-platform Desktop Voice Assistant"
+authors = ["VoiceFlow Pro Team"]
+license = "MIT"
+repository = "https://github.com/voiceflow-pro/desktop"
+default-run = "voiceflow-pro"
+edition = "2021"
+rust-version = "1.72"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = ["api-all", "dialog-open", "dialog-save", "fs-copy-file", "fs-create-dir", "fs-remove-dir", "fs-remove-file", "fs-rename-file", "fs-scope", "fs-write-file", "global-shortcut", "notification", "os-all", "path-all", "process-all", "protocol-asset", "resources", "shell-open", "system-tray", "window-all"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+anyhow = "1.0"
+thiserror = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+crossbeam-channel = "0.5"
+async-trait = "0.1"
+regex = "1.0"
+walkdir = "2.3"
+sanitize-filename = "0.5"
+http = "0.2"
+tracing = "0.1"
+reqwest = { version = "0.11", features = ["json", "stream"] }
+lru = "0.12"
+log = "0.4"
+once_cell = "1.19"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[[bin]]
+name = "voiceflow-pro"
+path = "src/main.rs"
+
+[package.metadata.bundle]
+name = "VoiceFlow Pro"
+identifier = "com.voiceflow.pro"
+version = "1.0.0"
+category = "Productivity"
+short_description = "VoiceFlow Pro - Cross-platform Desktop Voice Assistant"
+long_description = """
+VoiceFlow Pro is a powerful cross-platform desktop voice assistant application.
+It provides advanced voice recognition, natural language processing, and intelligent 
+automation capabilities across Windows, macOS, and Linux platforms.
+"""
+authors = ["VoiceFlow Pro Team"]
+copyright = "Copyright © 2025 VoiceFlow Pro Team"
+license = "MIT"
+homepage = "https://voiceflow.pro"
+repository = "https://github.com/voiceflow-pro/desktop"

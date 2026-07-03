@@ -1,0 +1,31 @@
+📄 Extracted from page: Wispr Flow Help Center
+URL: https://docs.wisprflow.ai/
+
+Extracted content:
+```json
+{
+  "title": "Wispr Flow Help Center",
+  "url": "https://docs.wisprflow.ai/",
+  "summary": "The Wispr Flow Help Center serves as an index to various support articles for the Wispr Flow application. It categorizes help content into sections like 'Getting Started,' 'Customizing Flow,' 'Troubleshooting & FAQ,' 'Billing,' 'Flow Plans & Pricing,' and 'Data Privacy.' While it provides links to detailed articles, specific information regarding supported languages and comprehensive technical specifications is not directly present on this overview page.",
+  "key_points": [
+    "The help center organizes information into several collections: Getting Started, Customizing Flow, Troubleshooting & FAQ, Billing, Flow Plans & Pricing, and Data Privacy.",
+    "Features explicitly mentioned include 'Command Mode' and 'Flow Shortcuts for iPhone'.",
+    "The mention of 'Flow Shortcuts for iPhone' indicates support for the iOS platform.",
+    "Information regarding data privacy and security is available through a dedicated collection.",
+    "Detailed supported languages and comprehensive technical specifications for the Wispr Flow application are not directly provided on this help center overview page."
+  ],
+  "relevant_links": [
+    "/collections/8347945327-getting_started",
+    "/collections/5230922295-customizing_flow",
+    "/collections/4042197062-troubleshooting_faq",
+    "/collections/8951138051-billing",
+    "/collections/4034860428-flow_plans-1",
+    "/collections/7411132162-data_privacy",
+    "/articles/1732044662-get-started",
+    "/articles/8476991260-command-mode",
+    "/articles/4491532195-wispr-app-reset-restart",
+    "/articles/5270651145-shortcuts-and-action-button"
+  ],
+  "file_name": "wispr_flow_help_center.json"
+}
+```

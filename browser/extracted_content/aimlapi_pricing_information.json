@@ -1,0 +1,123 @@
+📄 Extracted from page: Pricing AI/ML API
+URL: https://aimlapi.com/ai-ml-api-pricing
+
+Extracted content:
+```json
+{
+  "title": "Pricing AI/ML API",
+  "url": "https://aimlapi.com/ai-ml-api-pricing",
+  "summary": "This page details the pricing structure for AI/ML API services, offering several plans designed to scale with user needs, from free prototyping to enterprise-grade solutions. Plans include Developer (Free), Startup (Pay As You Go), Production ($50/month), Scale (from $200/month), Crypto (from $100/month), and Enterprise (custom pricing). Each plan offers varying levels of requests, token allowances, model access, and support. The page also provides extensive, granular token-based pricing for a wide range of AI models across categories like Chat, Code, Image, Voice, Video, Music, Embedding, Language, 3D Generation, and OCR, detailing input and output costs per million tokens or per generation/time.",
+  "key_points": [
+    {
+      "plan_name": "Developer",
+      "cost": "Free",
+      "features": [
+        "10 requests / hour",
+        "Free Playground",
+        "24/7 Human Support",
+        "Community Access"
+      ],
+      "target_users": [
+        "Building prototypes or MVPs",
+        "Exploring AI use cases",
+        "Trying out platform's features"
+      ]
+    },
+    {
+      "plan_name": "Startup",
+      "cost": "Pay As You Go",
+      "features": [
+        "Everything in Developer",
+        "from 40M tokens",
+        "Access to 200+ models",
+        "Pay only for what you use"
+      ],
+      "target_users": [
+        "Need faster pivoting",
+        "Searching for Market Fit",
+        "Need big models, startup rates"
+      ]
+    },
+    {
+      "plan_name": "Production",
+      "cost": "$50/month",
+      "features": [
+        "Everything in Startup",
+        "100M tokens",
+        "Priority Support",
+        "Fixed Pricing",
+        "+10% Tokens"
+      ],
+      "target_users": [
+        "Run critical workflows",
+        "Prioritize uptime & support",
+        "Want to optimize costs"
+      ]
+    },
+    {
+      "plan_name": "Scale",
+      "cost": "from $200/month",
+      "features": [
+        "Everything in Production",
+        "400M tokens",
+        "Personal manager",
+        "Enterprise-grade reliability",
+        "+20% Tokens"
+      ],
+      "target_users": [
+        "Scaling exponentially",
+        "Require reliability at scale",
+        "Need growth flexibility"
+      ]
+    },
+    {
+      "plan_name": "Crypto",
+      "cost": "from $100/month",
+      "features": [
+        "Everything in Production",
+        "200M tokens",
+        "Personal manager",
+        "Enterprise-grade reliability",
+        "+25% Tokens"
+      ],
+      "target_users": [
+        "Operate globally",
+        "Want fast payments",
+        "Prefer privacy & control"
+      ]
+    },
+    {
+      "plan_name": "Enterprise",
+      "cost": "Growth with custom AI solution (Contact sales)",
+      "features": [
+        "Special pricing",
+        "Dedicated servers",
+        "Custom models",
+        "Unlimited RPM and TPM",
+        "Full staff training & integration",
+        "Joint marketing activities",
+        "Shared Slack channel",
+        "Extended data storage"
+      ]
+    },
+    {
+      "token_pricing_details": "Detailed token pricing is available for individual AI models across various categories like Chat, Code, Image, Voice, Video, Music, Embedding, Language, 3D Generation, and OCR. Prices are generally listed per 1 million input/output tokens, per megapixel, per generation, per character, or per second/minute, varying by model and type of service (e.g., DeepSeek, OpenAI GPT, Google Gemini, Anthropic Claude, Stability AI, etc.)."
+    },
+    {
+      "terms_and_limitations": [
+        "Tokens are segments of words; 1 token is approximately 4 characters or 0.75 words.",
+        "Using the Playground consumes only paid tokens for PRO models.",
+        "Subscription management (upgrade/downgrade, billing info, cancellation) is handled via Stripe's secure portal.",
+        "Ability to suggest new AI models via Discord community."
+      ]
+    }
+  ],
+  "relevant_links": [
+    "https://aimlapi.com/app/billing/plans",
+    "https://calendly.com/aimlapi/enterprise?month=2025-05",
+    "https://aimlapi.com/app/",
+    "https://discord.gg/hvaUsJpVJf"
+  ],
+  "file_name": "aimlapi_pricing_information.json"
+}
+```

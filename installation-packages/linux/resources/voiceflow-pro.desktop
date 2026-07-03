@@ -1,0 +1,25 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=VoiceFlow Pro
+GenericName=Voice Assistant
+Comment=Cross-platform Desktop Voice Assistant
+Exec=voiceflow-pro %f
+Icon=voiceflow-pro
+Terminal=false
+Categories=Office;Utility;AudioVideo;
+Keywords=voice;assistant;speech;recognition;ai;
+StartupNotify=true
+StartupWMClass=voiceflow-pro
+MimeType=application/x-voiceflow-project;
+Actions=Record;Process;
+
+[Desktop Action Record]
+Name=Start Recording
+Exec=voiceflow-pro --record
+Icon=media-record
+
+[Desktop Action Process]
+Name=Process Audio
+Exec=voiceflow-pro --process
+Icon=media-playback-start

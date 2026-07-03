@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceFlow Pro - Basic Voice Recognition Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .control-group select,
+        .control-group input,
+        .control-group button {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select option {
+            background: #333;
+            color: white;
+        }
+
+        .control-group button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .control-group button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .status-label {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .status-value {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-value.active {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .status-value.inactive {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .transcription-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transcription-display h3 {
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .transcript-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .transcript-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .transcript-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .audio-visualizer {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .audio-visualizer h3 {
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .visualizer-canvas {
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .error-display {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .error-display.show {
+            display: block;
+        }
+
+        .error-title {
+            font-weight: bold;
+            color: #f44336;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 VoiceFlow Pro</h1>
+            <p>Advanced Voice Recognition Engine</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="language-select">Language</label>
+                <select id="language-select">
+                    <option value="en">English (US)</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ko">Korean</option>
+                    <option value="zh-CN">Chinese (Simplified)</option>
+                    <option value="ar">Arabic</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="engine-select">Recognition Engine</label>
+                <select id="engine-select">
+                    <option value="auto">Auto (Recommended)</option>
+                    <option value="web-speech">Web Speech API</option>
+                    <option value="whisper-tiny">Whisper Tiny</option>
+                    <option value="whisper-base">Whisper Base</option>
+                    <option value="whisper-small">Whisper Small</option>
+                    <option value="whisper-medium">Whisper Medium</option>
+                    <option value="whisper-large">Whisper Large</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="start-btn">Start Listening</button>
+            </div>
+
+            <div class="control-group">
+                <button id="stop-btn" disabled>Stop Listening</button>
+            </div>
+        </div>
+
+        <div class="status-display">
+            <div class="status-item">
+                <span class="status-label">Status</span>
+                <span class="status-value" id="status-value">Ready</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Current Engine</span>
+                <span class="status-value" id="engine-value">Not Started</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Audio Level</span>
+                <span class="status-value" id="audio-level">0%</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Language</span>
+                <span class="status-value" id="language-value">English</span>
+            </div>
+        </div>
+
+        <div class="audio-visualizer">
+            <h3>Audio Visualizer</h3>
+            <canvas id="visualizer-canvas" class="visualizer-canvas">
+                Audio visualization will appear here when listening
+            </canvas>
+        </div>
+
+        <div class="transcription-display">
+            <h3>Live Transcription</h3>
+            <div id="transcription-results">
+                <p style="opacity: 0.7; font-style: italic;">Start speaking to see transcription results here...</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-value" id="total-recognitions">0</span>
+                <div class="stat-label">Total Recognitions</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="average-accuracy">0%</span>
+                <div class="stat-label">Average Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="average-speed">0ms</span>
+                <div class="stat-label">Average Speed</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="error-rate">0%</span>
+                <div class="stat-label">Error Rate</div>
+            </div>
+        </div>
+
+        <div class="error-display" id="error-display">
+            <div class="error-title">Error</div>
+            <div id="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Include the voice recognition engine -->
+    <script type="module">
+        // In a real implementation, you would import the built module
+        // import { VoiceFlowPro, VoiceUtils, ModelType } from '../dist/index.js';
+        
+        // For this demo, we'll simulate the VoiceFlowPro API
+        class MockVoiceEngine {
+            constructor(config) {
+                this.config = config;
+                this.isListening = false;
+                this.currentLanguage = { code: 'en', name: 'English' };
+                this.currentEngine = null;
+                this.eventHandlers = new Map();
+            }
+
+            async initialize(language) {
+                console.log('Initializing VoiceFlow Pro Engine...');
+                
+                // Simulate initialization delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check for browser support
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    throw new Error('Speech recognition not supported in this browser');
+                }
+                
+                console.log('Engine initialized successfully');
+                return true;
+            }
+
+            async startListening(config) {
+                console.log('Starting voice recognition...');
+                
+                this.isListening = true;
+                this.currentEngine = this.determineEngine();
+                
+                // Start fake audio capture
+                this.startFakeAudioCapture();
+                
+                // Emit start event
+                this.emit('recognition:start');
+                
+                console.log(`Started listening with engine: ${this.currentEngine}`);
+            }
+
+            async stopListening() {
+                console.log('Stopping voice recognition...');
+                
+                this.isListening = false;
+                this.stopFakeAudioCapture();
+                
+                // Emit stop event
+                this.emit('recognition:stop');
+            }
+
+            async setLanguage(languageCode) {
+                console.log(`Setting language to: ${languageCode}`);
+                
+                const languageMap = {
+                    'en': { code: 'en', name: 'English' },
+                    'es': { code: 'es', name: 'Spanish' },
+                    'fr': { code: 'fr', name: 'French' },
+                    'de': { code: 'de', name: 'German' },
+                    'it': { code: 'it', name: 'Italian' },
+                    'pt': { code: 'pt', name: 'Portuguese' },
+                    'ja': { code: 'ja', name: 'Japanese' },
+                    'ko': { code: 'ko', name: 'Korean' },
+                    'zh-CN': { code: 'zh-CN', name: 'Chinese (Simplified)' },
+                    'ar': { code: 'ar', name: 'Arabic' }
+                };
+                
+                this.currentLanguage = languageMap[languageCode] || languageMap['en'];
+            }
+
+            determineEngine() {
+                const selectedEngine = document.getElementById('engine-select').value;
+                
+                if (selectedEngine === 'auto') {
+                    return 'web-speech'; // Default to Web Speech API
+                } else {
+                    return selectedEngine;
+                }
+            }
+
+            on(event, callback) {
+                if (!this.eventHandlers.has(event)) {
+                    this.eventHandlers.set(event, []);
+                }
+                this.eventHandlers.get(event).push(callback);
+            }
+
+            off(event, callback) {
+                const handlers = this.eventHandlers.get(event);
+                if (handlers) {
+                    const index = handlers.indexOf(callback);
+                    if (index > -1) {
+                        handlers.splice(index, 1);
+                    }
+                }
+            }
+
+            emit(event, data) {
+                const handlers = this.eventHandlers.get(event);
+                if (handlers) {
+                    handlers.forEach(handler => handler(data));
+                }
+            }
+
+            // Fake audio capture simulation
+            startFakeAudioCapture() {
+                this.audioInterval = setInterval(() => {
+                    const audioLevel = Math.random() * 0.8 + 0.1; // 0.1 to 0.9
+                    this.emit('audio:metrics', { volume: audioLevel });
+                    
+                    // Occasionally emit a transcription result
+                    if (Math.random() > 0.85) { // 15% chance
+                        const sampleTexts = [
+                            "Hello, how are you today?",
+                            "The weather is beautiful today.",
+                            "I am working on a voice recognition project.",
+                            "Technology is advancing rapidly.",
+                            "Voice recognition is becoming more accurate.",
+                            "This is a demonstration of the VoiceFlow Pro engine.",
+                            "The system supports multiple languages.",
+                            "Real-time transcription is now possible.",
+                            "Machine learning has improved speech recognition.",
+                            "We are building the future of voice interaction."
+                        ];
+                        
+                        const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+                        const confidence = 0.7 + Math.random() * 0.3; // 0.7 to 1.0
+                        
+                        const result = {
+                            transcript: randomText,
+                            confidence: confidence,
+                            isFinal: true,
+                            timestamp: Date.now(),
+                            language: this.currentLanguage.code,
+                            alternatives: [{ transcript: randomText, confidence: confidence }],
+                            metadata: {
+                                audioLevel: audioLevel,
+                                signalQuality: confidence,
+                                processingTime: Math.random() * 200 + 50,
+                                modelUsed: this.currentEngine,
+                                noiseLevel: Math.random() * 0.3
+                            }
+                        };
+                        
+                        this.emit('recognition:result', result);
+                    }
+                }, 500); // Update every 500ms
+            }
+
+            stopFakeAudioCapture() {
+                if (this.audioInterval) {
+                    clearInterval(this.audioInterval);
+                    this.audioInterval = null;
+                }
+            }
+
+            getAudioLevel() {
+                return Math.random(); // Mock implementation
+            }
+
+            get isSupported() {
+                return true;
+            }
+
+            get supportedLanguages() {
+                return [
+                    { code: 'en', name: 'English' },
+                    { code: 'es', name: 'Spanish' },
+                    { code: 'fr', name: 'French' },
+                    { code: 'de', name: 'German' },
+                    { code: 'it', name: 'Italian' },
+                    { code: 'pt', name: 'Portuguese' },
+                    { code: 'ja', name: 'Japanese' },
+                    { code: 'ko', name: 'Korean' },
+                    { code: 'zh-CN', name: 'Chinese (Simplified)' },
+                    { code: 'ar', name: 'Arabic' }
+                ];
+            }
+
+            getStatistics() {
+                return {
+                    totalRecognitions: Math.floor(Math.random() * 50),
+                    averageAccuracy: 0.85 + Math.random() * 0.15,
+                    averageSpeed: 150 + Math.random() * 100,
+                    languageUsage: { 'en': 20, 'es': 10 },
+                    engineUsage: { 'web-speech': 25, 'whisper-base': 5 },
+                    errorRate: Math.random() * 0.1,
+                    uptime: Date.now(),
+                    peakMemoryUsage: 50 + Math.random() * 30,
+                    totalProcessingTime: 5000 + Math.random() * 2000
+                };
+            }
+        }
+
+        // Initialize the voice recognition engine
+        let voiceEngine = null;
+        let stats = {
+            totalRecognitions: 0,
+            totalAccuracy: 0,
+            totalSpeed: 0,
+            errorCount: 0,
+            results: []
+        };
+
+        const statusValue = document.getElementById('status-value');
+        const engineValue = document.getElementById('engine-value');
+        const audioLevel = document.getElementById('audio-level');
+        const languageValue = document.getElementById('language-value');
+        const transcriptionResults = document.getElementById('transcription-results');
+        const errorDisplay = document.getElementById('error-display');
+        const errorMessage = document.getElementById('error-message');
+
+        // Update status display
+        function updateStatus(status, isActive = false) {
+            statusValue.textContent = status;
+            statusValue.className = `status-value ${isActive ? 'active' : 'inactive'}`;
+        }
+
+        function updateEngine(engine) {
+            const engineNames = {
+                'web-speech': 'Web Speech API',
+                'whisper-tiny': 'Whisper Tiny',
+                'whisper-base': 'Whisper Base',
+                'whisper-small': 'Whisper Small',
+                'whisper-medium': 'Whisper Medium',
+                'whisper-large': 'Whisper Large'
+            };
+            engineValue.textContent = engineNames[engine] || engine;
+        }
+
+        function updateAudioLevel(level) {
+            const percentage = Math.round(level * 100);
+            audioLevel.textContent = `${percentage}%`;
+            
+            // Update visual indicator
+            audioLevel.style.background = `rgba(76, 175, 80, ${level})`;
+        }
+
+        function updateLanguage(language) {
+            languageValue.textContent = language.name;
+        }
+
+        function addTranscriptionResult(result) {
+            const transcriptItem = document.createElement('div');
+            transcriptItem.className = 'transcript-item';
+            
+            const transcriptText = document.createElement('div');
+            transcriptText.className = 'transcript-text';
+            transcriptText.textContent = result.transcript;
+            
+            const transcriptMeta = document.createElement('div');
+            transcriptMeta.className = 'transcript-meta';
+            
+            const confidence = document.createElement('span');
+            confidence.textContent = `Confidence: ${Math.round(result.confidence * 100)}%`;
+            
+            const timestamp = document.createElement('span');
+            timestamp.textContent = new Date(result.timestamp).toLocaleTimeString();
+            
+            const language = document.createElement('span');
+            language.textContent = `Language: ${result.language}`;
+            
+            transcriptMeta.appendChild(confidence);
+            transcriptMeta.appendChild(timestamp);
+            transcriptMeta.appendChild(language);
+            
+            transcriptItem.appendChild(transcriptText);
+            transcriptItem.appendChild(transcriptMeta);
+            
+            transcriptionResults.insertBefore(transcriptItem, transcriptionResults.firstChild);
+            
+            // Keep only the last 10 results
+            while (transcriptionResults.children.length > 11) { // +1 for the placeholder
+                transcriptionResults.removeChild(transcriptionResults.lastChild);
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorDisplay.classList.add('show');
+            setTimeout(() => {
+                errorDisplay.classList.remove('show');
+            }, 5000);
+        }
+
+        function updateStats() {
+            const engineStats = voiceEngine.getStatistics();
+            
+            document.getElementById('total-recognitions').textContent = stats.totalRecognitions;
+            document.getElementById('average-accuracy').textContent = `${Math.round(stats.totalAccuracy / stats.totalRecognitions * 100)}%`;
+            document.getElementById('average-speed').textContent = `${Math.round(stats.totalSpeed / stats.totalRecognitions)}ms`;
+            document.getElementById('error-rate').textContent = `${Math.round(stats.errorCount / stats.totalRecognitions * 100)}%`;
+        }
+
+        // Event listeners
+        document.getElementById('start-btn').addEventListener('click', async () => {
+            try {
+                if (!voiceEngine) {
+                    voiceEngine = new MockVoiceEngine();
+                    await voiceEngine.initialize();
+                    
+                    // Set up event listeners
+                    voiceEngine.on('recognition:start', () => {
+                        updateStatus('Listening', true);
+                        document.getElementById('start-btn').disabled = true;
+                        document.getElementById('stop-btn').disabled = false;
+                    });
+                    
+                    voiceEngine.on('recognition:stop', () => {
+                        updateStatus('Stopped', false);
+                        document.getElementById('start-btn').disabled = false;
+                        document.getElementById('stop-btn').disabled = true;
+                    });
+                    
+                    voiceEngine.on('recognition:result', (result) => {
+                        addTranscriptionResult(result);
+                        stats.totalRecognitions++;
+                        stats.totalAccuracy += result.confidence;
+                        stats.totalSpeed += result.metadata.processingTime;
+                        updateStats();
+                    });
+                    
+                    voiceEngine.on('recognition:error', (error) => {
+                        showError(error.message);
+                        stats.errorCount++;
+                        updateStats();
+                    });
+                    
+                    voiceEngine.on('audio:metrics', (metrics) => {
+                        updateAudioLevel(metrics.volume);
+                    });
+                    
+                    voiceEngine.on('language:detected', (language) => {
+                        updateLanguage(language);
+                    });
+                }
+                
+                await voiceEngine.startListening();
+            } catch (error) {
+                console.error('Failed to start voice recognition:', error);
+                showError(`Failed to start: ${error.message}`);
+            }
+        });
+
+        document.getElementById('stop-btn').addEventListener('click', async () => {
+            try {
+                if (voiceEngine) {
+                    await voiceEngine.stopListening();
+                }
+            } catch (error) {
+                console.error('Failed to stop voice recognition:', error);
+                showError(`Failed to stop: ${error.message}`);
+            }
+        });
+
+        document.getElementById('language-select').addEventListener('change', async (event) => {
+            try {
+                if (voiceEngine) {
+                    await voiceEngine.setLanguage(event.target.value);
+                }
+            } catch (error) {
+                console.error('Failed to set language:', error);
+                showError(`Failed to set language: ${error.message}`);
+            }
+        });
+
+        // Initialize language display
+        const selectedLanguage = document.getElementById('language-select').value;
+        updateLanguage({ name: 'English', code: selectedLanguage });
+
+        console.log('VoiceFlow Pro Basic Example loaded successfully!');
+        console.log('Features available:');
+        console.log('- Web Speech API integration');
+        console.log('- Whisper.js offline processing (simulated)');
+        console.log('- 150+ language support (demo: 10 languages)');
+        console.log('- Real-time transcription');
+        console.log('- Noise reduction');
+        console.log('- Audio visualization');
+        console.log('- Performance monitoring');
+        console.log('- Plugin system ready');
+    </script>
+</body>
+</html>

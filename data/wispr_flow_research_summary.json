@@ -1,0 +1,113 @@
+{
+  "product_overview": {
+    "name": "Wispr Flow",
+    "tagline": "Effortless Voice Dictation",
+    "description": "AI-powered voice dictation tool that transforms speech into clear, polished writing across any application and device"
+  },
+  "core_features": [
+    "AI-powered voice-to-text conversion",
+    "AI Auto Edits (filler word removal, typo correction, formatting)",
+    "Cross-platform compatibility (Mac, Windows, iPhone)",
+    "Personal dictionary with learning capabilities",
+    "Snippet library for voice shortcuts",
+    "Smart tone adjustment based on application context",
+    "Command Mode integration (ChatGPT, Claude, Perplexity)",
+    "100+ language support with automatic detection",
+    "Privacy mode for enhanced security",
+    "Cross-device synchronization"
+  ],
+  "pricing_plans": {
+    "basic": {
+      "price": "Free",
+      "word_limits": "2,000/week (desktop), 1,000/week (iPhone)",
+      "key_features": ["Voice-typing", "Dictionary support", "100+ languages", "Privacy mode", "HIPAA-ready"]
+    },
+    "pro": {
+      "price": "$15/month or $12/month (annual)",
+      "features": ["Everything in Basic", "Unlimited words", "Command Mode", "Priority support", "Early access to features"],
+      "trial": "2 weeks free"
+    },
+    "teams": {
+      "price": "$12/user/month or $10/user/month (annual)",
+      "minimum_seats": 3,
+      "features": ["Everything in Pro", "Centralized billing", "Admin controls", "Team dictionary", "Shared snippets"]
+    },
+    "enterprise": {
+      "price": "Contact for pricing",
+      "features": ["Everything in Teams", "SOC 2 Type II compliance", "SSO/SAML", "Bulk pricing", "Security controls", "MSA & DPA"]
+    }
+  },
+  "supported_platforms": {
+    "current": ["Mac (macOS)", "Windows", "iPhone (iOS)"],
+    "coming_soon": ["Android"],
+    "integration": ["All applications", "Gmail", "Google Docs", "Slack", "Messages", "Superhuman"]
+  },
+  "languages": {
+    "count": "100+",
+    "features": ["Automatic detection", "Seamless switching", "Global accessibility"]
+  },
+  "target_audience": {
+    "primary": ["Professionals", "Content creators", "Students", "Developers", "Customer support", "Legal professionals", "Accessibility users"],
+    "specific_roles": ["CEOs", "Founders", "Startup advisors", "Writers", "Directors", "Consultants"]
+  },
+  "performance_metrics": {
+    "speed": "220 words per minute (4x faster than typing)",
+    "typical_typing_speed": "40-50 WPM",
+    "reported_improvements": {
+      "desktop_communication": "2-3x faster",
+      "mobile_communication": "5x faster",
+      "email_composition": "120x faster",
+      "brainstorming": "8x faster",
+      "daily_time_savings": "1+ hours"
+    }
+  },
+  "key_differentiators": [
+    "AI Auto Edits beyond basic dictation",
+    "Cross-application integration",
+    "Personal learning and adaptation",
+    "Contextual tone adjustment",
+    "Mobile-first design with one-handed operation",
+    "Professional-grade security and compliance",
+    "Maintains authentic voice while improving clarity",
+    "Voice-first productivity approach"
+  ],
+  "security_compliance": {
+    "hipaa_eligible": true,
+    "soc_2_type_ii": "Enterprise plans only",
+    "zero_data_retention": "Enterprise option",
+    "privacy_mode": "Available",
+    "data_controls": "Enterprise level"
+  },
+  "user_testimonials": [
+    {
+      "user": "Gaurav Vohra",
+      "role": "Startup Advisor & Growth Leader",
+      "impact": "2-3x faster communication, 1+ hours daily savings",
+      "quote": "I read, think, speak. That's the loop now."
+    },
+    {
+      "user": "Anthony Troli",
+      "role": "Writer & Director",
+      "impact": "120x faster email composition, 8x faster brainstorming",
+      "quote": "Wispr Flow allows me to work at the speed that I can think."
+    },
+    {
+      "user": "Rahul Vohra",
+      "role": "CEO, Superhuman",
+      "impact": "2-3x faster overall productivity",
+      "quote": "I'm at least 2-3x faster with Wispr Flow. I estimate it's saving me 1+ hours a day."
+    }
+  ],
+  "research_metadata": {
+    "pages_analyzed": [
+      "https://wisprflow.ai/",
+      "https://wisprflow.ai/pricing",
+      "https://wisprflow.ai/case-study/gaurav-vohra",
+      "https://wisprflow.ai/case-study/anthony-troli",
+      "https://docs.wisprflow.ai/"
+    ],
+    "screenshots_captured": ["wispr_flow_main_page.png"],
+    "extraction_date": "2025-10-24",
+    "data_sources": ["Main website", "Pricing page", "Case studies", "Documentation", "Help center"]
+  }
+}

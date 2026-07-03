@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="VoiceFlow Pro" Language="1033" Version="1.0.0.0" Manufacturer="VoiceFlow Pro Team" UpgradeCode="12345678-1234-1234-1234-123456789012">
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+        
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        
+        <MediaTemplate EmbedCab="yes" />
+        
+        <Feature Id="ProductFeature" Title="VoiceFlow Pro" Level="1">
+            <ComponentGroupRef Id="ProductComponents" />
+            <ComponentRef Id="ApplicationShortcut" />
+            <ComponentRef Id="DesktopShortcut" />
+        </Feature>
+        
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="VoiceFlow Pro" />
+            </Directory>
+            
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="VoiceFlow Pro"/>
+            </Directory>
+            
+            <Directory Id="DesktopFolder" Name="Desktop" />
+        </Directory>
+        
+        <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+            <Component Id="MainExecutable" Guid="*">
+                <File Id="VoiceFlowProEXE" Source="VoiceFlow Pro.exe" KeyPath="yes" Checksum="yes">
+                    <Shortcut Id="StartMenuShortcut"
+                              Directory="ApplicationProgramsFolder"
+                              Name="VoiceFlow Pro"
+                              Description="VoiceFlow Pro - Cross-platform Desktop Voice Assistant"
+                              WorkingDirectory="INSTALLFOLDER"
+                              Icon="VoiceFlowProIcon.exe"
+                              IconIndex="0" />
+                </File>
+                
+                <ServiceInstall Id="VoiceFlowProService"
+                                Type="ownProcess"
+                                Name="VoiceFlowPro"
+                                DisplayName="VoiceFlow Pro"
+                                Description="VoiceFlow Pro Background Service"
+                                Start="auto"
+                                Account="LocalSystem"
+                                ErrorControl="ignore"
+                                Interactive="no" />
+                
+                <ServiceControl Id="StartVoiceFlowProService"
+                                Start="install"
+                                Stop="both"
+                                Remove="uninstall"
+                                Name="VoiceFlowPro"
+                                Wait="yes" />
+            </Component>
+            
+            <Component Id="Resources" Guid="*">
+                <File Source="resources/*" />
+                <File Source="bin/*" />
+            </Component>
+            
+            <Component Id="SystemTrayIcon" Guid="*">
+                <File Source="VoiceFlow Pro.exe" />
+            </Component>
+            
+            <Component Id="UninstallRegistry" Guid="*">
+                <RegistryKey Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\VoiceFlow Pro">
+                    <RegistryValue Name="DisplayName" Type="string" Value="VoiceFlow Pro" />
+                    <RegistryValue Name="DisplayVersion" Type="string" Value="1.0.0" />
+                    <RegistryValue Name="Publisher" Type="string" Value="VoiceFlow Pro Team" />
+                    <RegistryValue Name="UninstallString" Type="string" Value="[System64Folder]msiexec.exe /x [ProductCode]" />
+                </RegistryKey>
+            </Component>
+        </ComponentGroup>
+        
+        <Component Id="ApplicationShortcut" Directory="ApplicationProgramsFolder" Guid="*">
+            <Shortcut Id="ApplicationStartMenuShortcut"
+                      Name="VoiceFlow Pro"
+                      Description="VoiceFlow Pro - Cross-platform Desktop Voice Assistant"
+                      Target="[#VoiceFlowProEXE]"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\VoiceFlow Pro" Name="installed" Type="integer" Value="1" />
+        </Component>
+        
+        <Component Id="DesktopShortcut" Directory="DesktopFolder" Guid="*">
+            <Shortcut Id="DesktopApplicationShortcut"
+                      Name="VoiceFlow Pro"
+                      Description="VoiceFlow Pro - Cross-platform Desktop Voice Assistant"
+                      Target="[#VoiceFlowProEXE]"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <RegistryValue Root="HKCU" Key="Software\VoiceFlow Pro" Name="desktop_shortcut" Type="integer" Value="1" />
+        </Component>
+        
+        <Icon Id="VoiceFlowProIcon.exe" SourceFile="VoiceFlow Pro.exe" />
+        
+        <Property Id="ARPPRODUCTICON" Value="VoiceFlowProIcon.exe" />
+        <Property Id="ARPHELPLINK" Value="https://voiceflow.pro/support" />
+        <Property Id="ARPURLINFOABOUT" Value="https://voiceflow.pro" />
+        <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
+        <Property Id="ARPNOREPAIR" Value="1" />
+        <Property Id="ARPNOMODIFY" Value="1" />
+    </Product>
+</Wix>
