@@ -5,6 +5,16 @@
  * so that `declare module` creates ambient declarations, not augmentations.
  */
 
+declare module 'expo-device' {
+  export const brand: string | null;
+  export const manufacturer: string | null;
+  export const modelName: string | null;
+  export const osName: string | null;
+  export const osVersion: string | null;
+  export const isDevice: boolean;
+  export const deviceName: string | null;
+}
+
 declare module '@react-native-firebase/crashlytics' {
   interface Crashlytics {
     setCrashlyticsCollectionEnabled(enabled: boolean): Promise<null>;

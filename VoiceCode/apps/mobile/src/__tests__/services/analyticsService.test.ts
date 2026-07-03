@@ -1,95 +1,121 @@
 // VoiceCode Mobile - Analytics Service Tests
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import analyticsService from '../../services/analyticsService';
-import { logEvent, setUserProperties } from '../../config/firebase';
 
-jest.mock('../../config/firebase');
+const mockInsert = jest.fn(() => Promise.resolve({ data: null, error: null }));
+const mockFrom = jest.fn(() => ({ insert: mockInsert }));
+const mockGetCurrentUser = jest.fn<() => Promise<{ id: string } | null>>();
+
+jest.mock('../../services/supabase.service', () => ({
+  __esModule: true,
+  getSupabaseService: () => ({ from: mockFrom }),
+  getCurrentUser: () => mockGetCurrentUser(),
+}));
+
+import { getAnalyticsService } from '../../services/analyticsService';
 
 describe('AnalyticsService', () => {
+  const service = getAnalyticsService();
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetCurrentUser.mockResolvedValue({ id: 'user-123' });
   });
 
   describe('trackEvent', () => {
-    it('should track custom event', async () => {
-      await analyticsService.trackEvent('recording_started', { duration: 120 });
-
-      expect(logEvent).toHaveBeenCalledWith('recording_started', { duration: 120 });
-    });
-
-    it('should track event without parameters', async () => {
-      await analyticsService.trackEvent('app_opened');
-
-      expect(logEvent).toHaveBeenCalledWith('app_opened', undefined);
-    });
-  });
-
-  describe('trackScreen', () => {
-    it('should track screen view', async () => {
-      await analyticsService.trackScreen('RecordingScreen');
-
-      expect(logEvent).toHaveBeenCalledWith('screen_view', {
-        screen_name: 'RecordingScreen',
-      });
-    });
-  });
-
-  describe('setUser', () => {
-    it('should set user properties', async () => {
-      await analyticsService.setUser('user-123', {
-        tier: 'pro',
-        signup_date: '2024-01-01',
+    it('inserts an analytics event scoped to the current user', async () => {
+      await service.trackEvent({
+        event_type: 'transcript_created',
+        event_data: { transcript_id: 't-1' },
+        metadata: { source: 'test' },
       });
 
-      expect(setUserProperties).toHaveBeenCalledWith({
+      expect(mockFrom).toHaveBeenCalledWith('analytics_events');
+      expect(mockInsert).toHaveBeenCalledWith({
         user_id: 'user-123',
-        tier: 'pro',
-        signup_date: '2024-01-01',
+        event_type: 'transcript_created',
+        event_data: { transcript_id: 't-1' },
+        metadata: { source: 'test' },
       });
+    });
+
+    it('does not insert when there is no authenticated user', async () => {
+      mockGetCurrentUser.mockResolvedValue(null);
+
+      await service.trackEvent({ event_type: 'audio_uploaded' });
+
+      expect(mockInsert).not.toHaveBeenCalled();
     });
   });
 
-  describe('trackRecording', () => {
-    it('should track recording metrics', async () => {
-      await analyticsService.trackRecording({
-        duration: 300,
-        fileSize: 1024000,
-        quality: 'high',
-      });
-
-      expect(logEvent).toHaveBeenCalledWith('recording_completed', {
-        duration: 300,
-        file_size: 1024000,
-        quality: 'high',
-      });
-    });
-  });
-
-  describe('trackTranscription', () => {
-    it('should track transcription metrics', async () => {
-      await analyticsService.trackTranscription({
-        wordCount: 500,
-        confidence: 0.95,
+  describe('trackTranscript', () => {
+    it('records a transcript_created event with transcript details', async () => {
+      await service.trackTranscript({
+        id: 't-9',
+        user_id: 'user-123',
+        audio_url: 'file://a.m4a',
+        text: 'hello',
+        content: 'hello',
+        duration: 42,
         language: 'en',
+        professional_mode: 'legal',
+        word_count: 1,
+        confidence: 0.9,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
       });
 
-      expect(logEvent).toHaveBeenCalledWith('transcription_completed', {
-        word_count: 500,
-        confidence: 0.95,
-        language: 'en',
+      expect(mockInsert).toHaveBeenCalledWith({
+        user_id: 'user-123',
+        event_type: 'transcript_created',
+        event_data: {
+          transcript_id: 't-9',
+          language: 'en',
+          professional_mode: 'legal',
+          duration: 42,
+          word_count: 1,
+          confidence: 0.9,
+        },
+        metadata: {},
       });
     });
   });
 
-  describe('trackError', () => {
-    it('should track error events', async () => {
-      const error = new Error('Test error');
-      await analyticsService.trackError(error, 'RecordingScreen');
+  describe('trackAudioUpload', () => {
+    it('records an audio_uploaded event with file details', async () => {
+      await service.trackAudioUpload({ id: 'a-1', format: 'm4a', size: 2048 });
 
-      expect(logEvent).toHaveBeenCalledWith('error_occurred', {
-        error_message: 'Test error',
-        screen: 'RecordingScreen',
+      expect(mockInsert).toHaveBeenCalledWith({
+        user_id: 'user-123',
+        event_type: 'audio_uploaded',
+        event_data: { audio_id: 'a-1', format: 'm4a', size: 2048 },
+        metadata: {},
+      });
+    });
+  });
+
+  describe('trackExport', () => {
+    it('records an export_<format> event', async () => {
+      await service.trackExport('pdf');
+
+      expect(mockInsert).toHaveBeenCalledWith({
+        user_id: 'user-123',
+        event_type: 'export_pdf',
+        event_data: {},
+        metadata: {},
+      });
+    });
+  });
+
+  describe('trackAIFeature', () => {
+    it('records an ai_<feature> event', async () => {
+      await service.trackAIFeature('summary');
+
+      expect(mockInsert).toHaveBeenCalledWith({
+        user_id: 'user-123',
+        event_type: 'ai_summary',
+        event_data: {},
+        metadata: {},
       });
     });
   });

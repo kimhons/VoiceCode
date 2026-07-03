@@ -1,63 +1,29 @@
 // VoiceCode Mobile - Device Service Tests
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
+import { describe, it, expect } from '@jest/globals';
+import { getDeviceInfo, getAppInfo } from '../../services/deviceService';
 
-jest.mock('expo-device');
-jest.mock('expo-constants');
+// expo-device and expo-constants are mocked in jest.setup.js with static values.
 
-describe('DeviceService', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
+describe('deviceService', () => {
   describe('getDeviceInfo', () => {
-    it('should return device information', async () => {
-      // const info = await deviceService.getDeviceInfo();
-      // expect(info.deviceName).toBeDefined();
-      // expect(info.osName).toBeDefined();
-      // expect(info.osVersion).toBeDefined();
-      expect(true).toBe(true);
+    it('returns brand, model, and OS details from the device', async () => {
+      const info = await getDeviceInfo();
+
+      expect(info.brand).toBe('Apple');
+      expect(info.modelName).toBe('iPhone 17 Pro');
+      expect(info.osName).toBe('iOS');
+      expect(info.osVersion).toBe('17.0');
     });
   });
 
   describe('getAppInfo', () => {
-    it('should return app information', async () => {
-      // const info = await deviceService.getAppInfo();
-      // expect(info.version).toBeDefined();
-      // expect(info.buildNumber).toBeDefined();
-      expect(true).toBe(true);
-    });
-  });
+    it('returns app name, version, and build number from Expo config', async () => {
+      const info = await getAppInfo();
 
-  describe('isTablet', () => {
-    it('should detect tablet device', async () => {
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('isEmulator', () => {
-    it('should detect emulator', async () => {
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('getUniqueId', () => {
-    it('should return unique device ID', async () => {
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('getBatteryLevel', () => {
-    it('should return battery level', async () => {
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('getStorageInfo', () => {
-    it('should return storage information', async () => {
-      expect(true).toBe(true);
+      expect(info.name).toBe('VoiceCode');
+      expect(info.version).toBe('1.0.0');
+      expect(info.buildNumber).toBe('1');
     });
   });
 });

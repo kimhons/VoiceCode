@@ -70,12 +70,121 @@ jest.mock('expo-constants', () => ({
   __esModule: true,
   default: {
     expoConfig: {
+      name: 'VoiceCode',
       version: '1.0.0',
       ios: { buildNumber: '1' },
       android: { versionCode: 1 },
     },
     manifest: {},
   },
+}));
+
+// expo-device is a per-platform native dependency that is not installed in this
+// workspace; provide a virtual mock so deviceService can read static device fields.
+jest.mock(
+  'expo-device',
+  () => ({
+    __esModule: true,
+    brand: 'Apple',
+    manufacturer: 'Apple',
+    modelName: 'iPhone 17 Pro',
+    osName: 'iOS',
+    osVersion: '17.0',
+    isDevice: true,
+    deviceName: "Honour's iPhone",
+  }),
+  { virtual: true }
+);
+
+// @react-native-firebase/* are per-platform native deps that aren't installed here.
+// Virtual-mock the four submodules so src/config/firebase.ts (and anything importing
+// it) can load under jest. Each default export is a factory returning the service.
+jest.mock(
+  '@react-native-firebase/crashlytics',
+  () => ({
+    __esModule: true,
+    default: () => ({
+      setCrashlyticsCollectionEnabled: jest.fn(() => Promise.resolve(null)),
+      recordError: jest.fn(),
+      log: jest.fn(),
+      setUserId: jest.fn(),
+      setAttribute: jest.fn(() => Promise.resolve(null)),
+    }),
+  }),
+  { virtual: true }
+);
+
+jest.mock(
+  '@react-native-firebase/analytics',
+  () => ({
+    __esModule: true,
+    default: () => ({
+      setAnalyticsCollectionEnabled: jest.fn(() => Promise.resolve()),
+      logEvent: jest.fn(() => Promise.resolve()),
+      setUserProperties: jest.fn(() => Promise.resolve()),
+      logScreenView: jest.fn(() => Promise.resolve()),
+    }),
+  }),
+  { virtual: true }
+);
+
+jest.mock(
+  '@react-native-firebase/perf',
+  () => ({
+    __esModule: true,
+    default: () => ({
+      startTrace: jest.fn(() =>
+        Promise.resolve({
+          start: jest.fn(() => Promise.resolve(null)),
+          stop: jest.fn(() => Promise.resolve(null)),
+          putMetric: jest.fn(),
+          putAttribute: jest.fn(),
+        })
+      ),
+    }),
+  }),
+  { virtual: true }
+);
+
+jest.mock(
+  '@react-native-firebase/remote-config',
+  () => {
+    const makeValue = (value) => ({
+      asBoolean: () => Boolean(value),
+      asNumber: () => Number(value),
+      asString: () => String(value),
+    });
+    return {
+      __esModule: true,
+      default: () => ({
+        setDefaults: jest.fn(() => Promise.resolve(null)),
+        fetchAndActivate: jest.fn(() => Promise.resolve(true)),
+        getValue: jest.fn(() => makeValue('')),
+      }),
+    };
+  },
+  { virtual: true }
+);
+
+// jsPDF instantiates a text encoder that jest's node env can't build ("Unknown
+// encoding: latin1") at import time. Mock it with the surface exportService uses.
+jest.mock('jspdf', () => ({
+  __esModule: true,
+  jsPDF: jest.fn().mockImplementation(() => ({
+    internal: { pageSize: { getWidth: () => 210, getHeight: () => 297 } },
+    setFontSize: jest.fn(),
+    setFont: jest.fn(),
+    setDrawColor: jest.fn(),
+    setTextColor: jest.fn(),
+    text: jest.fn(),
+    line: jest.fn(),
+    addPage: jest.fn(),
+    setPage: jest.fn(),
+    getNumberOfPages: jest.fn(() => 1),
+    splitTextToSize: jest.fn((text) => [text]),
+    save: jest.fn(),
+    output: jest.fn(() => 'pdf'),
+  })),
 }));
 
 // Silence "Native animated module is not available" from Animated-based components (RN 0.76 path)
