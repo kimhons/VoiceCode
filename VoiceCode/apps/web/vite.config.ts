@@ -22,6 +22,10 @@ export default defineConfig({
   build: {
     // Optimize chunk splitting for better caching
     rollupOptions: {
+      // @sentry/react is an OPTIONAL dynamic import (see error-tracking.service.ts):
+      // it's loaded only when a Sentry DSN is configured and wrapped in try/catch.
+      // Mark it external so the build doesn't fail resolving an intentionally-absent dep.
+      external: ['@sentry/react'],
       output: {
         manualChunks: {
           // Vendor chunks
