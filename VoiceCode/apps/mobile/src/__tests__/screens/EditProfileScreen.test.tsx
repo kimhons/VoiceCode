@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import EditProfileScreen from '../../screens/profile/EditProfileScreen';
 
 describe('EditProfileScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('EditProfileScreen', () => {
   describe('Rendering', () => {
     it('should render edit profile screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('edit-profile-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('EditProfileScreen', () => {
 
     it('should display current avatar', () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('avatar-image')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('EditProfileScreen', () => {
   describe('Avatar', () => {
     it('should change avatar from gallery', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('change-avatar'));
@@ -45,7 +46,7 @@ describe('EditProfileScreen', () => {
 
     it('should take photo for avatar', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('change-avatar'));
@@ -54,7 +55,7 @@ describe('EditProfileScreen', () => {
 
     it('should remove avatar', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('change-avatar'));
@@ -65,7 +66,7 @@ describe('EditProfileScreen', () => {
   describe('Name', () => {
     it('should update display name', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('name-input'), 'New Name');
@@ -73,7 +74,7 @@ describe('EditProfileScreen', () => {
 
     it('should validate name', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('name-input'), '');
@@ -87,7 +88,7 @@ describe('EditProfileScreen', () => {
   describe('Save', () => {
     it('should save profile changes', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('name-input'), 'New Name');
@@ -99,7 +100,7 @@ describe('EditProfileScreen', () => {
 
     it('should go back after save', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('name-input'), 'New Name');
@@ -114,7 +115,7 @@ describe('EditProfileScreen', () => {
   describe('Cancel', () => {
     it('should go back on cancel', () => {
       const { getByTestId } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('cancel-button'));
@@ -124,7 +125,7 @@ describe('EditProfileScreen', () => {
 
     it('should confirm discard if unsaved changes', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockEditProfileScreen navigation={mockNavigation as any} />
+        <EditProfileScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('name-input'), 'New Name');
@@ -135,8 +136,3 @@ describe('EditProfileScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockEditProfileScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import WhatsNewScreen from '../../screens/onboarding/WhatsNewScreen';
 
 describe('WhatsNewScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('WhatsNewScreen', () => {
   describe('Rendering', () => {
     it('should render whats new screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('whats-new-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('WhatsNewScreen', () => {
 
     it('should display version number', () => {
       const { getByText } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/version/i)).toBeTruthy();
@@ -36,7 +37,7 @@ describe('WhatsNewScreen', () => {
   describe('Features', () => {
     it('should display new features list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('features-list')).toBeTruthy();
@@ -44,7 +45,7 @@ describe('WhatsNewScreen', () => {
 
     it('should display feature descriptions', () => {
       const { getByTestId } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('feature-1')).toBeTruthy();
@@ -54,7 +55,7 @@ describe('WhatsNewScreen', () => {
   describe('Navigation', () => {
     it('should dismiss screen', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('dismiss-button'));
@@ -64,7 +65,7 @@ describe('WhatsNewScreen', () => {
 
     it('should navigate to feature', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('try-feature-1'));
@@ -76,7 +77,7 @@ describe('WhatsNewScreen', () => {
   describe('Pagination', () => {
     it('should swipe between pages', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       // Simulate swipe
@@ -85,15 +86,10 @@ describe('WhatsNewScreen', () => {
 
     it('should show page indicators', () => {
       const { getByTestId } = renderWithProviders(
-        <MockWhatsNewScreen navigation={mockNavigation as any} />
+        <WhatsNewScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('page-indicators')).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockWhatsNewScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

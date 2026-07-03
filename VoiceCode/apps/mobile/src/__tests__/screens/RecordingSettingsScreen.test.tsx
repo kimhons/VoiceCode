@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import { RecordingSettingsScreen } from '../../screens/settings/RecordingSettingsScreen';
 
 describe('RecordingSettingsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('RecordingSettingsScreen', () => {
   describe('Rendering', () => {
     it('should render recording settings', () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('recording-settings-screen')).toBeTruthy();
@@ -28,7 +29,7 @@ describe('RecordingSettingsScreen', () => {
   describe('Quality Settings', () => {
     it('should select high quality', async () => {
       const { getByText } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/high/i));
@@ -36,7 +37,7 @@ describe('RecordingSettingsScreen', () => {
 
     it('should select medium quality', async () => {
       const { getByText } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/medium/i));
@@ -44,7 +45,7 @@ describe('RecordingSettingsScreen', () => {
 
     it('should select low quality', async () => {
       const { getByText } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/low/i));
@@ -54,7 +55,7 @@ describe('RecordingSettingsScreen', () => {
   describe('Format Settings', () => {
     it('should select audio format', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('format-selector'));
@@ -65,7 +66,7 @@ describe('RecordingSettingsScreen', () => {
   describe('Language Settings', () => {
     it('should select default language', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('language-selector'));
@@ -76,7 +77,7 @@ describe('RecordingSettingsScreen', () => {
   describe('Processing Settings', () => {
     it('should toggle noise cancellation', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('noise-cancellation-toggle'), 'valueChange', true);
@@ -84,7 +85,7 @@ describe('RecordingSettingsScreen', () => {
 
     it('should toggle auto-pause', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('auto-pause-toggle'), 'valueChange', true);
@@ -92,7 +93,7 @@ describe('RecordingSettingsScreen', () => {
 
     it('should toggle speaker detection', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('speaker-detection-toggle'), 'valueChange', true);
@@ -102,7 +103,7 @@ describe('RecordingSettingsScreen', () => {
   describe('Storage Settings', () => {
     it('should toggle keep audio', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('keep-audio-toggle'), 'valueChange', true);
@@ -110,7 +111,7 @@ describe('RecordingSettingsScreen', () => {
 
     it('should set audio retention period', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockRecordingSettingsScreen navigation={mockNavigation as any} />
+        <RecordingSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('retention-selector'));
@@ -118,8 +119,3 @@ describe('RecordingSettingsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockRecordingSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

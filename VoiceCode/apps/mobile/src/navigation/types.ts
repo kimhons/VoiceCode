@@ -55,7 +55,7 @@ export type HomeStackParamList = {
   ExportOptions: { transcriptId: string; transcriptTitle: string; transcriptText: string };
   ShareTranscript: { transcriptId: string; transcriptTitle: string };
   TemplateSelection: { transcriptId: string; transcriptTitle: string; transcriptText: string };
-  BatchExport: undefined;
+  BatchExport: { transcriptIds?: string[] } | undefined;
   LiveCollaboration: { transcriptId?: string; transcriptTitle?: string };
 };
 

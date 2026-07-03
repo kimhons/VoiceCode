@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-const AccessibilitySettingsScreen: React.FC = () => {
+interface AccessibilitySettingsScreenProps {
+  navigation?: { goBack: () => void; navigate: (screen: string) => void };
+}
+
+const AccessibilitySettingsScreen: React.FC<AccessibilitySettingsScreenProps> = ({ navigation }) => {
   const [voiceOverEnabled, setVoiceOverEnabled] = useState(true);
   const [largeTextEnabled, setLargeTextEnabled] = useState(false);
+  const [textSize, setTextSize] = useState(1);
+  const [boldTextEnabled, setBoldTextEnabled] = useState(false);
   const [highContrastEnabled, setHighContrastEnabled] = useState(false);
   const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
   const [hapticFeedback, setHapticFeedback] = useState(true);
   const [audioDescriptions, setAudioDescriptions] = useState(false);
+  const [autoPlayAudio, setAutoPlayAudio] = useState(true);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
   const [colorBlindMode, setColorBlindMode] = useState('none');
 
@@ -23,14 +30,18 @@ const AccessibilitySettingsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation?.goBack()}>
           <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.title}>Accessibility</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        testID="accessibility-settings-screen"
+      >
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Vision</Text>
           <View style={styles.settingsCard}>
@@ -85,7 +96,57 @@ const AccessibilitySettingsScreen: React.FC = () => {
                 onValueChange={setHighContrastEnabled}
                 trackColor={{ false: '#E5E5EA', true: '#34C759' }}
                 thumbColor="#FFF"
+                testID="high-contrast-toggle"
               />
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <View style={[styles.settingIcon, { backgroundColor: '#FF950020' }]}>
+                  <Ionicons name="text" size={20} color="#FF9500" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text style={styles.settingLabel}>Bold Text</Text>
+                  <Text style={styles.settingDesc}>Use heavier font weight</Text>
+                </View>
+              </View>
+              <Switch
+                value={boldTextEnabled}
+                onValueChange={setBoldTextEnabled}
+                trackColor={{ false: '#E5E5EA', true: '#34C759' }}
+                thumbColor="#FFF"
+                testID="bold-text-toggle"
+              />
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.sliderRow}>
+              <Text style={styles.settingLabel}>Text Size</Text>
+              <Pressable
+                testID="text-size-slider"
+                accessibilityRole="adjustable"
+                accessibilityLabel="Text size"
+                accessibilityValue={{ min: 80, max: 200, now: Math.round(textSize * 100) }}
+                onPress={() =>
+                  setTextSize((size) =>
+                    size >= 2 ? 0.8 : Math.round((size + 0.1) * 10) / 10
+                  )
+                }
+                style={styles.sizeControl}
+              >
+                <Text style={styles.sizeControlValue}>{Math.round(textSize * 100)}%</Text>
+                <View style={styles.sizeTrack}>
+                  <View style={[styles.sizeFill, { width: `${((textSize - 0.8) / 1.2) * 100}%` }]} />
+                </View>
+              </Pressable>
+              <Text
+                testID="text-preview"
+                style={[
+                  styles.textPreview,
+                  { fontSize: 15 * textSize, fontWeight: boldTextEnabled ? '700' : '400' },
+                ]}
+              >
+                The quick brown fox
+              </Text>
             </View>
           </View>
         </View>
@@ -133,6 +194,7 @@ const AccessibilitySettingsScreen: React.FC = () => {
                 onValueChange={setReduceMotionEnabled}
                 trackColor={{ false: '#E5E5EA', true: '#34C759' }}
                 thumbColor="#FFF"
+                testID="reduce-motion-toggle"
               />
             </View>
           </View>
@@ -156,6 +218,7 @@ const AccessibilitySettingsScreen: React.FC = () => {
                 onValueChange={setHapticFeedback}
                 trackColor={{ false: '#E5E5EA', true: '#34C759' }}
                 thumbColor="#FFF"
+                testID="haptics-toggle"
               />
             </View>
             <View style={styles.divider} />
@@ -174,6 +237,25 @@ const AccessibilitySettingsScreen: React.FC = () => {
                 onValueChange={setAudioDescriptions}
                 trackColor={{ false: '#E5E5EA', true: '#34C759' }}
                 thumbColor="#FFF"
+              />
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <View style={[styles.settingIcon, { backgroundColor: '#FF2D5520' }]}>
+                  <Ionicons name="play-circle" size={20} color="#FF2D55" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text style={styles.settingLabel}>Auto-Play Audio</Text>
+                  <Text style={styles.settingDesc}>Play audio content automatically</Text>
+                </View>
+              </View>
+              <Switch
+                value={autoPlayAudio}
+                onValueChange={setAutoPlayAudio}
+                trackColor={{ false: '#E5E5EA', true: '#34C759' }}
+                thumbColor="#FFF"
+                testID="auto-play-toggle"
               />
             </View>
           </View>
@@ -266,6 +348,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   settingText: { flex: 1 },
+  sliderRow: { padding: 14 },
+  sizeControl: { marginTop: 8 },
+  sizeControlValue: { fontSize: 13, color: '#8E8E93', marginBottom: 6 },
+  sizeTrack: { height: 4, borderRadius: 2, backgroundColor: '#E5E5EA', overflow: 'hidden' },
+  sizeFill: { height: 4, borderRadius: 2, backgroundColor: '#007AFF' },
+  textPreview: { color: '#1C1C1E', marginTop: 10 },
   settingLabel: { fontSize: 15, fontWeight: '500', color: '#1C1C1E' },
   settingDesc: { fontSize: 12, color: '#8E8E93', marginTop: 2 },
   divider: { height: 1, backgroundColor: '#F2F2F7', marginHorizontal: 14 },

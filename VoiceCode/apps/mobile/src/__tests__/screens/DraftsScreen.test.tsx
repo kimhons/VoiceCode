@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import DraftsScreen from '../../screens/library/DraftsScreen';
 
 describe('DraftsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('DraftsScreen', () => {
   describe('Rendering', () => {
     it('should render drafts screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('drafts-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('DraftsScreen', () => {
 
     it('should display drafts list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('drafts-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('DraftsScreen', () => {
   describe('Draft Items', () => {
     it('should display draft title', () => {
       const { getByText } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/draft/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('DraftsScreen', () => {
 
     it('should display last modified time', () => {
       const { getByTestId } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('draft-modified-1')).toBeTruthy();
@@ -54,7 +55,7 @@ describe('DraftsScreen', () => {
   describe('Continue Draft', () => {
     it('should continue editing draft', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('draft-1'));
@@ -66,7 +67,7 @@ describe('DraftsScreen', () => {
   describe('Publish Draft', () => {
     it('should publish draft', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('publish-draft-1'));
@@ -79,7 +80,7 @@ describe('DraftsScreen', () => {
   describe('Delete Draft', () => {
     it('should delete draft', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('delete-draft-1'));
@@ -94,15 +95,10 @@ describe('DraftsScreen', () => {
   describe('Empty State', () => {
     it('should show empty state', () => {
       const { getByText } = renderWithProviders(
-        <MockDraftsScreen navigation={mockNavigation as any} />
+        <DraftsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/no drafts/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockDraftsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

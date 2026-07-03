@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import BillingHistoryScreen from '../../screens/settings/BillingHistoryScreen';
 
 describe('BillingHistoryScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('BillingHistoryScreen', () => {
   describe('Rendering', () => {
     it('should render billing history screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('billing-history-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('BillingHistoryScreen', () => {
 
     it('should display invoice list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('invoice-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('BillingHistoryScreen', () => {
   describe('Invoice Items', () => {
     it('should display invoice date', () => {
       const { getByText } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/january/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('BillingHistoryScreen', () => {
 
     it('should display invoice amount', () => {
       const { getByText } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/\$/)).toBeTruthy();
@@ -52,7 +53,7 @@ describe('BillingHistoryScreen', () => {
 
     it('should display payment status', () => {
       const { getByText } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/paid/i)).toBeTruthy();
@@ -62,7 +63,7 @@ describe('BillingHistoryScreen', () => {
   describe('Invoice Actions', () => {
     it('should view invoice details', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('invoice-1'));
@@ -72,7 +73,7 @@ describe('BillingHistoryScreen', () => {
 
     it('should download invoice', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('download-invoice-1'));
@@ -85,7 +86,7 @@ describe('BillingHistoryScreen', () => {
   describe('Filtering', () => {
     it('should filter by year', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('year-filter'));
@@ -96,15 +97,10 @@ describe('BillingHistoryScreen', () => {
   describe('Empty State', () => {
     it('should show empty state when no invoices', () => {
       const { getByText } = renderWithProviders(
-        <MockBillingHistoryScreen navigation={mockNavigation as any} />
+        <BillingHistoryScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/no invoices/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockBillingHistoryScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

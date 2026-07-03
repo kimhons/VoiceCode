@@ -1,237 +1,148 @@
 // VoiceCode Mobile - Profile Screen Tests
 
 import React from 'react';
+import { Alert } from 'react-native';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
-import { supabase } from '../../services/supabaseService';
+import { ProfileScreen } from '../../screens/profile/ProfileScreen';
+import type { ProfileStackParamList } from '../../navigation/types';
+import type { User } from '../../types';
 
-jest.mock('../../services/supabaseService');
+type ProfileNav = StackNavigationProp<ProfileStackParamList, 'ProfileScreen'>;
 
 describe('ProfileScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  };
+  const navigate = jest.fn();
+  const goBack = jest.fn();
+  const mockNavigation = { navigate, goBack } as unknown as ProfileNav;
 
-  const mockUser = {
+  const mockUser: User = {
     id: 'user-123',
     email: 'test@example.com',
-    full_name: 'Test User',
-    avatar_url: 'https://example.com/avatar.jpg',
-    created_at: '2024-01-01T00:00:00Z',
-    subscription_tier: 'pro',
-    subscription_expires_at: '2025-01-01T00:00:00Z',
+    name: 'Test User',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
   };
 
-  const mockStats = {
-    total_transcripts: 50,
-    total_minutes: 1200,
-    total_words: 25000,
-    this_month_transcripts: 10,
-    this_month_minutes: 300,
+  const preloadedState = {
+    auth: {
+      user: mockUser,
+      token: 'token-123',
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    },
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    (supabase.auth.getUser as jest.Mock).mockResolvedValue({
-      data: { user: mockUser },
-      error: null,
-    });
-
-    (supabase.from as jest.Mock).mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: mockUser,
-            error: null,
-          }),
-        }),
-      }),
-    });
   });
 
   describe('Rendering', () => {
-    it('should render profile screen', async () => {
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
+    it('should render the user name', () => {
+      const { getByText } = renderWithProviders(
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
       );
 
-      const name = await findByText('Test User');
-      expect(name).toBeTruthy();
+      expect(getByText('Test User')).toBeTruthy();
     });
 
-    it('should display user email', async () => {
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
+    it('should display user email', () => {
+      const { getByText } = renderWithProviders(
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
       );
 
-      const email = await findByText('test@example.com');
-      expect(email).toBeTruthy();
-    });
-
-    it('should display subscription tier', async () => {
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      const tier = await findByText(/pro/i);
-      expect(tier).toBeTruthy();
-    });
-
-    it('should display usage stats', async () => {
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      const transcripts = await findByText(/50 transcripts/i);
-      expect(transcripts).toBeTruthy();
+      expect(getByText('test@example.com')).toBeTruthy();
     });
   });
 
   describe('Avatar', () => {
-    it('should display user avatar', async () => {
-      const { findByTestId } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
+    it('should display user avatar', () => {
+      const { getByTestId } = renderWithProviders(
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
       );
 
-      const avatar = await findByTestId('user-avatar');
-      expect(avatar).toBeTruthy();
+      expect(getByTestId('user-avatar')).toBeTruthy();
     });
 
-    it('should open image picker on avatar tap', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
+    it('should show the user initial in the avatar', () => {
+      const { getByText } = renderWithProviders(
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
       );
 
-      fireEvent.press(getByTestId('user-avatar'));
-      // Image picker would open
+      expect(getByText('T')).toBeTruthy();
     });
   });
 
-  describe('Edit Profile', () => {
-    it('should navigate to edit profile', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
+  describe('Menu navigation', () => {
+    it('should navigate to subscription management', () => {
+      const { getByText } = renderWithProviders(
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
       );
 
-      fireEvent.press(getByTestId('edit-profile-button'));
+      fireEvent.press(getByText('Subscription'));
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('EditProfile');
-    });
-  });
-
-  describe('Subscription', () => {
-    it('should show subscription details', async () => {
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      const expiry = await findByText(/expires/i);
-      expect(expiry).toBeTruthy();
+      expect(navigate).toHaveBeenCalledWith('SubscriptionScreen');
     });
 
-    it('should navigate to subscription management', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
+    it('should navigate to account settings', () => {
+      const { getByText } = renderWithProviders(
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
       );
 
-      fireEvent.press(getByTestId('manage-subscription'));
+      fireEvent.press(getByText('Account Settings'));
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('Subscription');
-    });
-
-    it('should show upgrade button for free tier', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: { ...mockUser, subscription_tier: 'free' },
-              error: null,
-            }),
-          }),
-        }),
-      });
-
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      const upgrade = await findByText(/upgrade/i);
-      expect(upgrade).toBeTruthy();
-    });
-  });
-
-  describe('Statistics', () => {
-    it('should display total transcripts', async () => {
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      const count = await findByText(/50/);
-      expect(count).toBeTruthy();
-    });
-
-    it('should display total minutes', async () => {
-      const { findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      const minutes = await findByText(/20 hours/i);
-      expect(minutes).toBeTruthy();
-    });
-
-    it('should navigate to detailed statistics', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      fireEvent.press(getByTestId('view-statistics'));
-
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('Statistics');
+      expect(navigate).toHaveBeenCalledWith('AccountScreen');
     });
   });
 
   describe('Account Actions', () => {
-    it('should navigate to change password', async () => {
-      const { getByTestId } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      fireEvent.press(getByTestId('change-password'));
-
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('ChangePassword');
-    });
-
-    it('should show delete account confirmation', async () => {
-      const { getByTestId, findByText } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
-      );
-
-      fireEvent.press(getByTestId('delete-account'));
-
-      const confirmation = await findByText(/are you sure/i);
-      expect(confirmation).toBeTruthy();
-    });
-
-    it('should logout user', async () => {
-      (supabase.auth.signOut as jest.Mock).mockResolvedValue({ error: null });
+    it('should show logout confirmation', () => {
+      const alertSpy = jest.spyOn(Alert, 'alert');
 
       const { getByTestId } = renderWithProviders(
-        <MockProfileScreen navigation={mockNavigation as any} />
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
       );
 
       fireEvent.press(getByTestId('logout-button'));
 
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Logout',
+        'Are you sure you want to logout?',
+        expect.any(Array)
+      );
+
+      alertSpy.mockRestore();
+    });
+
+    it('should clear the session when logout is confirmed', async () => {
+      const alertSpy = jest.spyOn(Alert, 'alert');
+
+      const { getByTestId, store } = renderWithProviders(
+        <ProfileScreen navigation={mockNavigation} />,
+        { preloadedState }
+      );
+
+      fireEvent.press(getByTestId('logout-button'));
+
+      const buttons = alertSpy.mock.calls[0][2];
+      const logoutButton = buttons?.find((b) => b.text === 'Logout');
+      logoutButton?.onPress?.();
+
       await waitFor(() => {
-        expect(supabase.auth.signOut).toHaveBeenCalled();
+        expect(store.getState().auth.isAuthenticated).toBe(false);
+        expect(store.getState().auth.user).toBeNull();
       });
+
+      alertSpy.mockRestore();
     });
   });
 });
-
-// Mock component
-const MockProfileScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

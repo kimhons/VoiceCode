@@ -5,6 +5,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
 import { supabase } from '../../services/supabaseService';
+import ChangePasswordScreen from '../../screens/security/ChangePasswordScreen';
 
 jest.mock('../../services/supabaseService');
 
@@ -21,7 +22,7 @@ describe('ChangePasswordScreen', () => {
   describe('Rendering', () => {
     it('should render change password screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('change-password-screen')).toBeTruthy();
@@ -29,7 +30,7 @@ describe('ChangePasswordScreen', () => {
 
     it('should display password inputs', () => {
       const { getByTestId } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('current-password-input')).toBeTruthy();
@@ -41,7 +42,7 @@ describe('ChangePasswordScreen', () => {
   describe('Validation', () => {
     it('should validate empty current password', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('new-password-input'), 'NewPass123!');
@@ -54,7 +55,7 @@ describe('ChangePasswordScreen', () => {
 
     it('should validate password strength', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('current-password-input'), 'OldPass123!');
@@ -68,7 +69,7 @@ describe('ChangePasswordScreen', () => {
 
     it('should validate password match', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('current-password-input'), 'OldPass123!');
@@ -88,7 +89,7 @@ describe('ChangePasswordScreen', () => {
       });
 
       const { getByTestId, findByText } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('current-password-input'), 'OldPass123!');
@@ -106,7 +107,7 @@ describe('ChangePasswordScreen', () => {
       });
 
       const { getByTestId, findByText } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('current-password-input'), 'WrongPass!');
@@ -122,7 +123,7 @@ describe('ChangePasswordScreen', () => {
   describe('Navigation', () => {
     it('should go back on cancel', () => {
       const { getByTestId } = renderWithProviders(
-        <MockChangePasswordScreen navigation={mockNavigation as any} />
+        <ChangePasswordScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('cancel-button'));
@@ -131,8 +132,3 @@ describe('ChangePasswordScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockChangePasswordScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

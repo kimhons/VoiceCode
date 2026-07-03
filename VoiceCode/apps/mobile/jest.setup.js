@@ -3,6 +3,190 @@
 // Import testing library setup
 import '@testing-library/jest-native/extend-expect';
 
+// @stripe/stripe-react-native calls new NativeEventEmitter() at import time, which
+// throws in the jest (non-native) env. Mock it so any screen/service reaching the
+// payment layer can load under test.
+jest.mock('@stripe/stripe-react-native', () => ({
+  __esModule: true,
+  StripeProvider: ({ children }) => children,
+  useStripe: () => ({
+    initPaymentSheet: jest.fn(async () => ({})),
+    presentPaymentSheet: jest.fn(async () => ({})),
+    confirmPayment: jest.fn(async () => ({})),
+  }),
+  CardField: () => null,
+  initStripe: jest.fn(async () => undefined),
+  presentPaymentSheet: jest.fn(async () => ({})),
+  initPaymentSheet: jest.fn(async () => ({})),
+  confirmPayment: jest.fn(async () => ({})),
+}));
+
+// @expo/vector-icons pulls native font loading (loadedNativeFonts) that isn't available
+// under jest; render every icon set as a lightweight element so screens using icons mount.
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  const Icon = (props) => React.createElement(Text, { ...props, testID: props.testID }, null);
+  return new Proxy(
+    { __esModule: true },
+    { get: (target, prop) => (prop in target ? target[prop] : Icon) },
+  );
+});
+
+// RN Linking is unimplemented under jest (openURL returns undefined, so `.catch` throws).
+jest.mock('react-native/Libraries/Linking/Linking', () => ({
+  openURL: jest.fn(() => Promise.resolve()),
+  canOpenURL: jest.fn(() => Promise.resolve(true)),
+  getInitialURL: jest.fn(() => Promise.resolve(null)),
+  addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+  removeEventListener: jest.fn(),
+}));
+
+// The real ThemeProvider renders null until an async loadThemePreference() resolves,
+// so synchronous queries in screen tests find nothing. Render children immediately
+// with the real light theme values (keeps screens' theme.* usage faithful).
+jest.mock('./src/contexts/ThemeContext', () => {
+  const React = require('react');
+  const { theme } = require('./src/theme');
+  const value = {
+    theme: theme.light,
+    colorScheme: 'light',
+    themeMode: 'auto',
+    setThemeMode: jest.fn(),
+    isDark: false,
+  };
+  const ThemeContext = React.createContext(value);
+  return {
+    __esModule: true,
+    ThemeContext,
+    ThemeProvider: ({ children }) =>
+      React.createElement(ThemeContext.Provider, { value }, children),
+    useTheme: () => value,
+  };
+});
+
+// expo-constants pulls native modules at import; provide a static config for tests.
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: {
+    expoConfig: {
+      name: 'VoiceCode',
+      version: '1.0.0',
+      ios: { buildNumber: '1' },
+      android: { versionCode: 1 },
+    },
+    manifest: {},
+  },
+}));
+
+// expo-device is a per-platform native dependency that is not installed in this
+// workspace; provide a virtual mock so deviceService can read static device fields.
+jest.mock(
+  'expo-device',
+  () => ({
+    __esModule: true,
+    brand: 'Apple',
+    manufacturer: 'Apple',
+    modelName: 'iPhone 17 Pro',
+    osName: 'iOS',
+    osVersion: '17.0',
+    isDevice: true,
+    deviceName: "Honour's iPhone",
+  }),
+  { virtual: true }
+);
+
+// @react-native-firebase/* are per-platform native deps that aren't installed here.
+// Virtual-mock the four submodules so src/config/firebase.ts (and anything importing
+// it) can load under jest. Each default export is a factory returning the service.
+jest.mock(
+  '@react-native-firebase/crashlytics',
+  () => ({
+    __esModule: true,
+    default: () => ({
+      setCrashlyticsCollectionEnabled: jest.fn(() => Promise.resolve(null)),
+      recordError: jest.fn(),
+      log: jest.fn(),
+      setUserId: jest.fn(),
+      setAttribute: jest.fn(() => Promise.resolve(null)),
+    }),
+  }),
+  { virtual: true }
+);
+
+jest.mock(
+  '@react-native-firebase/analytics',
+  () => ({
+    __esModule: true,
+    default: () => ({
+      setAnalyticsCollectionEnabled: jest.fn(() => Promise.resolve()),
+      logEvent: jest.fn(() => Promise.resolve()),
+      setUserProperties: jest.fn(() => Promise.resolve()),
+      logScreenView: jest.fn(() => Promise.resolve()),
+    }),
+  }),
+  { virtual: true }
+);
+
+jest.mock(
+  '@react-native-firebase/perf',
+  () => ({
+    __esModule: true,
+    default: () => ({
+      startTrace: jest.fn(() =>
+        Promise.resolve({
+          start: jest.fn(() => Promise.resolve(null)),
+          stop: jest.fn(() => Promise.resolve(null)),
+          putMetric: jest.fn(),
+          putAttribute: jest.fn(),
+        })
+      ),
+    }),
+  }),
+  { virtual: true }
+);
+
+jest.mock(
+  '@react-native-firebase/remote-config',
+  () => {
+    const makeValue = (value) => ({
+      asBoolean: () => Boolean(value),
+      asNumber: () => Number(value),
+      asString: () => String(value),
+    });
+    return {
+      __esModule: true,
+      default: () => ({
+        setDefaults: jest.fn(() => Promise.resolve(null)),
+        fetchAndActivate: jest.fn(() => Promise.resolve(true)),
+        getValue: jest.fn(() => makeValue('')),
+      }),
+    };
+  },
+  { virtual: true }
+);
+
+// jsPDF instantiates a text encoder that jest's node env can't build ("Unknown
+// encoding: latin1") at import time. Mock it with the surface exportService uses.
+jest.mock('jspdf', () => ({
+  __esModule: true,
+  jsPDF: jest.fn().mockImplementation(() => ({
+    internal: { pageSize: { getWidth: () => 210, getHeight: () => 297 } },
+    setFontSize: jest.fn(),
+    setFont: jest.fn(),
+    setDrawColor: jest.fn(),
+    setTextColor: jest.fn(),
+    text: jest.fn(),
+    line: jest.fn(),
+    addPage: jest.fn(),
+    setPage: jest.fn(),
+    getNumberOfPages: jest.fn(() => 1),
+    splitTextToSize: jest.fn((text) => [text]),
+    save: jest.fn(),
+    output: jest.fn(() => 'pdf'),
+  })),
+}));
+
 // Silence "Native animated module is not available" from Animated-based components (RN 0.76 path)
 jest.mock('react-native/src/private/animated/NativeAnimatedHelper', () => ({
   __esModule: true,

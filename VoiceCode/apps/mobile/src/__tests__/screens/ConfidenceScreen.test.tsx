@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import ConfidenceScreen from '../../screens/ai/ConfidenceScreen';
 
 describe('ConfidenceScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('ConfidenceScreen', () => {
   describe('Rendering', () => {
     it('should render confidence screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('confidence-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('ConfidenceScreen', () => {
 
     it('should display average confidence', () => {
       const { getByTestId } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('average-confidence')).toBeTruthy();
@@ -38,7 +39,7 @@ describe('ConfidenceScreen', () => {
 
     it('should display confidence chart', () => {
       const { getByTestId } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('confidence-chart')).toBeTruthy();
@@ -48,7 +49,7 @@ describe('ConfidenceScreen', () => {
   describe('Low Confidence Words', () => {
     it('should display low confidence word list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('low-confidence-list')).toBeTruthy();
@@ -56,7 +57,7 @@ describe('ConfidenceScreen', () => {
 
     it('should navigate to word in transcript', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('low-confidence-word-1'));
@@ -66,7 +67,7 @@ describe('ConfidenceScreen', () => {
 
     it('should correct low confidence word', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('correct-word-1'));
@@ -79,7 +80,7 @@ describe('ConfidenceScreen', () => {
   describe('Threshold', () => {
     it('should adjust confidence threshold', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent(getByTestId('threshold-slider'), 'onValueChange', 0.8);
@@ -89,7 +90,7 @@ describe('ConfidenceScreen', () => {
   describe('Export', () => {
     it('should export low confidence report', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ConfidenceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('export-report'));
@@ -99,8 +100,3 @@ describe('ConfidenceScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockConfidenceScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

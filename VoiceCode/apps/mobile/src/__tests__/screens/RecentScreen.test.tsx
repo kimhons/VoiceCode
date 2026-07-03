@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import RecentScreen from '../../screens/library/RecentScreen';
 
 describe('RecentScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('RecentScreen', () => {
   describe('Rendering', () => {
     it('should render recent screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecentScreen navigation={mockNavigation as any} />
+        <RecentScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('recent-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('RecentScreen', () => {
 
     it('should display recent transcripts list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecentScreen navigation={mockNavigation as any} />
+        <RecentScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('recent-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('RecentScreen', () => {
   describe('Recent Items', () => {
     it('should display transcript title', () => {
       const { getByText } = renderWithProviders(
-        <MockRecentScreen navigation={mockNavigation as any} />
+        <RecentScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/meeting/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('RecentScreen', () => {
 
     it('should display access time', () => {
       const { getByText } = renderWithProviders(
-        <MockRecentScreen navigation={mockNavigation as any} />
+        <RecentScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/ago/i)).toBeTruthy();
@@ -54,7 +55,7 @@ describe('RecentScreen', () => {
   describe('Navigation', () => {
     it('should navigate to transcript on tap', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockRecentScreen navigation={mockNavigation as any} />
+        <RecentScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('recent-item-1'));
@@ -66,7 +67,7 @@ describe('RecentScreen', () => {
   describe('Clear History', () => {
     it('should clear recent history', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockRecentScreen navigation={mockNavigation as any} />
+        <RecentScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-history'));
@@ -79,15 +80,10 @@ describe('RecentScreen', () => {
   describe('Empty State', () => {
     it('should show empty state when no recent items', () => {
       const { getByText } = renderWithProviders(
-        <MockRecentScreen navigation={mockNavigation as any} />
+        <RecentScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/no recent/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockRecentScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

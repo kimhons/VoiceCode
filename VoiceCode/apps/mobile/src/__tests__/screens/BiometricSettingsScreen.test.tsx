@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import BiometricSettingsScreen from '../../screens/security/BiometricSettingsScreen';
 
 describe('BiometricSettingsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('BiometricSettingsScreen', () => {
   describe('Rendering', () => {
     it('should render biometric settings', () => {
       const { getByTestId } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('biometric-settings-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('BiometricSettingsScreen', () => {
 
     it('should show biometric availability', () => {
       const { getByText } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/face id|touch id|fingerprint/i)).toBeTruthy();
@@ -36,7 +37,7 @@ describe('BiometricSettingsScreen', () => {
   describe('Enable Biometrics', () => {
     it('should enable biometric lock', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('biometric-toggle'), 'valueChange', true);
@@ -47,7 +48,7 @@ describe('BiometricSettingsScreen', () => {
 
     it('should require authentication to enable', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('biometric-toggle'), 'valueChange', true);
@@ -60,7 +61,7 @@ describe('BiometricSettingsScreen', () => {
   describe('Disable Biometrics', () => {
     it('should disable biometric lock', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('biometric-toggle'), 'valueChange', false);
@@ -73,7 +74,7 @@ describe('BiometricSettingsScreen', () => {
   describe('App Lock', () => {
     it('should set lock timeout', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('lock-timeout-selector'));
@@ -82,7 +83,7 @@ describe('BiometricSettingsScreen', () => {
 
     it('should set immediate lock', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('lock-timeout-selector'));
@@ -93,7 +94,7 @@ describe('BiometricSettingsScreen', () => {
   describe('Fallback', () => {
     it('should allow password fallback', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('password-fallback-toggle'), 'valueChange', true);
@@ -103,15 +104,10 @@ describe('BiometricSettingsScreen', () => {
   describe('Not Supported', () => {
     it('should show message when not supported', () => {
       const { getByText } = renderWithProviders(
-        <MockBiometricSettingsScreen navigation={mockNavigation as any} />
+        <BiometricSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/not available/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockBiometricSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

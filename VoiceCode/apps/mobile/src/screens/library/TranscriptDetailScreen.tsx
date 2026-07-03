@@ -47,6 +47,11 @@ interface TranscriptDetailParams {
 
 type TranscriptDetailRouteProp = RouteProp<{ TranscriptDetail: TranscriptDetailParams }, 'TranscriptDetail'>;
 
+interface TranscriptDetailScreenProps {
+  navigation?: { goBack: () => void };
+  route?: { params?: TranscriptDetailParams };
+}
+
 // Mock data for demo
 const MOCK_WORDS: WordData[] = [
   { word: 'Hello', start: 0.0, end: 0.3, confidence: 0.98 },
@@ -72,10 +77,15 @@ const MOCK_WORDS: WordData[] = [
   { word: 'results.', start: 7.05, end: 7.5, confidence: 0.85 },
 ];
 
-const TranscriptDetailScreen: React.FC = () => {
+const TranscriptDetailScreen: React.FC<TranscriptDetailScreenProps> = ({
+  navigation: navigationProp,
+  route: routeProp,
+}) => {
   const { theme } = useTheme();
-  const navigation = useNavigation();
-  const route = useRoute<TranscriptDetailRouteProp>();
+  const navigationHook = useNavigation();
+  const routeHook = useRoute<TranscriptDetailRouteProp>();
+  const navigation = navigationProp ?? navigationHook;
+  const route = routeProp ?? routeHook;
 
   const { recordingId, title = 'Meeting Notes', audioUrl } = route.params || {};
 
@@ -277,7 +287,7 @@ const TranscriptDetailScreen: React.FC = () => {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity testID="back-button" onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color={theme.colors.textPrimary} />
         </TouchableOpacity>
 
@@ -291,14 +301,14 @@ const TranscriptDetailScreen: React.FC = () => {
         </View>
 
         <View style={styles.headerActions}>
-          <TouchableOpacity onPress={toggleSearch} style={styles.headerButton}>
+          <TouchableOpacity testID="search-button" onPress={toggleSearch} style={styles.headerButton}>
             <Ionicons
               name={showSearch ? 'close' : 'search'}
               size={22}
               color={showSearch ? theme.colors.primary : theme.colors.textPrimary}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={toggleEditMode} style={styles.headerButton}>
+          <TouchableOpacity testID="edit-button" onPress={toggleEditMode} style={styles.headerButton}>
             <Ionicons
               name={isEditing ? 'checkmark' : 'pencil'}
               size={22}
@@ -310,17 +320,20 @@ const TranscriptDetailScreen: React.FC = () => {
 
       {/* Search Bar */}
       {showSearch && (
-        <TranscriptSearchBar
-          words={words}
-          onSearchResults={handleSearchResults}
-          onNavigateToMatch={handleNavigateToMatch}
-          onClose={() => setShowSearch(false)}
-        />
+        <View testID="search-bar">
+          <TranscriptSearchBar
+            words={words}
+            onSearchResults={handleSearchResults}
+            onNavigateToMatch={handleNavigateToMatch}
+            onClose={() => setShowSearch(false)}
+          />
+        </View>
       )}
 
       {/* Undo/Redo Bar (when editing) */}
       {isEditing && (
         <Animated.View
+          testID="edit-toolbar"
           entering={FadeIn.duration(200)}
           exiting={FadeOut.duration(200)}
           style={[styles.undoRedoBar, { backgroundColor: theme.colors.surface }]}
@@ -437,24 +450,26 @@ const TranscriptDetailScreen: React.FC = () => {
 
       {/* Audio Player Bar */}
       {audioUrl && (
-        <AudioPlayerBar
-          audioUrl={audioUrl}
-          onTimeUpdate={handleTimeUpdate}
-          onSeek={(time) => setCurrentPlaybackTime(time)}
-        />
+        <View testID="audio-player">
+          <AudioPlayerBar
+            audioUrl={audioUrl}
+            onTimeUpdate={handleTimeUpdate}
+            onSeek={(time) => setCurrentPlaybackTime(time)}
+          />
+        </View>
       )}
 
       {/* Bottom Actions */}
       <View style={[styles.actionsBar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border }]}>
-        <TouchableOpacity style={styles.actionButton} onPress={handleCopy}>
+        <TouchableOpacity testID="copy-button" style={styles.actionButton} onPress={handleCopy}>
           <Ionicons name="copy-outline" size={22} color={theme.colors.primary} />
           <Text style={[styles.actionText, { color: theme.colors.primary }]}>Copy</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+        <TouchableOpacity testID="share-button" style={styles.actionButton} onPress={handleShare}>
           <Ionicons name="share-outline" size={22} color={theme.colors.primary} />
           <Text style={[styles.actionText, { color: theme.colors.primary }]}>Share</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={handleDelete}>
+        <TouchableOpacity testID="delete-button" style={styles.actionButton} onPress={handleDelete}>
           <Ionicons name="trash-outline" size={22} color={theme.colors.error} />
           <Text style={[styles.actionText, { color: theme.colors.error }]}>Delete</Text>
         </TouchableOpacity>

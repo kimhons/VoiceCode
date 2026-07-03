@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import DeleteAccountScreen from '../../screens/security/DeleteAccountScreen';
 
 describe('DeleteAccountScreen', () => {
   const mockNavigation = {
@@ -19,7 +20,7 @@ describe('DeleteAccountScreen', () => {
   describe('Rendering', () => {
     it('should render delete account screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('delete-account-screen')).toBeTruthy();
@@ -27,7 +28,7 @@ describe('DeleteAccountScreen', () => {
 
     it('should display warning message', () => {
       const { getByText } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/permanent/i)).toBeTruthy();
@@ -35,7 +36,7 @@ describe('DeleteAccountScreen', () => {
 
     it('should display data that will be deleted', () => {
       const { getByText } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/transcripts/i)).toBeTruthy();
@@ -46,7 +47,7 @@ describe('DeleteAccountScreen', () => {
   describe('Confirmation', () => {
     it('should require password confirmation', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('password-input')).toBeTruthy();
@@ -54,7 +55,7 @@ describe('DeleteAccountScreen', () => {
 
     it('should require typing DELETE', async () => {
       const { getByTestId, getByPlaceholderText } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       const input = getByPlaceholderText(/delete/i);
@@ -63,7 +64,7 @@ describe('DeleteAccountScreen', () => {
 
     it('should enable delete button only when confirmed', async () => {
       const { getByTestId, getByPlaceholderText } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       const confirmInput = getByPlaceholderText(/delete/i);
@@ -80,7 +81,7 @@ describe('DeleteAccountScreen', () => {
   describe('Delete', () => {
     it('should delete account on confirm', async () => {
       const { getByTestId, getByPlaceholderText, findByText } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByPlaceholderText(/delete/i), 'DELETE');
@@ -93,7 +94,7 @@ describe('DeleteAccountScreen', () => {
 
     it('should handle wrong password', async () => {
       const { getByTestId, getByPlaceholderText, findByText } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByPlaceholderText(/delete/i), 'DELETE');
@@ -108,7 +109,7 @@ describe('DeleteAccountScreen', () => {
   describe('Cancel', () => {
     it('should go back on cancel', () => {
       const { getByTestId } = renderWithProviders(
-        <MockDeleteAccountScreen navigation={mockNavigation as any} />
+        <DeleteAccountScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('cancel-button'));
@@ -117,8 +118,3 @@ describe('DeleteAccountScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockDeleteAccountScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

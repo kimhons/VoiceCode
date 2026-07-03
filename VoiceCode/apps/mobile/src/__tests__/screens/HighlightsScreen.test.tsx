@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import HighlightsScreen from '../../screens/ai/HighlightsScreen';
 
 describe('HighlightsScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('HighlightsScreen', () => {
   describe('Rendering', () => {
     it('should render highlights screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('highlights-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('HighlightsScreen', () => {
 
     it('should display highlight list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('highlight-list')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('HighlightsScreen', () => {
   describe('Highlight Items', () => {
     it('should display highlighted text', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('highlight-text-1')).toBeTruthy();
@@ -48,7 +49,7 @@ describe('HighlightsScreen', () => {
 
     it('should display highlight color', () => {
       const { getByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('highlight-color-1')).toBeTruthy();
@@ -56,7 +57,7 @@ describe('HighlightsScreen', () => {
 
     it('should display highlight note', () => {
       const { getByText } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/note/i)).toBeTruthy();
@@ -66,7 +67,7 @@ describe('HighlightsScreen', () => {
   describe('Actions', () => {
     it('should navigate to highlight in transcript', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('highlight-1'));
@@ -76,7 +77,7 @@ describe('HighlightsScreen', () => {
 
     it('should edit highlight', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('edit-highlight-1'));
@@ -87,7 +88,7 @@ describe('HighlightsScreen', () => {
 
     it('should delete highlight', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('delete-highlight-1'));
@@ -102,7 +103,7 @@ describe('HighlightsScreen', () => {
   describe('Export', () => {
     it('should export highlights', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('export-highlights'));
@@ -115,7 +116,7 @@ describe('HighlightsScreen', () => {
   describe('Filter', () => {
     it('should filter by color', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('filter-yellow'));
@@ -125,15 +126,10 @@ describe('HighlightsScreen', () => {
   describe('Empty State', () => {
     it('should show empty state when no highlights', () => {
       const { getByText } = renderWithProviders(
-        <MockHighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <HighlightsScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByText(/no highlights/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockHighlightsScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

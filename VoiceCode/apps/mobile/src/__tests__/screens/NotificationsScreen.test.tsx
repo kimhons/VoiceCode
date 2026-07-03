@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import NotificationsScreen from '../../screens/general/NotificationsScreen';
 
 describe('NotificationsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('NotificationsScreen', () => {
   describe('Rendering', () => {
     it('should render notifications screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('notifications-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('NotificationsScreen', () => {
 
     it('should display notification list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('notification-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('NotificationsScreen', () => {
   describe('Notification Types', () => {
     it('should display transcription complete notification', () => {
       const { getByText } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/transcription complete/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('NotificationsScreen', () => {
 
     it('should display share notification', () => {
       const { getByText } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/shared with you/i)).toBeTruthy();
@@ -58,7 +59,7 @@ describe('NotificationsScreen', () => {
   describe('Actions', () => {
     it('should mark notification as read', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('notification-1'));
@@ -67,7 +68,7 @@ describe('NotificationsScreen', () => {
 
     it('should mark all as read', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('mark-all-read'));
@@ -75,7 +76,7 @@ describe('NotificationsScreen', () => {
 
     it('should delete notification', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       // Swipe to delete
@@ -84,7 +85,7 @@ describe('NotificationsScreen', () => {
 
     it('should clear all notifications', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-all'));
@@ -94,7 +95,7 @@ describe('NotificationsScreen', () => {
   describe('Navigation', () => {
     it('should navigate to related content on tap', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('notification-1'));
@@ -106,7 +107,7 @@ describe('NotificationsScreen', () => {
   describe('Empty State', () => {
     it('should show empty state when no notifications', () => {
       const { getByText } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/no notifications/i)).toBeTruthy();
@@ -116,7 +117,7 @@ describe('NotificationsScreen', () => {
   describe('Filtering', () => {
     it('should filter by unread', () => {
       const { getByTestId } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('filter-unread'));
@@ -124,7 +125,7 @@ describe('NotificationsScreen', () => {
 
     it('should filter by type', () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockNotificationsScreen navigation={mockNavigation as any} />
+        <NotificationsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('filter-type'));
@@ -132,8 +133,3 @@ describe('NotificationsScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockNotificationsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

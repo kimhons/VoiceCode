@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import TranslationScreen from '../../screens/general/TranslationScreen';
 
 describe('TranslationScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('TranslationScreen', () => {
   describe('Rendering', () => {
     it('should render translation screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       expect(getByTestId('translation-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('TranslationScreen', () => {
 
     it('should display source text', () => {
       const { getByTestId } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       expect(getByTestId('source-text')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('TranslationScreen', () => {
   describe('Language Selection', () => {
     it('should select target language', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('language-selector'));
@@ -49,7 +50,7 @@ describe('TranslationScreen', () => {
 
     it('should show available languages', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('language-selector'));
@@ -62,7 +63,7 @@ describe('TranslationScreen', () => {
   describe('Translate', () => {
     it('should translate transcript', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('translate-button'));
@@ -73,7 +74,7 @@ describe('TranslationScreen', () => {
 
     it('should show translation progress', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('translate-button'));
@@ -86,7 +87,7 @@ describe('TranslationScreen', () => {
   describe('Side by Side', () => {
     it('should toggle side by side view', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('toggle-side-by-side'));
@@ -99,7 +100,7 @@ describe('TranslationScreen', () => {
   describe('Export', () => {
     it('should export translation', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('export-translation'));
@@ -107,7 +108,7 @@ describe('TranslationScreen', () => {
 
     it('should copy translation', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('copy-translation'));
@@ -120,7 +121,7 @@ describe('TranslationScreen', () => {
   describe('Save', () => {
     it('should save translation', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockTranslationScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <TranslationScreen navigation={mockNavigation} route={mockRoute} />
       );
 
       fireEvent.press(getByTestId('save-translation'));
@@ -130,8 +131,3 @@ describe('TranslationScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockTranslationScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

@@ -17,11 +17,22 @@ import { Text, Button, Input, Card } from '../../components/common';
 import { useAppDispatch } from '../../store';
 import { signupSuccess } from '../../store/slices/authSlice';
 
-type SignupNavigationProp = StackNavigationProp<AuthStackParamList, 'Signup'>;
+type SignupParamList = AuthStackParamList & {
+  WebView: { url: string; title?: string };
+};
+type SignupNavigationProp = StackNavigationProp<SignupParamList, 'Signup'>;
 
-export const SignupScreen: React.FC = () => {
+interface SignupScreenProps {
+  navigation?: Pick<SignupNavigationProp, 'navigate'>;
+}
+
+export const SignupScreen: React.FC<SignupScreenProps> = ({
+  navigation: injectedNavigation,
+}) => {
   const { theme } = useTheme();
-  const navigation = useNavigation<SignupNavigationProp>();
+  const defaultNavigation = useNavigation<SignupNavigationProp>();
+  const navigation: Pick<SignupNavigationProp, 'navigate'> =
+    injectedNavigation ?? defaultNavigation;
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -139,8 +150,10 @@ export const SignupScreen: React.FC = () => {
   };
 
   const handleTermsPress = () => {
-    // TODO: Open terms and conditions
-    console.log('Open Terms');
+    navigation.navigate('WebView', {
+      url: 'https://voicecode.app/terms',
+      title: 'Terms of Service',
+    });
   };
 
   const handlePrivacyPress = () => {
@@ -173,6 +186,7 @@ export const SignupScreen: React.FC = () => {
 
         <Card style={styles.formCard}>
           <Input
+            testID="name-input"
             label="Full Name"
             placeholder="Enter your full name"
             value={name}
@@ -183,6 +197,7 @@ export const SignupScreen: React.FC = () => {
           />
 
           <Input
+            testID="email-input"
             label="Email"
             placeholder="Enter your email"
             value={email}
@@ -194,6 +209,7 @@ export const SignupScreen: React.FC = () => {
           />
 
           <Input
+            testID="password-input"
             label="Password"
             placeholder="Create a password"
             value={password}
@@ -205,6 +221,7 @@ export const SignupScreen: React.FC = () => {
           />
 
           <Input
+            testID="confirm-password-input"
             label="Confirm Password"
             placeholder="Confirm your password"
             value={confirmPassword}
@@ -216,6 +233,7 @@ export const SignupScreen: React.FC = () => {
 
           {/* Terms and Conditions */}
           <TouchableOpacity
+            testID="terms-checkbox"
             style={styles.termsContainer}
             onPress={() => setAcceptedTerms(!acceptedTerms)}
             activeOpacity={0.7}
@@ -244,7 +262,7 @@ export const SignupScreen: React.FC = () => {
                   onPress={handleTermsPress}
                   style={styles.link}
                 >
-                  Terms & Conditions
+                  Terms of Service
                 </Text>
                 {' '}and{' '}
                 <Text
@@ -266,6 +284,7 @@ export const SignupScreen: React.FC = () => {
           )}
 
           <Button
+            testID="signup-button"
             variant="primary"
             onPress={handleSignup}
             loading={isLoading}
@@ -285,6 +304,7 @@ export const SignupScreen: React.FC = () => {
           </View>
 
           <Button
+            testID="google-signup"
             variant="outline"
             onPress={() => handleSocialSignup('google')}
             fullWidth
@@ -294,6 +314,7 @@ export const SignupScreen: React.FC = () => {
           </Button>
 
           <Button
+            testID="apple-signup"
             variant="outline"
             onPress={() => handleSocialSignup('apple')}
             fullWidth
@@ -304,7 +325,11 @@ export const SignupScreen: React.FC = () => {
         </Card>
 
         <View style={styles.footer}>
-          <Text variant="body" color={theme.colors.textSecondary}>
+          <Text
+            variant="body"
+            color={theme.colors.textSecondary}
+            onPress={handleLogin}
+          >
             Already have an account?{' '}
           </Text>
           <TouchableOpacity onPress={handleLogin}>

@@ -8,10 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { AuthStackParamList } from '../../navigation/types';
+import { AuthStackParamList, ScreenProps } from '../../navigation/types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Text, Button, Input, Card } from '../../components/common';
 import { useAppDispatch } from '../../store';
@@ -19,9 +20,12 @@ import { loginSuccess } from '../../store/slices/authSlice';
 
 type LoginNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
-export const LoginScreen: React.FC = () => {
+export const LoginScreen: React.FC<
+  Partial<ScreenProps<AuthStackParamList, 'Login'>>
+> = ({ navigation: navigationProp }) => {
   const { theme } = useTheme();
-  const navigation = useNavigation<LoginNavigationProp>();
+  const hookNavigation = useNavigation<LoginNavigationProp>();
+  const navigation = navigationProp ?? hookNavigation;
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -110,7 +114,7 @@ export const LoginScreen: React.FC = () => {
             color={theme.colors.textSecondary}
             style={styles.subtitle}
           >
-            Welcome back! Sign in to continue
+            Welcome back! Log in to continue
           </Text>
         </View>
 
@@ -155,6 +159,14 @@ export const LoginScreen: React.FC = () => {
           >
             Sign In
           </Button>
+
+          {isLoading && (
+            <ActivityIndicator
+              testID="loading-indicator"
+              color={theme.colors.primary}
+              style={styles.loadingIndicator}
+            />
+          )}
 
           <View style={styles.divider}>
             <View style={[styles.dividerLine, { backgroundColor: theme.colors.border }]} />
@@ -221,6 +233,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   loginButton: {
+    marginBottom: 24,
+  },
+  loadingIndicator: {
     marginBottom: 24,
   },
   divider: {

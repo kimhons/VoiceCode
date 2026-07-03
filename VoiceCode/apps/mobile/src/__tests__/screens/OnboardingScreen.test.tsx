@@ -1,180 +1,180 @@
 // VoiceCode Mobile - Onboarding Screen Tests
 
 import React from 'react';
+import { Dimensions } from 'react-native';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import type { StackScreenProps } from '@react-navigation/stack';
+import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { OnboardingScreen } from '../../screens/onboarding/OnboardingScreen';
+import type { RootStackParamList } from '../../navigation/types';
 
-jest.mock('@react-native-async-storage/async-storage');
+type OnboardingNavigation = StackScreenProps<RootStackParamList, 'Onboarding'>['navigation'];
+
+// The real screen prefers the `navigation` prop that React Navigation injects for
+// screens registered via `component={OnboardingScreen}`. We supply a minimal spy and
+// cast through `unknown` so navigation calls are directly assertable.
+function createNavigation() {
+  const navigate = jest.fn();
+  const navigation = { navigate } as unknown as OnboardingNavigation;
+  return { navigate, navigation };
+}
 
 describe('OnboardingScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    replace: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('Rendering', () => {
     it('should render first onboarding slide', () => {
-      const { getByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+      const { navigation } = createNavigation();
+      const { getByText } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
 
-      expect(getByText(/welcome/i)).toBeTruthy();
+      expect(getByText('Record Anywhere')).toBeTruthy();
     });
 
     it('should display pagination dots', () => {
-      const { getAllByTestId } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+      const { navigation } = createNavigation();
+      const { getAllByTestId } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
 
       const dots = getAllByTestId(/pagination-dot/);
       expect(dots.length).toBeGreaterThan(1);
     });
 
     it('should show skip button', () => {
-      const { getByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+      const { navigation } = createNavigation();
+      const { getByText } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
 
       expect(getByText(/skip/i)).toBeTruthy();
     });
   });
 
   describe('Navigation', () => {
-    it('should navigate to next slide on swipe', async () => {
-      const { getByTestId, getByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+    it('should advance the active slide on horizontal scroll', () => {
+      const { navigation } = createNavigation();
+      const { getByTestId } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
 
-      // Swipe left to next slide
+      expect(getByTestId('pagination-dot-0').props.accessibilityState.selected).toBe(true);
+
+      const { width } = Dimensions.get('window');
       const slider = getByTestId('onboarding-slider');
-      fireEvent.scroll(slider, { nativeEvent: { contentOffset: { x: 400 } } });
-
-      await waitFor(() => {
-        expect(getByText(/record/i)).toBeTruthy();
+      fireEvent.scroll(slider, {
+        nativeEvent: {
+          contentOffset: { x: width, y: 0 },
+          contentSize: { width: width * 4, height: 100 },
+          layoutMeasurement: { width, height: 100 },
+        },
       });
+
+      expect(getByTestId('pagination-dot-1').props.accessibilityState.selected).toBe(true);
     });
 
-    it('should navigate on next button press', async () => {
-      const { getByTestId, getByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+    it('should advance the active slide on next button press', () => {
+      const { navigation } = createNavigation();
+      const { getByTestId } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
+
+      expect(getByTestId('pagination-dot-1').props.accessibilityState.selected).toBe(false);
 
       fireEvent.press(getByTestId('next-button'));
 
-      await waitFor(() => {
-        expect(getByText(/record/i)).toBeTruthy();
-      });
+      expect(getByTestId('pagination-dot-1').props.accessibilityState.selected).toBe(true);
     });
 
-    it('should skip to last slide', async () => {
-      const { getByText, findByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
+    it('should reach the final slide via repeated next presses', () => {
+      const { navigation } = createNavigation();
+      const { getByTestId, queryByTestId, queryByText } = renderWithProviders(
+        <OnboardingScreen navigation={navigation} />
       );
 
-      fireEvent.press(getByText(/skip/i));
+      fireEvent.press(getByTestId('next-button'));
+      fireEvent.press(getByTestId('next-button'));
+      fireEvent.press(getByTestId('next-button'));
 
-      const getStarted = await findByText(/get started/i);
-      expect(getStarted).toBeTruthy();
+      // On the last slide the CTA becomes "Get Started" and Skip disappears.
+      expect(getByTestId('get-started-button')).toBeTruthy();
+      expect(queryByTestId('next-button')).toBeNull();
+      expect(queryByText(/skip/i)).toBeNull();
     });
   });
 
   describe('Completion', () => {
-    it('should mark onboarding complete on get started', async () => {
-      const { getByText, getByTestId } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+    // The real onboarding delegates completion to the Permissions screen (via
+    // OnboardingContext, key '@voicecode_onboarding_complete'). The screen itself
+    // routes forward to 'Permissions'; it never writes AsyncStorage('onboarding_complete')
+    // nor replaces to 'Auth', so those assertions are aligned to the real navigation contract.
+    it('should route to Permissions when Skip is pressed', () => {
+      const { navigate, navigation } = createNavigation();
+      const { getByTestId } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
 
-      // Navigate to last slide
-      fireEvent.press(getByText(/skip/i));
+      fireEvent.press(getByTestId('skip-button'));
 
-      // Press get started
-      fireEvent.press(getByTestId('get-started-button'));
-
-      await waitFor(() => {
-        expect(AsyncStorage.setItem).toHaveBeenCalledWith('onboarding_complete', 'true');
-      });
+      expect(navigate).toHaveBeenCalledWith('Permissions');
     });
 
-    it('should navigate to auth screen', async () => {
-      const { getByText, getByTestId } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+    it('should route to Permissions when Get Started is pressed', () => {
+      const { navigate, navigation } = createNavigation();
+      const { getByTestId } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
 
-      fireEvent.press(getByText(/skip/i));
+      fireEvent.press(getByTestId('next-button'));
+      fireEvent.press(getByTestId('next-button'));
+      fireEvent.press(getByTestId('next-button'));
       fireEvent.press(getByTestId('get-started-button'));
 
-      await waitFor(() => {
-        expect(mockNavigation.replace).toHaveBeenCalledWith('Auth');
-      });
+      expect(navigate).toHaveBeenCalledWith('Permissions');
     });
   });
 
   describe('Slides Content', () => {
-    it('should display slide 1 content - Welcome', () => {
+    // All four slides mount in the horizontal carousel, so each slide's title and
+    // image are asserted directly against the real slide definitions.
+    it('should display slide 1 content - Record Anywhere', () => {
+      const { navigation } = createNavigation();
       const { getByText, getByTestId } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
+        <OnboardingScreen navigation={navigation} />
       );
 
-      expect(getByText(/welcome to voicecode/i)).toBeTruthy();
+      expect(getByText('Record Anywhere')).toBeTruthy();
       expect(getByTestId('slide-1-image')).toBeTruthy();
     });
 
-    it('should display slide 2 content - Recording', async () => {
-      const { getByTestId, findByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
+    it('should display slide 2 content - Instant Transcription', () => {
+      const { navigation } = createNavigation();
+      const { getByText, getByTestId } = renderWithProviders(
+        <OnboardingScreen navigation={navigation} />
       );
 
-      fireEvent.press(getByTestId('next-button'));
-
-      const recordText = await findByText(/record with ease/i);
-      expect(recordText).toBeTruthy();
+      expect(getByText('Instant Transcription')).toBeTruthy();
+      expect(getByTestId('slide-2-image')).toBeTruthy();
     });
 
-    it('should display slide 3 content - AI Features', async () => {
-      const { getByTestId, findByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
+    it('should display slide 3 content - AI-Powered Enhancement', () => {
+      const { navigation } = createNavigation();
+      const { getByText, getByTestId } = renderWithProviders(
+        <OnboardingScreen navigation={navigation} />
       );
 
-      fireEvent.press(getByTestId('next-button'));
-      fireEvent.press(getByTestId('next-button'));
-
-      const aiText = await findByText(/ai-powered/i);
-      expect(aiText).toBeTruthy();
+      expect(getByText('AI-Powered Enhancement')).toBeTruthy();
+      expect(getByTestId('slide-3-image')).toBeTruthy();
     });
 
-    it('should display slide 4 content - Get Started', async () => {
-      const { getByTestId, findByText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
+    it('should display slide 4 content - Sync Everywhere', () => {
+      const { navigation } = createNavigation();
+      const { getByText, getByTestId } = renderWithProviders(
+        <OnboardingScreen navigation={navigation} />
       );
 
-      fireEvent.press(getByTestId('next-button'));
-      fireEvent.press(getByTestId('next-button'));
-      fireEvent.press(getByTestId('next-button'));
-
-      const getStarted = await findByText(/get started/i);
-      expect(getStarted).toBeTruthy();
+      expect(getByText('Sync Everywhere')).toBeTruthy();
+      expect(getByTestId('slide-4-image')).toBeTruthy();
     });
   });
 
   describe('Accessibility', () => {
     it('should have accessible labels', () => {
-      const { getByLabelText } = renderWithProviders(
-        <MockOnboardingScreen navigation={mockNavigation as any} />
-      );
+      const { navigation } = createNavigation();
+      const { getByLabelText } = renderWithProviders(<OnboardingScreen navigation={navigation} />);
 
       expect(getByLabelText(/next slide/i)).toBeTruthy();
       expect(getByLabelText(/skip onboarding/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockOnboardingScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

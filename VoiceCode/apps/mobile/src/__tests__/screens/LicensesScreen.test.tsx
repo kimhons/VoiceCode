@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import LicensesScreen from '../../screens/settings/LicensesScreen';
 
 describe('LicensesScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('LicensesScreen', () => {
   describe('Rendering', () => {
     it('should render licenses screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('licenses-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('LicensesScreen', () => {
 
     it('should display license list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('license-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('LicensesScreen', () => {
   describe('License Items', () => {
     it('should display package name', () => {
       const { getByText } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/react-native/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('LicensesScreen', () => {
 
     it('should display license type', () => {
       const { getByText } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/MIT/i)).toBeTruthy();
@@ -54,7 +55,7 @@ describe('LicensesScreen', () => {
   describe('License Detail', () => {
     it('should expand license detail', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('license-1'));
@@ -65,7 +66,7 @@ describe('LicensesScreen', () => {
 
     it('should show full license text', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('license-1'));
@@ -78,7 +79,7 @@ describe('LicensesScreen', () => {
   describe('Search', () => {
     it('should search licenses', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.changeText(getByTestId('search-input'), 'expo');
@@ -91,15 +92,10 @@ describe('LicensesScreen', () => {
   describe('Group by License', () => {
     it('should group by license type', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockLicensesScreen navigation={mockNavigation as any} />
+        <LicensesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('group-by-license'));
     });
   });
 });
-
-// Mock component
-const MockLicensesScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

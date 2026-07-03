@@ -31,9 +31,14 @@ import {
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'HomeScreen'>;
 
-export const HomeScreen: React.FC = () => {
+interface HomeScreenProps {
+  navigation?: HomeScreenNavigationProp;
+}
+
+export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation: navigationProp }) => {
   const { theme } = useTheme();
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const navigationFromHook = useNavigation<HomeScreenNavigationProp>();
+  const navigation = navigationProp ?? navigationFromHook;
   const dispatch = useAppDispatch();
   const { currentRecording, recordings } = useAppSelector(state => state.recording);
   const { user } = useAppSelector(state => state.auth);
@@ -245,6 +250,7 @@ export const HomeScreen: React.FC = () => {
             </View>
           </View>
           <TouchableOpacity
+            testID="settings-button"
             style={[styles.settingsButton, { backgroundColor: theme.colors.surface }]}
             onPress={() => navigation.navigate('AudioTest')}
           >
@@ -384,7 +390,7 @@ export const HomeScreen: React.FC = () => {
               </>
             )}
 
-            <View style={styles.recordButtonContainer}>
+            <View testID="record-button" style={styles.recordButtonContainer}>
               <RecordButton
                 isRecording={
                   recordingStatus === RecordingStatus.RECORDING ||

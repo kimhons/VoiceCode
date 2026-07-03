@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import SubtitlePreviewScreen from '../../screens/editing/SubtitlePreviewScreen';
 
 describe('SubtitlePreviewScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('SubtitlePreviewScreen', () => {
   describe('Rendering', () => {
     it('should render subtitle preview screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('subtitle-preview-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('SubtitlePreviewScreen', () => {
 
     it('should display subtitle preview', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('subtitle-preview')).toBeTruthy();
@@ -40,7 +41,7 @@ describe('SubtitlePreviewScreen', () => {
   describe('Format Selection', () => {
     it('should switch to SRT format', async () => {
       const { getByText } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/srt/i));
@@ -48,7 +49,7 @@ describe('SubtitlePreviewScreen', () => {
 
     it('should switch to VTT format', async () => {
       const { getByText } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByText(/vtt/i));
@@ -58,7 +59,7 @@ describe('SubtitlePreviewScreen', () => {
   describe('Options', () => {
     it('should adjust max line length', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent(getByTestId('line-length-slider'), 'onValueChange', 42);
@@ -66,7 +67,7 @@ describe('SubtitlePreviewScreen', () => {
 
     it('should toggle speaker labels', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent(getByTestId('include-speakers'), 'valueChange', true);
@@ -76,7 +77,7 @@ describe('SubtitlePreviewScreen', () => {
   describe('Export', () => {
     it('should export subtitles', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('export-button'));
@@ -89,7 +90,7 @@ describe('SubtitlePreviewScreen', () => {
   describe('Copy', () => {
     it('should copy to clipboard', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <SubtitlePreviewScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('copy-button'));
@@ -100,7 +101,3 @@ describe('SubtitlePreviewScreen', () => {
   });
 });
 
-// Mock component
-const MockSubtitlePreviewScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

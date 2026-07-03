@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import FindReplaceScreen from '../../screens/editing/FindReplaceScreen';
 
 describe('FindReplaceScreen', () => {
   const mockNavigation = {
@@ -22,7 +23,7 @@ describe('FindReplaceScreen', () => {
   describe('Rendering', () => {
     it('should render find replace screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('find-replace-screen')).toBeTruthy();
@@ -30,7 +31,7 @@ describe('FindReplaceScreen', () => {
 
     it('should display find input', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('find-input')).toBeTruthy();
@@ -38,7 +39,7 @@ describe('FindReplaceScreen', () => {
 
     it('should display replace input', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       expect(getByTestId('replace-input')).toBeTruthy();
@@ -48,7 +49,7 @@ describe('FindReplaceScreen', () => {
   describe('Find', () => {
     it('should find matches', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('find-input'), 'test');
@@ -60,7 +61,7 @@ describe('FindReplaceScreen', () => {
 
     it('should navigate to next match', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('find-input'), 'test');
@@ -69,7 +70,7 @@ describe('FindReplaceScreen', () => {
 
     it('should navigate to previous match', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('find-input'), 'test');
@@ -80,7 +81,7 @@ describe('FindReplaceScreen', () => {
   describe('Replace', () => {
     it('should replace current match', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('find-input'), 'test');
@@ -93,7 +94,7 @@ describe('FindReplaceScreen', () => {
 
     it('should replace all matches', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('find-input'), 'test');
@@ -108,7 +109,7 @@ describe('FindReplaceScreen', () => {
   describe('Options', () => {
     it('should toggle case sensitive', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('case-sensitive-toggle'));
@@ -116,7 +117,7 @@ describe('FindReplaceScreen', () => {
 
     it('should toggle whole word', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.press(getByTestId('whole-word-toggle'));
@@ -126,7 +127,7 @@ describe('FindReplaceScreen', () => {
   describe('No Matches', () => {
     it('should show no matches message', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockFindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <FindReplaceScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       fireEvent.changeText(getByTestId('find-input'), 'xyznonexistent');
@@ -137,8 +138,3 @@ describe('FindReplaceScreen', () => {
     });
   });
 });
-
-// Mock component
-const MockFindReplaceScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-  return null;
-};

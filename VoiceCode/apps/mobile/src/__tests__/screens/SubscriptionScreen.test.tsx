@@ -4,13 +4,9 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import SubscriptionScreen from '../../screens/profile/SubscriptionScreen';
 
 describe('SubscriptionScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -18,7 +14,7 @@ describe('SubscriptionScreen', () => {
   describe('Rendering', () => {
     it('should render subscription screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByTestId('subscription-screen')).toBeTruthy();
@@ -26,7 +22,7 @@ describe('SubscriptionScreen', () => {
 
     it('should display available plans', () => {
       const { getByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByText(/free/i)).toBeTruthy();
@@ -36,7 +32,7 @@ describe('SubscriptionScreen', () => {
 
     it('should highlight current plan', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByTestId('current-plan-indicator')).toBeTruthy();
@@ -46,7 +42,7 @@ describe('SubscriptionScreen', () => {
   describe('Plan Details', () => {
     it('should display plan features', () => {
       const { getByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByText(/unlimited transcriptions/i)).toBeTruthy();
@@ -54,7 +50,7 @@ describe('SubscriptionScreen', () => {
 
     it('should display plan pricing', () => {
       const { getByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByText(/\$9.99/)).toBeTruthy();
@@ -62,7 +58,7 @@ describe('SubscriptionScreen', () => {
 
     it('should show monthly and yearly options', () => {
       const { getByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByText(/monthly/i)).toBeTruthy();
@@ -73,7 +69,7 @@ describe('SubscriptionScreen', () => {
   describe('Upgrade Flow', () => {
     it('should select plan', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       fireEvent.press(getByTestId('select-pro'));
@@ -81,7 +77,7 @@ describe('SubscriptionScreen', () => {
 
     it('should show payment sheet', async () => {
       const { getByTestId, findByTestId } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       fireEvent.press(getByTestId('select-pro'));
@@ -93,7 +89,7 @@ describe('SubscriptionScreen', () => {
 
     it('should handle successful subscription', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       fireEvent.press(getByTestId('select-pro'));
@@ -108,7 +104,7 @@ describe('SubscriptionScreen', () => {
   describe('Cancellation', () => {
     it('should show cancel option for active subscription', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByTestId('cancel-subscription')).toBeTruthy();
@@ -116,7 +112,7 @@ describe('SubscriptionScreen', () => {
 
     it('should confirm cancellation', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       fireEvent.press(getByTestId('cancel-subscription'));
@@ -129,7 +125,7 @@ describe('SubscriptionScreen', () => {
   describe('Restore Purchases', () => {
     it('should restore purchases', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       fireEvent.press(getByTestId('restore-purchases'));
@@ -143,7 +139,7 @@ describe('SubscriptionScreen', () => {
   describe('Usage', () => {
     it('should display current usage', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByTestId('usage-summary')).toBeTruthy();
@@ -151,15 +147,10 @@ describe('SubscriptionScreen', () => {
 
     it('should show usage limits', () => {
       const { getByText } = renderWithProviders(
-        <MockSubscriptionScreen navigation={mockNavigation as any} />
+        <SubscriptionScreen />
       );
 
       expect(getByText(/minutes used/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockSubscriptionScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

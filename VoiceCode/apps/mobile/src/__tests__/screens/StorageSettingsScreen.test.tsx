@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import StorageSettingsScreen from '../../screens/settings/StorageSettingsScreen';
 
 describe('StorageSettingsScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('StorageSettingsScreen', () => {
   describe('Rendering', () => {
     it('should render storage settings', () => {
       const { getByTestId } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('storage-settings-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('StorageSettingsScreen', () => {
 
     it('should display storage usage', () => {
       const { getByTestId } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('storage-usage')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('StorageSettingsScreen', () => {
   describe('Storage Breakdown', () => {
     it('should show audio storage', () => {
       const { getByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/audio/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('StorageSettingsScreen', () => {
 
     it('should show transcript storage', () => {
       const { getByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/transcripts/i)).toBeTruthy();
@@ -52,7 +53,7 @@ describe('StorageSettingsScreen', () => {
 
     it('should show cache storage', () => {
       const { getByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/cache/i)).toBeTruthy();
@@ -62,7 +63,7 @@ describe('StorageSettingsScreen', () => {
   describe('Clear Cache', () => {
     it('should clear cache', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-cache'));
@@ -75,7 +76,7 @@ describe('StorageSettingsScreen', () => {
   describe('Clear Audio', () => {
     it('should clear all audio', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('clear-audio'));
@@ -88,7 +89,7 @@ describe('StorageSettingsScreen', () => {
   describe('Offline Storage', () => {
     it('should set offline storage limit', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('offline-limit-selector'));
@@ -97,7 +98,7 @@ describe('StorageSettingsScreen', () => {
 
     it('should toggle auto-download', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent(getByTestId('auto-download-toggle'), 'valueChange', true);
@@ -107,7 +108,7 @@ describe('StorageSettingsScreen', () => {
   describe('Auto-Delete', () => {
     it('should set auto-delete period', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('auto-delete-selector'));
@@ -116,7 +117,7 @@ describe('StorageSettingsScreen', () => {
 
     it('should disable auto-delete', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockStorageSettingsScreen navigation={mockNavigation as any} />
+        <StorageSettingsScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('auto-delete-selector'));
@@ -125,7 +126,3 @@ describe('StorageSettingsScreen', () => {
   });
 });
 
-// Mock component
-const MockStorageSettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

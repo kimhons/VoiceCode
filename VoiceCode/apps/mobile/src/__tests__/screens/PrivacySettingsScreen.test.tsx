@@ -4,13 +4,9 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import { PrivacySettingsScreen } from '../../screens/settings/PrivacySettingsScreen';
 
 describe('PrivacySettingsScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -18,7 +14,7 @@ describe('PrivacySettingsScreen', () => {
   describe('Rendering', () => {
     it('should render privacy settings', () => {
       const { getByTestId } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       expect(getByTestId('privacy-settings-screen')).toBeTruthy();
@@ -28,7 +24,7 @@ describe('PrivacySettingsScreen', () => {
   describe('Data Collection', () => {
     it('should toggle analytics', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       fireEvent(getByTestId('analytics-toggle'), 'valueChange', false);
@@ -36,7 +32,7 @@ describe('PrivacySettingsScreen', () => {
 
     it('should toggle crash reporting', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       fireEvent(getByTestId('crash-reporting-toggle'), 'valueChange', false);
@@ -44,7 +40,7 @@ describe('PrivacySettingsScreen', () => {
 
     it('should toggle usage statistics', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       fireEvent(getByTestId('usage-stats-toggle'), 'valueChange', false);
@@ -54,7 +50,7 @@ describe('PrivacySettingsScreen', () => {
   describe('Data Management', () => {
     it('should download data', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       fireEvent.press(getByTestId('download-data'));
@@ -65,7 +61,7 @@ describe('PrivacySettingsScreen', () => {
 
     it('should delete account', async () => {
       const { getByTestId, findByText } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       fireEvent.press(getByTestId('delete-account'));
@@ -78,7 +74,7 @@ describe('PrivacySettingsScreen', () => {
   describe('Legal', () => {
     it('should open privacy policy', async () => {
       const { getByText } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       fireEvent.press(getByText(/privacy policy/i));
@@ -86,7 +82,7 @@ describe('PrivacySettingsScreen', () => {
 
     it('should open terms of service', async () => {
       const { getByText } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       fireEvent.press(getByText(/terms of service/i));
@@ -96,7 +92,7 @@ describe('PrivacySettingsScreen', () => {
   describe('Permissions', () => {
     it('should show microphone permission', async () => {
       const { getByText } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       expect(getByText(/microphone/i)).toBeTruthy();
@@ -104,15 +100,10 @@ describe('PrivacySettingsScreen', () => {
 
     it('should show notification permission', async () => {
       const { getByText } = renderWithProviders(
-        <MockPrivacySettingsScreen navigation={mockNavigation as any} />
+        <PrivacySettingsScreen />
       );
 
       expect(getByText(/notifications/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockPrivacySettingsScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

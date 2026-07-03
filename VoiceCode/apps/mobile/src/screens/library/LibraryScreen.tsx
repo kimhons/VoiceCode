@@ -136,13 +136,14 @@ export const LibraryScreen: React.FC = () => {
 
   const renderRecordingItem = ({ item }: { item: Recording }) => (
     <Card
+      testID={`recording-${item.id}`}
       pressable
       style={styles.recordingCard}
       onPress={() => handlePlayRecording(item)}
     >
       <View style={styles.recordingHeader}>
         <View style={styles.recordingInfo}>
-          <Text variant="h4" color={theme.colors.textPrimary} numberOfLines={1}>
+          <Text testID="recording-title" variant="h4" color={theme.colors.textPrimary} numberOfLines={1}>
             {item.title}
           </Text>
           <Text variant="caption" color={theme.colors.textSecondary}>
@@ -227,7 +228,7 @@ export const LibraryScreen: React.FC = () => {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View testID="library-screen" style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <Text variant="h2" color={theme.colors.textPrimary}>
@@ -241,6 +242,7 @@ export const LibraryScreen: React.FC = () => {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Input
+          testID="search-input"
           placeholder="Search recordings..."
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -280,6 +282,7 @@ export const LibraryScreen: React.FC = () => {
 
       {/* Recordings List */}
       <FlatList
+        testID="transcripts-list"
         data={filteredRecordings}
         renderItem={renderRecordingItem}
         keyExtractor={item => item.id}

@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import SortScreen from '../../screens/library/SortScreen';
 
 describe('SortScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('SortScreen', () => {
   describe('Rendering', () => {
     it('should render sort screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('sort-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('SortScreen', () => {
 
     it('should display sort options', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('sort-options')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('SortScreen', () => {
   describe('Sort Options', () => {
     it('should sort by date', async () => {
       const { getByText } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/date/i));
@@ -44,7 +45,7 @@ describe('SortScreen', () => {
 
     it('should sort by title', async () => {
       const { getByText } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/title/i));
@@ -52,7 +53,7 @@ describe('SortScreen', () => {
 
     it('should sort by duration', async () => {
       const { getByText } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/duration/i));
@@ -60,7 +61,7 @@ describe('SortScreen', () => {
 
     it('should sort by size', async () => {
       const { getByText } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/size/i));
@@ -70,7 +71,7 @@ describe('SortScreen', () => {
   describe('Sort Direction', () => {
     it('should toggle ascending', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('direction-ascending'));
@@ -78,7 +79,7 @@ describe('SortScreen', () => {
 
     it('should toggle descending', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('direction-descending'));
@@ -88,7 +89,7 @@ describe('SortScreen', () => {
   describe('Apply Sort', () => {
     it('should apply sort and go back', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByText(/date/i));
@@ -101,7 +102,7 @@ describe('SortScreen', () => {
   describe('Current Selection', () => {
     it('should highlight current sort option', () => {
       const { getByTestId } = renderWithProviders(
-        <MockSortScreen navigation={mockNavigation as any} />
+        <SortScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('selected-indicator')).toBeTruthy();
@@ -109,7 +110,3 @@ describe('SortScreen', () => {
   });
 });
 
-// Mock component
-const MockSortScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};

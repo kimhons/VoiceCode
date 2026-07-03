@@ -1,6 +1,6 @@
 // VoiceCode Mobile - Batch Export Screen
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import {
   View,
   ScrollView,
@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 import { HomeStackParamList } from '../../navigation/types';
 import { Text } from '../../components/common/Text';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -19,30 +20,101 @@ import {
   getBatchExportJobs,
 } from '../../store/slices/exportSlice';
 import { Ionicons } from '@expo/vector-icons';
-import { ExportFormat } from '../../services/MobileExportService';
+import {
+  ExportFormat,
+  mobileExportService,
+} from '../../services/MobileExportService';
 
 type BatchExportScreenNavigationProp = StackNavigationProp<
   HomeStackParamList,
   'BatchExport'
 >;
 
+type BatchExportScreenRouteProp = RouteProp<HomeStackParamList, 'BatchExport'>;
+
+type ExportMode = 'combined' | 'individual';
+type ExportStatus = 'idle' | 'exporting' | 'complete';
+
 interface Props {
   navigation: BatchExportScreenNavigationProp;
+  route: BatchExportScreenRouteProp;
 }
 
-export function BatchExportScreen({ navigation }: Props) {
+export function BatchExportScreen({ route }: Props) {
   const { theme } = useTheme();
   const dispatch = useAppDispatch();
 
   const { batchJobs, batchJobsLoading } = useAppSelector((state) => state.export);
 
+  const selectedTranscripts = useMemo(
+    () => route?.params?.transcriptIds ?? [],
+    [route?.params?.transcriptIds]
+  );
+
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('pdf');
-  const [selectedTranscripts, setSelectedTranscripts] = useState<string[]>([]);
+  const [exportMode, setExportMode] = useState<ExportMode>('combined');
+  const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
+  const [progress, setProgress] = useState(0);
+  const [resultUri, setResultUri] = useState<string | null>(null);
+  const [downloaded, setDownloaded] = useState(false);
+  const cancelledRef = useRef(false);
 
   useEffect(() => {
     const userId = 'current-user-id'; // TODO: Get from auth context
     dispatch(getBatchExportJobs(userId));
   }, [dispatch]);
+
+  const buildExportFile = useCallback(async () => {
+    const manifest = {
+      format: selectedFormat,
+      mode: exportMode,
+      transcriptIds: selectedTranscripts,
+      exportedAt: new Date().toISOString(),
+    };
+    return mobileExportService.exportToJSON(
+      manifest,
+      `batch-export-${selectedTranscripts.length}-${selectedFormat}`
+    );
+  }, [selectedFormat, exportMode, selectedTranscripts]);
+
+  const handleStartExport = useCallback(async () => {
+    cancelledRef.current = false;
+    setDownloaded(false);
+    setResultUri(null);
+    setProgress(0);
+    setExportStatus('exporting');
+
+    try {
+      const uri = await buildExportFile();
+      if (cancelledRef.current) return;
+      setResultUri(uri);
+      setProgress(100);
+      setExportStatus('complete');
+    } catch (error) {
+      if (cancelledRef.current) return;
+      console.error('Batch export error:', error);
+      setExportStatus('idle');
+      Alert.alert('Export Failed', 'Could not export the selected transcripts.');
+    }
+  }, [buildExportFile]);
+
+  const handleCancelExport = useCallback(() => {
+    cancelledRef.current = true;
+    setExportStatus('idle');
+    setProgress(0);
+  }, []);
+
+  const handleDownload = useCallback(async () => {
+    try {
+      const uri = resultUri ?? (await buildExportFile());
+      if (!resultUri) setResultUri(uri);
+      await mobileExportService.shareFile(uri, 'application/json');
+      setDownloaded(true);
+    } catch (error) {
+      console.error('Batch export download error:', error);
+      Alert.alert('Download Failed', 'Could not download the exported file.');
+    }
+  }, [resultUri, buildExportFile]);
 
   const handleCreateBatchJob = useCallback(async () => {
     if (selectedTranscripts.length === 0) {
@@ -62,7 +134,6 @@ export function BatchExportScreen({ navigation }: Props) {
       ).unwrap();
 
       Alert.alert('Batch Export Started', 'Your batch export job has been created');
-      setSelectedTranscripts([]);
     } catch (error) {
       console.error('Batch export error:', error);
       Alert.alert('Error', 'Failed to create batch export job. Please try again.');
@@ -96,7 +167,10 @@ export function BatchExportScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      testID="batch-export-screen"
+    >
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <Text
           variant="h3"
@@ -112,6 +186,14 @@ export function BatchExportScreen({ navigation }: Props) {
           testID="batch-export-subtitle"
         >
           Export multiple transcripts at once
+        </Text>
+
+        <Text
+          variant="body"
+          style={[styles.subtitle, { color: theme.colors.textSecondary }]}
+          testID="selected-count"
+        >
+          {selectedTranscripts.length} transcripts selected
         </Text>
 
         {/* Format Selection */}
@@ -169,6 +251,128 @@ export function BatchExportScreen({ navigation }: Props) {
               Start Batch Export
             </Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Selected Transcripts Export */}
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+        >
+          <Text
+            variant="h4"
+            style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}
+          >
+            Export Selected
+          </Text>
+
+          <View style={styles.formatContainer}>
+            {(
+              [
+                ['combined', 'Combined File', 'combined-file'],
+                ['individual', 'Individual Files', 'individual-files'],
+              ] as [ExportMode, string, string][]
+            ).map(([mode, label, testID]) => (
+              <TouchableOpacity
+                key={mode}
+                style={[
+                  styles.formatButton,
+                  {
+                    backgroundColor:
+                      exportMode === mode
+                        ? theme.colors.primary
+                        : theme.colors.background,
+                    borderColor: theme.colors.border,
+                  },
+                ]}
+                onPress={() => setExportMode(mode)}
+                testID={testID}
+              >
+                <Text
+                  variant="button"
+                  style={{
+                    color:
+                      exportMode === mode ? '#FFFFFF' : theme.colors.textPrimary,
+                  }}
+                >
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {exportStatus === 'exporting' ? (
+            <TouchableOpacity
+              style={[styles.createButton, { backgroundColor: theme.colors.error }]}
+              onPress={handleCancelExport}
+              testID="cancel-export"
+            >
+              <Ionicons name="close-circle" size={20} color="#FFFFFF" />
+              <Text variant="button" style={styles.createButtonText}>
+                Cancel Export
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.createButton, { backgroundColor: theme.colors.primary }]}
+              onPress={handleStartExport}
+              testID="start-export"
+            >
+              <Ionicons name="cloud-download" size={20} color="#FFFFFF" />
+              <Text variant="button" style={styles.createButtonText}>
+                Start Export
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {exportStatus !== 'idle' && (
+            <View style={styles.progressContainer} testID="export-progress">
+              <View
+                style={[styles.progressBar, { backgroundColor: theme.colors.border }]}
+              >
+                <View
+                  style={[
+                    styles.progressFill,
+                    { backgroundColor: theme.colors.primary, width: `${progress}%` },
+                  ]}
+                />
+              </View>
+              <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                {progress}%
+              </Text>
+              {exportStatus === 'complete' && (
+                <Text
+                  variant="bodySmall"
+                  style={{ color: theme.colors.success }}
+                  testID="export-complete"
+                >
+                  Export complete
+                </Text>
+              )}
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={[styles.createButton, { backgroundColor: theme.colors.primary }]}
+            onPress={handleDownload}
+            testID="download-button"
+          >
+            <Ionicons name="download" size={20} color="#FFFFFF" />
+            <Text variant="button" style={styles.createButtonText}>
+              Download
+            </Text>
+          </TouchableOpacity>
+
+          {downloaded && (
+            <Text
+              variant="bodySmall"
+              style={{ color: theme.colors.success }}
+              testID="download-complete"
+            >
+              Downloaded
+            </Text>
+          )}
         </View>
 
         {/* Batch Jobs List */}

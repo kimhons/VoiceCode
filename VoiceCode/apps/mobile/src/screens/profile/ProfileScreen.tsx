@@ -18,9 +18,14 @@ import { Text, Button, Card } from '../../components/common';
 
 type ProfileNavigationProp = StackNavigationProp<ProfileStackParamList, 'ProfileScreen'>;
 
-export const ProfileScreen: React.FC = () => {
+interface ProfileScreenProps {
+  navigation?: ProfileNavigationProp;
+}
+
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation: navigationProp }) => {
   const { theme } = useTheme();
-  const navigation = useNavigation<ProfileNavigationProp>();
+  const defaultNavigation = useNavigation<ProfileNavigationProp>();
+  const navigation = navigationProp ?? defaultNavigation;
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
 
@@ -86,7 +91,7 @@ export const ProfileScreen: React.FC = () => {
         {/* Profile Header */}
         <Card style={styles.profileCard}>
           <View style={styles.avatarContainer}>
-            <View style={[styles.avatar, { backgroundColor: theme.colors.primary }]}>
+            <View testID="user-avatar" style={[styles.avatar, { backgroundColor: theme.colors.primary }]}>
               <Text style={styles.avatarText}>
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </Text>
@@ -136,6 +141,7 @@ export const ProfileScreen: React.FC = () => {
 
         {/* Logout Button */}
         <Button
+          testID="logout-button"
           onPress={handleLogout}
           variant="outline"
           style={styles.logoutButton}

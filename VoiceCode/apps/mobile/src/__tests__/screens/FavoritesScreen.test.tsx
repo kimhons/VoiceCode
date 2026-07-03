@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { renderWithProviders } from '../setup/testUtils';
+import FavoritesScreen from '../../screens/library/FavoritesScreen';
 
 describe('FavoritesScreen', () => {
   const mockNavigation = {
@@ -18,7 +19,7 @@ describe('FavoritesScreen', () => {
   describe('Rendering', () => {
     it('should render favorites screen', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('favorites-screen')).toBeTruthy();
@@ -26,7 +27,7 @@ describe('FavoritesScreen', () => {
 
     it('should display favorites list', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('favorites-list')).toBeTruthy();
@@ -36,7 +37,7 @@ describe('FavoritesScreen', () => {
   describe('Favorite Items', () => {
     it('should display transcript title', () => {
       const { getByText } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/transcript/i)).toBeTruthy();
@@ -44,7 +45,7 @@ describe('FavoritesScreen', () => {
 
     it('should display favorite indicator', () => {
       const { getByTestId } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByTestId('favorite-icon-1')).toBeTruthy();
@@ -54,7 +55,7 @@ describe('FavoritesScreen', () => {
   describe('Navigation', () => {
     it('should navigate to transcript on tap', async () => {
       const { getByTestId } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('favorite-item-1'));
@@ -66,7 +67,7 @@ describe('FavoritesScreen', () => {
   describe('Remove Favorite', () => {
     it('should remove from favorites', async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('remove-favorite-1'));
@@ -80,7 +81,7 @@ describe('FavoritesScreen', () => {
   describe('Sorting', () => {
     it('should sort by date added', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('sort-button'));
@@ -89,7 +90,7 @@ describe('FavoritesScreen', () => {
 
     it('should sort by title', async () => {
       const { getByTestId, getByText } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       fireEvent.press(getByTestId('sort-button'));
@@ -100,15 +101,10 @@ describe('FavoritesScreen', () => {
   describe('Empty State', () => {
     it('should show empty state when no favorites', () => {
       const { getByText } = renderWithProviders(
-        <MockFavoritesScreen navigation={mockNavigation as any} />
+        <FavoritesScreen navigation={mockNavigation as any} />
       );
 
       expect(getByText(/no favorites/i)).toBeTruthy();
     });
   });
 });
-
-// Mock component
-const MockFavoritesScreen = ({ navigation }: { navigation: any }) => {
-  return null;
-};
